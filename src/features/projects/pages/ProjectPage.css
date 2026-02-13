@@ -1,0 +1,141 @@
+/* === LAYOUT PRINCIPAL DEL PROYECTO === */
+.project-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.project-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background-color: var(--bg-primary);
+    /* Cambiado a primary para el fondo del grid */
+}
+
+.project-header {
+    padding: 0 var(--space-xl);
+    border-bottom: 2px solid var(--border-color);
+    background-color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 80px;
+    z-index: 20;
+}
+
+.project-header h1 {
+    font-family: var(--font-title);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    border-left: 4px solid var(--primary-color);
+    padding-left: var(--space-md);
+    margin: 0;
+}
+
+.view-selector-btn {
+    transition: all var(--transition-fast);
+    font-family: var(--font-title);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+}
+
+.project-content {
+    flex: 1;
+    padding: var(--space-lg);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* === RESPONSIVE MODS === */
+@media (max-width: 767px) {
+    .project-layout {
+        flex-direction: column;
+    }
+
+    .project-header {
+        display: none;
+    }
+
+    .project-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .project-content {
+        padding: 0;
+        padding-bottom: 96px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .project-content>div:not(.flex) {
+        padding: 1rem;
+        overflow-y: auto;
+        flex: 1;
+    }
+}
+
+/* Botones de acción del header (Hito / Tarea) */
+.btn-add-milestone,
+.btn-add-task {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    font-family: var(--font-title);
+}
+
+.btn-add-milestone {
+    background-color: white;
+    color: var(--accent-color);
+    border: 1px solid var(--accent-color);
+}
+
+.btn-add-milestone:hover {
+    background-color: var(--accent-color);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-add-task {
+    background-color: var(--primary-color);
+    color: white;
+    border: 1px solid var(--primary-color);
+}
+
+.btn-add-task:hover {
+    background-color: #1e40af;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.today-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 4px;
+    color: #1e40af;
+    font-family: var(--font-tech);
+    font-size: 0.75rem;
+    font-weight: 600;
+}

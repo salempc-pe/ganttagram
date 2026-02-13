@@ -1,0 +1,196 @@
+﻿
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\auth\AuthContext.jsx
+  14:14  error    Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  65:8   warning  React Hook useEffect has a missing dependency: 'loading'. Either include it or remove the dependency array                      react-hooks/exhaustive-deps
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\dashboard\hooks\useGlobalSummary.js
+   7:5   error  'collectionGroup' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           no-unused-vars
+  25:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  23 |     useEffect(() => {
+  24 |         if (!user) {
+> 25 |             setMilestones([]);
+     |             ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  26 |             setCriticalTasks([]);
+  27 |             setLoading(false);
+  28 |             return;  react-hooks/set-state-in-effect
+  67:26  error  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\gantt\components\GanttChart.jsx
+   21:18  error  'e' is defined but never used                                                                         no-unused-vars
+   72:47  error  'fontFamily' is defined but never used                                                                no-unused-vars
+   72:59  error  'fontSize' is defined but never used                                                                  no-unused-vars
+   97:50  error  'fontFamily' is defined but never used                                                                no-unused-vars
+   97:72  error  'locale' is defined but never used                                                                    no-unused-vars
+  104:18  error  'e' is defined but never used                                                                         no-unused-vars
+  193:81  error  'onTaskChange' is defined but never used                                                              no-unused-vars
+  243:11  error  'handleTaskChange' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u      no-unused-vars
+  260:11  error  'handleProgressChange' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\gantt\hooks\useGanttData.js
+   15:32  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `categories`, but the source dependencies were [tasks, milestones, dependencies, resources, tasksLoading, milestonesLoading, depsLoading, resourcesLoading, projectId]. Inferred different dependency than source.
+
+   13 |     const { categories, loading: categoriesLoading } = useCategories(projectId);
+   14 |
+>  15 |     const ganttTasks = useMemo(() => {
+      |                                ^^^^^^^
+>  16 |         if (tasksLoading || milestonesLoading || depsLoading || resourcesLoading || categoriesLoading) return [];
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  17 |
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 117 |         return [projectRoot, ...formattedTasks, ...formattedMilestones];
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 118 |     }, [tasks, milestones, dependencies, resources, tasksLoading, milestonesLoading, depsLoading, resourcesLoading, projectId]);
+      | ^^^^^^ Could not preserve existing manual memoization
+  119 |
+  120 |     return {
+  121 |         data: ganttTasks,         react-hooks/preserve-manual-memoization
+   15:32  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `categoriesLoading`, but the source dependencies were [tasks, milestones, dependencies, resources, tasksLoading, milestonesLoading, depsLoading, resourcesLoading, projectId]. Inferred different dependency than source.
+
+   13 |     const { categories, loading: categoriesLoading } = useCategories(projectId);
+   14 |
+>  15 |     const ganttTasks = useMemo(() => {
+      |                                ^^^^^^^
+>  16 |         if (tasksLoading || milestonesLoading || depsLoading || resourcesLoading || categoriesLoading) return [];
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  17 |
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 117 |         return [projectRoot, ...formattedTasks, ...formattedMilestones];
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 118 |     }, [tasks, milestones, dependencies, resources, tasksLoading, milestonesLoading, depsLoading, resourcesLoading, projectId]);
+      | ^^^^^^ Could not preserve existing manual memoization
+  119 |
+  120 |     return {
+  121 |         data: ganttTasks,  react-hooks/preserve-manual-memoization
+   15:32  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `categories`, but the source dependencies were [tasks, milestones, dependencies, resources, tasksLoading, milestonesLoading, depsLoading, resourcesLoading, projectId]. Inferred different dependency than source.
+
+   13 |     const { categories, loading: categoriesLoading } = useCategories(projectId);
+   14 |
+>  15 |     const ganttTasks = useMemo(() => {
+      |                                ^^^^^^^
+>  16 |         if (tasksLoading || milestonesLoading || depsLoading || resourcesLoading || categoriesLoading) return [];
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  17 |
+      ÔÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 117 |         return [projectRoot, ...formattedTasks, ...formattedMilestones];
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 118 |     }, [tasks, milestones, dependencies, resources, tasksLoading, milestonesLoading, depsLoading, resourcesLoading, projectId]);
+      | ^^^^^^ Could not preserve existing manual memoization
+  119 |
+  120 |     return {
+  121 |         data: ganttTasks,         react-hooks/preserve-manual-memoization
+  118:8   warning  React Hook useMemo has missing dependencies: 'categories' and 'categoriesLoading'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-hooks/exhaustive-deps
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\CalendarSettings.jsx
+  19:12  error  'holidayLabel' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  19:26  error  'setHolidayLabel' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\MilestoneModal.jsx
+  62:8  warning  React Hook useEffect has a missing dependency: 'categories'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\ProjectBoard.jsx
+  1:10  error  'useState' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  5:10  error  'clsx' is defined but never used. Allowed unused vars must match /^[A-Z_]/u      no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\ProjectModal.jsx
+  20:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  18 |             document.body.classList.add('modal-open');
+  19 |             if (initialData) {
+> 20 |                 setFormData({
+     |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  21 |                     name: initialData.name,
+  22 |                     description: initialData.description || '',
+  23 |                     emoji: initialData.emoji || '­ƒÅù´©Å'  react-hooks/set-state-in-effect
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\ProjectSidebar.jsx
+  19:13  error  'projectId' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\TaskList.jsx
+   3:10  error  'es' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                        no-unused-vars
+   9:39  error  'onAddTask' is defined but never used                                                            no-unused-vars
+   9:50  error  'onAddMilestone' is defined but never used                                                       no-unused-vars
+  11:70  error  'updateMilestone' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\TaskModal.jsx
+   13:10  error    'isWorkingDay' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                               no-unused-vars
+  108:8   warning  React Hook useEffect has missing dependencies: 'calendar' and 'categories'. Either include them or remove the dependency array. If 'setFormData' needs the current value of 'calendar', you can also switch to useReducer instead of useState and read 'calendar' in the reducer  react-hooks/exhaustive-deps
+  232:21  error    Unexpected lexical declaration in case block                                                                                                                                                                                                                                      no-case-declarations
+  234:21  error    Unexpected lexical declaration in case block                                                                                                                                                                                                                                      no-case-declarations
+  235:21  error    Unexpected lexical declaration in case block                                                                                                                                                                                                                                      no-case-declarations
+  262:15  error    'newDates' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u                                                                                                                                                                                          no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\hooks\useMilestones.js
+  6:5  error  'deleteDoc' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\hooks\useProjectPermissions.js
+  22:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  20 |
+  21 |         if (member) {
+> 22 |             setPermissions({
+     |             ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  23 |                 isOwner: member.role === 'owner',
+  24 |                 canEdit: ['owner', 'editor'].includes(member.role),
+  25 |                 role: member.role,  react-hooks/set-state-in-effect
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\hooks\useProjects.js
+  6:5  error  'orderBy' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\pages\ProjectPage.jsx
+  51:11  error  'tabsRows' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u            no-unused-vars
+  59:40  error  'permissionsLoading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\tasks\hooks\useDependencies.js
+  4:5  error  'query' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\tasks\hooks\useTasks.js
+  9:5  error  'deleteDoc' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\tasks\utils\scheduler.js
+    1:41  error  'isBefore' is defined but never used. Allowed unused vars must match /^[A-Z_]/u      no-unused-vars
+    2:10  error  'isWorkingDay' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  142:13  error  Unexpected lexical declaration in case block                                         no-case-declarations
+  150:13  error  Unexpected lexical declaration in case block                                         no-case-declarations
+  158:13  error  Unexpected lexical declaration in case block                                         no-case-declarations
+  174:13  error  Unexpected lexical declaration in case block                                         no-case-declarations
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\tasks\utils\scheduler.test.js
+  3:22  error  'endOfDay' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\shared\components\Input.jsx
+  8:5  error  'required' is assigned a value but never used  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\shared\utils\calendar.js
+  1:19  error  'isSameDay' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  1:38  error  'parseISO' is defined but never used. Allowed unused vars must match /^[A-Z_]/u   no-unused-vars
+
+Ô£û 52 problems (48 errors, 4 warnings)
+

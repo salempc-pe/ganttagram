@@ -1,0 +1,130 @@
+.resource-modal {
+    max-width: 500px;
+    overflow: hidden;
+}
+
+.type-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+    margin-top: 0.5rem;
+}
+
+.type-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    padding: var(--space-lg) var(--space-sm);
+    border: 2px solid #f1f5f9;
+    border-radius: var(--radius-lg);
+    background: white;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    color: var(--text-tertiary);
+}
+
+.type-option:hover {
+    border-color: #e2e8f0;
+    background: #f8fafc;
+    color: var(--text-secondary);
+}
+
+.type-option.active {
+    border-color: var(--sidebar-active);
+    background: #f5f3ff;
+    color: var(--sidebar-active);
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.1);
+}
+
+.type-option svg {
+    transition: transform var(--transition-fast);
+}
+
+.type-option.active svg {
+    transform: scale(1.1);
+}
+
+.type-option span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.color-input-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: #f8fafc;
+}
+
+.color-picker {
+    width: 32px;
+    height: 32px;
+    border: none;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+}
+
+.color-picker::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.color-picker::-webkit-color-swatch {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+}
+
+.color-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.813rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Fila de cantidad y unidad para materiales */
+.quantity-unit-row {
+    display: flex;
+    gap: var(--space-md);
+    align-items: flex-end;
+    background: #f8fafc;
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+    border: 1px solid #e2e8f0;
+}
+
+.quantity-unit-row .input-wrapper {
+    margin-bottom: 0 !important;
+}
+
+.quantity-unit-row .input-field {
+    width: 100%;
+    height: 42px;
+    padding: 0 var(--space-md);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.938rem;
+    background: white;
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+}
+
+.quantity-unit-row .input-field:focus {
+    border-color: var(--sidebar-active);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    outline: none;
+}
+
+.quantity-unit-row select.input-field {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+}

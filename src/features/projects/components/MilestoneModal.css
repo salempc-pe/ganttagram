@@ -1,0 +1,13 @@
+.milestone-modal {
+    max-width: 500px;
+}
+
+/* Responsive Milestone Modal - Diseño Compacto */
+@media (max-width: 600px) {
+    .dependency-add-row {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr auto !important;
+        gap: 8px !important;
+        align-items: end !important;
+    }
+}

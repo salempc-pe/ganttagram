@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/app-icon.png" />
+  <link rel="apple-touch-icon" href="/app-icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <title>Ganttagram</title>
+</head>
+
+<body>
+  <div id="root">
+    <div class="loading-screen-initial">
+      <div class="loader-wrapper">
+        <img src="/app-icon.png" alt="Ganttagram" class="loader-icon" />
+        <svg class="loader-radial" viewBox="0 0 100 100">
+          <circle class="loader-radial-bg" cx="50" cy="50" r="45" />
+          <circle class="loader-radial-progress" cx="50" cy="50" r="45" />
+        </svg>
+      </div>
+      <p class="loading-text">Iniciando Ganttagram...</p>
+    </div>
+  </div>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f172a;
+    }
+
+    .loading-screen-initial {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+      z-index: 9999;
+    }
+
+    .loader-wrapper {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loader-icon {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: 12px;
+      z-index: 2;
+      animation: icon-pulse 2s ease-in-out infinite;
+      box-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
+    }
+
+    .loader-radial {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .loader-radial circle {
+      fill: none;
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+
+    .loader-radial-bg {
+      stroke: rgba(255, 255, 255, 0.05);
+    }
+
+    .loader-radial-progress {
+      stroke: #6366f1;
+      stroke-dasharray: 283;
+      stroke-dashoffset: 283;
+      animation: radial-spin 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      filter: drop-shadow(0 0 5px rgba(99, 102, 241, 0.5));
+    }
+
+    .loading-text {
+      margin-top: 24px;
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      animation: text-fade 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes icon-pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 0.9;
+      }
+
+      50% {
+        transform: scale(1.05);
+        opacity: 1;
+      }
+    }
+
+    @keyframes radial-spin {
+      0% {
+        stroke-dashoffset: 283;
+        transform: rotate(0deg);
+      }
+
+      50% {
+        stroke-dashoffset: 70;
+        transform: rotate(180deg);
+      }
+
+      100% {
+        stroke-dashoffset: 283;
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes text-fade {
+      from {
+        opacity: 0.4;
+        transform: translateY(0);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(-2px);
+      }
+    }
+  </style>
+  <script>
+    window.__APP_LOADED__ = false;
+
+    // Global Error Handler para Móviles
+    window.onerror = function (msg, url, line, col, error) {
+      showError('Error de JS', msg + '\n' + (url || '').split('/').pop() + ':' + line + ':' + col);
+      return false; // Permite que el error se muestre en consola también
+    };
+
+    window.addEventListener('unhandledrejection', function (event) {
+      showError('Promesa fallida', event.reason);
+    });
+
+    function showError(title, detail) {
+      var debug = document.getElementById('debug-console');
+      if (!debug) {
+        debug = document.createElement('div');
+        debug.id = 'debug-console';
+        debug.style.position = 'fixed';
+        debug.style.top = '0';
+        debug.style.left = '0';
+        debug.style.width = '100%';
+        debug.style.height = 'auto';
+        debug.style.maxHeight = '50vh';
+        debug.style.overflowY = 'auto';
+        debug.style.background = 'rgba(220, 38, 38, 0.95)';
+        debug.style.color = 'white';
+        debug.style.padding = '20px';
+        debug.style.zIndex = '99999';
+        debug.style.fontFamily = 'monospace';
+        debug.style.fontSize = '12px';
+        debug.style.whiteSpace = 'pre-wrap';
+        debug.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+
+        var closeBtn = document.createElement('button');
+        closeBtn.innerText = 'CERRAR';
+        closeBtn.style.position = 'absolute';
+        closeBtn.style.top = '10px';
+        closeBtn.style.right = '10px';
+        closeBtn.style.background = 'white';
+        closeBtn.style.color = 'black';
+        closeBtn.style.border = 'none';
+        closeBtn.style.padding = '4px 8px';
+        closeBtn.style.borderRadius = '4px';
+        closeBtn.style.fontWeight = 'bold';
+        closeBtn.onclick = function () { debug.style.display = 'none'; };
+        debug.appendChild(closeBtn);
+
+        document.body.appendChild(debug);
+      }
+
+      var msgDiv = document.createElement('div');
+      msgDiv.style.marginBottom = '10px';
+      msgDiv.style.borderBottom = '1px solid rgba(255,255,255,0.3)';
+      msgDiv.style.paddingBottom = '10px';
+      msgDiv.innerHTML = '<strong>' + title + ':</strong><br>' + String(detail);
+      debug.appendChild(msgDiv);
+    }
+  </script>
+
+  <script type="module" src="/src/main.jsx"
+    onerror="showError('Error de Carga Fatal', 'No se pudo cargar /src/main.jsx. Verifica la conexión a internet y el servidor.')"></script>
+  <script type="module">
+    window.__APP_LOADED__ = true;
+  </script>
+
+  <script>
+    // Timeout de seguridad: Si en 8 segundos no carga, avisar.
+    setTimeout(function () {
+      if (!window.__APP_LOADED__) {
+        showError(
+          'Tiempo de espera agotado',
+          'La aplicación está tardando demasiado en iniciar.\n\n' +
+          'POSIBLES CAUSAS:\n' +
+          '1. Conexión lenta o inestable.\n' +
+          '2. Error silencioso al cargar módulos.\n' +
+          '3. Falta configuración de entorno.\n\n' +
+          'Intenta recargar la página.'
+        );
+      }
+    }, 8000);
+  </script>
+</body>
+
+</html>

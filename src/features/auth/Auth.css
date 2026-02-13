@@ -1,0 +1,182 @@
+/* === AUTH PAGES — Login & Register === */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e3a8a 0%, #6d28d9 50%, #7c3aed 100%);
+    padding: var(--space-lg);
+    /* Quitar el grid pattern del body en auth */
+    background-image: none;
+}
+
+.auth-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    animation: authSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes authSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-header h1 {
+    font-family: var(--font-title);
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: var(--space-xs);
+    border-left: none;
+    padding-left: 0;
+}
+
+.auth-header p {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+    margin-bottom: 0;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+/* Override input wrapper spacing dentro del auth */
+.auth-form .input-wrapper {
+    margin-bottom: 0;
+}
+
+.auth-form .input {
+    height: 48px;
+    padding: 0 var(--space-md);
+    font-size: var(--font-md);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-secondary);
+    border: 1.5px solid var(--border-color);
+    transition: all var(--transition-fast);
+}
+
+.auth-form .input:focus {
+    border-color: var(--primary-color);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Fix para autofill de Chrome que pone fondo amarillo */
+.auth-form .input:-webkit-autofill,
+.auth-form .input:-webkit-autofill:hover,
+.auth-form .input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px var(--bg-secondary) inset !important;
+    -webkit-text-fill-color: var(--text-primary) !important;
+    border-color: var(--border-color);
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.auth-form .input:focus:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    border-color: var(--primary-color);
+}
+
+.auth-form .input-label {
+    font-family: var(--font-title);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+}
+
+.auth-submit {
+    width: 100%;
+    margin-top: var(--space-md);
+    height: 48px !important;
+    font-size: 0.875rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.025em;
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.25);
+}
+
+.auth-submit:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+}
+
+.auth-footer {
+    margin-top: var(--space-lg);
+    text-align: center;
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.auth-footer p {
+    font-size: var(--font-sm);
+    margin-bottom: 0;
+}
+
+.auth-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.auth-link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.error-message {
+    padding: var(--space-md);
+    background-color: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius-md);
+    color: var(--error);
+    font-size: var(--font-sm);
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Loading state visual */
+.auth-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-xl);
+    color: var(--text-tertiary);
+    font-size: var(--font-sm);
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 1.75rem;
+        border-radius: var(--radius-md);
+    }
+
+    .auth-header h1 {
+        font-size: 1.5rem;
+    }
+}
