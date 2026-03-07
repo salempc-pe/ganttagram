@@ -49,8 +49,8 @@ Ganttagram is a project management and Gantt chart web application built with Re
 
 ## Technical Debt
 
-- [ ] Firebase timeout fallback logic in auth needs review.
-- [ ] No explicit TODOs identified, but codebase may lack comprehensive unit tests based on current findings.
+- [x] Firebase timeout fallback logic in auth reviewed and improved (increased timeout, managed hydration cycle).
+- [x] Initial suite of unit tests implemented for core utilities and scheduler logic. Use `npm test` to run.
 
 ## Conventions
 
