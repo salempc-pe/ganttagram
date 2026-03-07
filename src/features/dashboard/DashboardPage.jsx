@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { MobileHeader } from '../../shared/components/MobileHeader';
 import { MobileNav } from '../../shared/components/MobileNav';
+import { ThemeToggle } from '../../shared/components/ThemeToggle';
 import './DashboardPage.css';
 
 export const DashboardPage = () => {
@@ -100,10 +101,13 @@ export const DashboardPage = () => {
                             <h1>Centro de Mando</h1>
                             <p className="text-secondary">Bienvenido al sistema de gestión de obras, {user?.displayName}</p>
                         </div>
-                        <Button variant="ghost" onClick={handleLogout} className="text-error">
-                            <LogOut size={18} />
-                            <span className="ml-2">Salir</span>
-                        </Button>
+                        <div className="flex items-center gap-4">
+                            <ThemeToggle />
+                            <Button variant="ghost" onClick={handleLogout} className="text-error">
+                                <LogOut size={18} />
+                                <span className="ml-2">Salir</span>
+                            </Button>
+                        </div>
                     </header>
 
                     {/* Metric Tiles - Industrial Style */}

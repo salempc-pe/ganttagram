@@ -13,6 +13,7 @@ import {
     PanelLeftOpen
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { ThemeToggle } from '../../../shared/components/ThemeToggle';
 import './ProjectSidebar.css';
 
 export const ProjectSidebar = ({ activeTab, onTabChange }) => {
@@ -56,6 +57,10 @@ export const ProjectSidebar = ({ activeTab, onTabChange }) => {
                     </button>
                 ))}
             </nav>
+
+            <div className="sidebar-footer mt-auto flex flex-col items-center gap-4 mb-4">
+                <ThemeToggle />
+            </div>
         </div>
     );
 };
