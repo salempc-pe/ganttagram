@@ -11,6 +11,15 @@
     gap: var(--space-md);
 }
 
+.project-list-header h2 {
+    margin: 0;
+    font-size: var(--font-xl);
+}
+
+.btn-new-project {
+    width: 200px;
+}
+
 .search-bar {
     position: relative;
     width: 100%;

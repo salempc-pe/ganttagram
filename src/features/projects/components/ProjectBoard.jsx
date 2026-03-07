@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Clock, CheckCircle, AlertCircle, Calendar, Link2 } from 'lucide-react';
@@ -11,11 +12,21 @@ export const ProjectBoard = ({ tasks, dependencies = [], onTaskUpdate, canEdit }
         return 'todo';
     };
 
-    // Inyectar dependencias en las tareas para el badge
-    const tasksWithDeps = tasks.map(t => ({
-        ...t,
-        _myDeps: dependencies.filter(d => d.toTaskId === t.id || d.fromTaskId === t.id)
-    }));
+    // Inyectar dependencias (conteo) en las tareas optimizadamente para el badge O(N)
+    const tasksWithDeps = useMemo(() => {
+        const depsCountByTask = new Map();
+        dependencies.forEach(d => {
+            depsCountByTask.set(d.fromTaskId, (depsCountByTask.get(d.fromTaskId) || 0) + 1);
+            if (d.fromTaskId !== d.toTaskId) {
+                depsCountByTask.set(d.toTaskId, (depsCountByTask.get(d.toTaskId) || 0) + 1);
+            }
+        });
+
+        return tasks.map(t => ({
+            ...t,
+            _myDepsCount: depsCountByTask.get(t.id) || 0
+        }));
+    }, [tasks, dependencies]);
 
     const columns = {
         todo: { id: 'todo', label: 'Por Hacer', color: 'var(--text-secondary)', bg: 'var(--bg-secondary)', icon: AlertCircle },
@@ -89,10 +100,10 @@ export const ProjectBoard = ({ tasks, dependencies = [], onTaskUpdate, canEdit }
                                     </span>
                                 </div>
                                 <div className="card-meta">
-                                    {task._myDeps?.length > 0 && (
-                                        <div className="dep-badge" title={`${task._myDeps.length} vinculaciones detectadas`}>
+                                    {task._myDepsCount > 0 && (
+                                        <div className="dep-badge" title={`${task._myDepsCount} vinculaciones detectadas`}>
                                             <Link2 size={10} />
-                                            <span>DEP ({task._myDeps.length})</span>
+                                            <span>DEP ({task._myDepsCount})</span>
                                         </div>
                                     )}
                                 </div>

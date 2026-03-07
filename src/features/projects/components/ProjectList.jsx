@@ -76,10 +76,11 @@ export const ProjectList = () => {
 
     return (
         <div className="project-list-container">
-            <div className="project-list-header flex justify-end">
-                <Button onClick={() => setIsModalOpen(true)} className="w-full md:w-auto">
+            <div className="project-list-header">
+                <h2 className="m-0">Todos los Proyectos</h2>
+                <Button onClick={() => setIsModalOpen(true)} className="btn-new-project">
                     <Plus size={20} />
-                    Nuevo Proyecto
+                    <span>Nuevo Proyecto</span>
                 </Button>
             </div>
 

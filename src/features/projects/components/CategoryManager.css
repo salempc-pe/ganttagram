@@ -2,6 +2,48 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px dashed var(--border-color);
+}
+
+.category-tasks-list {
+    padding: 0 1.25rem 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.cat-task-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.cat-task-bullet {
+    color: var(--sidebar-active);
+    font-weight: bold;
+}
+
+.cat-task-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.no-tasks-hint {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
+.cat-task-more {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--sidebar-active);
+    padding-left: 0.75rem;
 }
 
 .manager-header-pro {
@@ -308,6 +350,7 @@
 @media (max-width: 767px) {
     .category-manager {
         padding: var(--space-md);
+        margin-top: var(--space-xl);
     }
 
     .manager-header-pro {

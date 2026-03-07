@@ -4,11 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "postinstall": "node scripts/clean-netlify-false-positives.js",
+    "dev": "vite --host",
+    "postinstall": "npx patch-package && node scripts/clean-netlify-false-positives.js",
     "build": "node scripts/clean-netlify-false-positives.js && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "test": "vitest",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri-dev": "tauri dev",
+    "tauri-build": "tauri build"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -22,13 +26,21 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@tauri-apps/api": "^2.10.1",
+    "@tauri-apps/cli": "^2.10.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^5.1.1",
+    "autoprefixer": "^10.4.24",
+    "cssnano": "^7.1.2",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "jsdom": "^28.1.0",
     "vite": "^7.2.4",
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.18"

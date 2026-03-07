@@ -19,7 +19,7 @@ const ColorSelector = ({ selectedColor, onColorSelect }) => {
     );
 };
 
-export const CategoryManager = ({ categories, onAdd, onUpdate, onDelete, canEdit }) => {
+export const CategoryManager = ({ categories, tasks = [], onAdd, onUpdate, onDelete, canEdit }) => {
     const [editingId, setEditingId] = useState(null);
     const [editName, setEditName] = useState('');
     const [editColor, setEditColor] = useState('');
@@ -49,6 +49,10 @@ export const CategoryManager = ({ categories, onAdd, onUpdate, onDelete, canEdit
         setIsAdding(false);
         setEditName('');
         setEditColor('');
+    };
+
+    const getAssignedTasks = (categoryId) => {
+        return tasks.filter(task => task.categoryId === categoryId);
     };
 
     return (
@@ -92,50 +96,70 @@ export const CategoryManager = ({ categories, onAdd, onUpdate, onDelete, canEdit
                     </div>
                 )}
 
-                {categories.map(cat => (
-                    <div key={cat.id} className="category-card-wrapper">
-                        {editingId === cat.id ? (
-                            <div className="category-card editing shadow-lg">
-                                <div className="category-card-header">
-                                    <span className="text-xs uppercase font-bold text-secondary">Editando</span>
-                                    <div className="flex gap-1">
-                                        <button onClick={handleSave} className="action-btn-circle success"><Check size={18} /></button>
-                                        <button onClick={() => setEditingId(null)} className="action-btn-circle error"><X size={18} /></button>
-                                    </div>
-                                </div>
-                                <div className="category-card-body">
-                                    <input
-                                        type="text"
-                                        value={editName}
-                                        onChange={(e) => setEditName(e.target.value)}
-                                        className="category-name-input"
-                                    />
-                                    <div className="color-selection-area">
-                                        <ColorSelector selectedColor={editColor} onColorSelect={setEditColor} />
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="category-card">
-                                <div className="category-status-line" style={{ backgroundColor: cat.color }}></div>
-                                <div className="category-card-content">
-                                    <div className="category-card-main">
-                                        <div className="category-avatar-preview" style={{ backgroundColor: cat.color + '20', color: cat.color }}>
-                                            #
+                {categories.map(cat => {
+                    const assignedTasks = getAssignedTasks(cat.id);
+                    return (
+                        <div key={cat.id} className="category-card-wrapper">
+                            {editingId === cat.id ? (
+                                <div className="category-card editing shadow-lg">
+                                    <div className="category-card-header">
+                                        <span className="text-xs uppercase font-bold text-secondary">Editando</span>
+                                        <div className="flex gap-1">
+                                            <button onClick={handleSave} className="action-btn-circle success"><Check size={18} /></button>
+                                            <button onClick={() => setEditingId(null)} className="action-btn-circle error"><X size={18} /></button>
                                         </div>
-                                        <span className="category-card-name">{cat.name}</span>
                                     </div>
-                                    {canEdit && (
-                                        <div className="category-card-actions">
-                                            <button onClick={() => handleStartEdit(cat)} className="action-btn edit" title="Editar"><Edit2 size={16} /></button>
-                                            <button onClick={() => handleDelete(cat.id)} className="action-btn delete" title="Eliminar"><Trash2 size={16} /></button>
+                                    <div className="category-card-body">
+                                        <input
+                                            type="text"
+                                            value={editName}
+                                            onChange={(e) => setEditName(e.target.value)}
+                                            className="category-name-input"
+                                        />
+                                        <div className="color-selection-area">
+                                            <ColorSelector selectedColor={editColor} onColorSelect={setEditColor} />
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                ))}
+                            ) : (
+                                <div className="category-card">
+                                    <div className="category-status-line" style={{ backgroundColor: cat.color }}></div>
+                                    <div className="category-card-content">
+                                        <div className="category-card-main">
+                                            <div className="category-avatar-preview" style={{ backgroundColor: cat.color + '20', color: cat.color }}>
+                                                #
+                                            </div>
+                                            <span className="category-card-name">{cat.name}</span>
+                                        </div>
+                                        {canEdit && (
+                                            <div className="category-card-actions">
+                                                <button onClick={() => handleStartEdit(cat)} className="action-btn edit" title="Editar"><Edit2 size={16} /></button>
+                                                <button onClick={() => handleDelete(cat.id)} className="action-btn delete" title="Eliminar"><Trash2 size={16} /></button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Nueva sección de tareas por categoría */}
+                                    <div className="category-tasks-list">
+                                        {assignedTasks.length > 0 ? (
+                                            assignedTasks.slice(0, 3).map(task => (
+                                                <div key={task.id} className="cat-task-item">
+                                                    <span className="cat-task-bullet">•</span>
+                                                    <span className="cat-task-name">{task.name}</span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <span className="no-tasks-hint">Sin tareas en esta categoría</span>
+                                        )}
+                                        {assignedTasks.length > 3 && (
+                                            <div className="cat-task-more">+{assignedTasks.length - 3} tareas más</div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

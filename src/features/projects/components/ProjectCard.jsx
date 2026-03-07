@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Settings2, Calendar, Copy, Trash2, Pencil } from 'lucide-react';
+import { Settings2, Calendar, Copy, Trash2, Pencil, Building } from 'lucide-react';
 import './ProjectCard.css';
 
 export const ProjectCard = ({ project, onOpen, onDelete, onDuplicate, onEdit }) => {
@@ -8,7 +8,7 @@ export const ProjectCard = ({ project, onOpen, onDelete, onDuplicate, onEdit }) 
         <div className="project-card group" onClick={() => onOpen(project.id)}>
             <div className="project-card-header">
                 <div className="project-visual">
-                    <span className="project-emoji">{project.emoji || '🏗️'}</span>
+                    <span className="project-emoji text-2xl">{project.emoji || '🏗️'}</span>
                 </div>
                 <div className="project-actions">
                     <button
@@ -56,7 +56,7 @@ export const ProjectCard = ({ project, onOpen, onDelete, onDuplicate, onEdit }) 
                     <Calendar size={12} />
                     <span>
                         {project.updatedAt ?
-                            format(project.updatedAt, "d MMM yyyy", { locale: es }) :
+                            format(project.updatedAt?.toDate ? project.updatedAt.toDate() : new Date(project.updatedAt), "d MMM yyyy", { locale: es }) :
                             'ACTIVO'
                         }
                     </span>

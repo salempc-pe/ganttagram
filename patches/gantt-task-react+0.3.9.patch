@@ -1,0 +1,1988 @@
+diff --git a/node_modules/gantt-task-react/dist/index.js b/node_modules/gantt-task-react/dist/index.js
+index 626bb39..11eb286 100644
+--- a/node_modules/gantt-task-react/dist/index.js
++++ b/node_modules/gantt-task-react/dist/index.js
+@@ -1,4 +1,4 @@
+-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
++function _interopDefault(ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+ 
+ var React = require('react');
+ var React__default = _interopDefault(React);
+@@ -142,7 +142,7 @@ var ganttDateRange = function ganttDateRange(tasks, viewMode, preStepsCount) {
+       newStartDate = startOfDate(newStartDate, "day");
+       newStartDate = addToDate(newStartDate, -1 * preStepsCount, "day");
+       newEndDate = startOfDate(newEndDate, "day");
+-      newEndDate = addToDate(newEndDate, 19, "day");
++      newEndDate = addToDate(newEndDate, 2, "day");
+       break;
+ 
+     case exports.ViewMode.QuarterDay:
+@@ -253,13 +253,13 @@ var getDaysInMonth = function getDaysInMonth(month, year) {
+   return new Date(year, month + 1, 0).getDate();
+ };
+ 
+-var styles = {"ganttTable":"_3_ygE","ganttTable_Header":"_1nBOt","ganttTable_HeaderSeparator":"_2eZzQ","ganttTable_HeaderItem":"_WuQ0f"};
++var styles = { "ganttTable": "_3_ygE", "ganttTable_Header": "_1nBOt", "ganttTable_HeaderSeparator": "_2eZzQ", "ganttTable_HeaderItem": "_WuQ0f" };
+ 
+ var TaskListHeaderDefault = function TaskListHeaderDefault(_ref) {
+   var headerHeight = _ref.headerHeight,
+-      fontFamily = _ref.fontFamily,
+-      fontSize = _ref.fontSize,
+-      rowWidth = _ref.rowWidth;
++    fontFamily = _ref.fontFamily,
++    fontSize = _ref.fontSize,
++    rowWidth = _ref.rowWidth;
+   return React__default.createElement("div", {
+     className: styles.ganttTable,
+     style: {
+@@ -301,7 +301,7 @@ var TaskListHeaderDefault = function TaskListHeaderDefault(_ref) {
+   }, "\xA0To")));
+ };
+ 
+-var styles$1 = {"taskListWrapper":"_3ZbQT","taskListTableRow":"_34SS0","taskListCell":"_3lLk3","taskListNameWrapper":"_nI1Xw","taskListExpander":"_2QjE6","taskListEmptyExpander":"_2TfEi"};
++var styles$1 = { "taskListWrapper": "_3ZbQT", "taskListTableRow": "_34SS0", "taskListCell": "_3lLk3", "taskListNameWrapper": "_nI1Xw", "taskListExpander": "_2QjE6", "taskListEmptyExpander": "_2TfEi" };
+ 
+ var localeDateStringCache = {};
+ 
+@@ -327,12 +327,12 @@ var dateTimeOptions = {
+ };
+ var TaskListTableDefault = function TaskListTableDefault(_ref) {
+   var rowHeight = _ref.rowHeight,
+-      rowWidth = _ref.rowWidth,
+-      tasks = _ref.tasks,
+-      fontFamily = _ref.fontFamily,
+-      fontSize = _ref.fontSize,
+-      locale = _ref.locale,
+-      onExpanderClick = _ref.onExpanderClick;
++    rowWidth = _ref.rowWidth,
++    tasks = _ref.tasks,
++    fontFamily = _ref.fontFamily,
++    fontSize = _ref.fontSize,
++    locale = _ref.locale,
++    onExpanderClick = _ref.onExpanderClick;
+   var toLocaleDateString = React.useMemo(function () {
+     return toLocaleDateStringFactory(locale);
+   }, [locale]);
+@@ -387,31 +387,31 @@ var TaskListTableDefault = function TaskListTableDefault(_ref) {
+   }));
+ };
+ 
+-var styles$2 = {"tooltipDefaultContainer":"_3T42e","tooltipDefaultContainerParagraph":"_29NTg","tooltipDetailsContainer":"_25P-K","tooltipDetailsContainerHidden":"_3gVAq"};
++var styles$2 = { "tooltipDefaultContainer": "_3T42e", "tooltipDefaultContainerParagraph": "_29NTg", "tooltipDetailsContainer": "_25P-K", "tooltipDetailsContainerHidden": "_3gVAq" };
+ 
+ var Tooltip = function Tooltip(_ref) {
+   var task = _ref.task,
+-      rowHeight = _ref.rowHeight,
+-      rtl = _ref.rtl,
+-      svgContainerHeight = _ref.svgContainerHeight,
+-      svgContainerWidth = _ref.svgContainerWidth,
+-      scrollX = _ref.scrollX,
+-      scrollY = _ref.scrollY,
+-      arrowIndent = _ref.arrowIndent,
+-      fontSize = _ref.fontSize,
+-      fontFamily = _ref.fontFamily,
+-      headerHeight = _ref.headerHeight,
+-      taskListWidth = _ref.taskListWidth,
+-      TooltipContent = _ref.TooltipContent;
++    rowHeight = _ref.rowHeight,
++    rtl = _ref.rtl,
++    svgContainerHeight = _ref.svgContainerHeight,
++    svgContainerWidth = _ref.svgContainerWidth,
++    scrollX = _ref.scrollX,
++    scrollY = _ref.scrollY,
++    arrowIndent = _ref.arrowIndent,
++    fontSize = _ref.fontSize,
++    fontFamily = _ref.fontFamily,
++    headerHeight = _ref.headerHeight,
++    taskListWidth = _ref.taskListWidth,
++    TooltipContent = _ref.TooltipContent;
+   var tooltipRef = React.useRef(null);
+ 
+   var _useState = React.useState(0),
+-      relatedY = _useState[0],
+-      setRelatedY = _useState[1];
++    relatedY = _useState[0],
++    setRelatedY = _useState[1];
+ 
+   var _useState2 = React.useState(0),
+-      relatedX = _useState2[0],
+-      setRelatedX = _useState2[1];
++    relatedX = _useState2[0],
++    setRelatedX = _useState2[1];
+ 
+   React.useEffect(function () {
+     if (tooltipRef.current) {
+@@ -475,8 +475,8 @@ var Tooltip = function Tooltip(_ref) {
+ };
+ var StandardTooltipContent = function StandardTooltipContent(_ref2) {
+   var task = _ref2.task,
+-      fontSize = _ref2.fontSize,
+-      fontFamily = _ref2.fontFamily;
++    fontSize = _ref2.fontSize,
++    fontFamily = _ref2.fontFamily;
+   var style = {
+     fontSize: fontSize,
+     fontFamily: fontFamily
+@@ -495,15 +495,15 @@ var StandardTooltipContent = function StandardTooltipContent(_ref2) {
+   }, !!task.progress && "Progress: " + task.progress + " %"));
+ };
+ 
+-var styles$3 = {"scroll":"_1eT-t"};
++var styles$3 = { "scroll": "_1eT-t" };
+ 
+ var VerticalScroll = function VerticalScroll(_ref) {
+   var scroll = _ref.scroll,
+-      ganttHeight = _ref.ganttHeight,
+-      ganttFullHeight = _ref.ganttFullHeight,
+-      headerHeight = _ref.headerHeight,
+-      rtl = _ref.rtl,
+-      onScroll = _ref.onScroll;
++    ganttHeight = _ref.ganttHeight,
++    ganttFullHeight = _ref.ganttFullHeight,
++    headerHeight = _ref.headerHeight,
++    rtl = _ref.rtl,
++    onScroll = _ref.onScroll;
+   var scrollRef = React.useRef(null);
+   React.useEffect(function () {
+     if (scrollRef.current) {
+@@ -529,21 +529,21 @@ var VerticalScroll = function VerticalScroll(_ref) {
+ 
+ var TaskList = function TaskList(_ref) {
+   var headerHeight = _ref.headerHeight,
+-      fontFamily = _ref.fontFamily,
+-      fontSize = _ref.fontSize,
+-      rowWidth = _ref.rowWidth,
+-      rowHeight = _ref.rowHeight,
+-      scrollY = _ref.scrollY,
+-      tasks = _ref.tasks,
+-      selectedTask = _ref.selectedTask,
+-      setSelectedTask = _ref.setSelectedTask,
+-      onExpanderClick = _ref.onExpanderClick,
+-      locale = _ref.locale,
+-      ganttHeight = _ref.ganttHeight,
+-      taskListRef = _ref.taskListRef,
+-      horizontalContainerClass = _ref.horizontalContainerClass,
+-      TaskListHeader = _ref.TaskListHeader,
+-      TaskListTable = _ref.TaskListTable;
++    fontFamily = _ref.fontFamily,
++    fontSize = _ref.fontSize,
++    rowWidth = _ref.rowWidth,
++    rowHeight = _ref.rowHeight,
++    scrollY = _ref.scrollY,
++    tasks = _ref.tasks,
++    selectedTask = _ref.selectedTask,
++    setSelectedTask = _ref.setSelectedTask,
++    onExpanderClick = _ref.onExpanderClick,
++    locale = _ref.locale,
++    ganttHeight = _ref.ganttHeight,
++    taskListRef = _ref.taskListRef,
++    horizontalContainerClass = _ref.horizontalContainerClass,
++    TaskListHeader = _ref.TaskListHeader,
++    TaskListTable = _ref.TaskListTable;
+   var horizontalContainerRef = React.useRef(null);
+   React.useEffect(function () {
+     if (horizontalContainerRef.current) {
+@@ -579,16 +579,16 @@ var TaskList = function TaskList(_ref) {
+   }, React__default.createElement(TaskListTable, Object.assign({}, tableProps))));
+ };
+ 
+-var styles$4 = {"gridRow":"_2dZTy","gridRowLine":"_3rUKi","gridTick":"_RuwuK"};
++var styles$4 = { "gridRow": "_2dZTy", "gridRowLine": "_3rUKi", "gridTick": "_RuwuK" };
+ 
+ var GridBody = function GridBody(_ref) {
+   var tasks = _ref.tasks,
+-      dates = _ref.dates,
+-      rowHeight = _ref.rowHeight,
+-      svgWidth = _ref.svgWidth,
+-      columnWidth = _ref.columnWidth,
+-      todayColor = _ref.todayColor,
+-      rtl = _ref.rtl;
++    dates = _ref.dates,
++    rowHeight = _ref.rowHeight,
++    svgWidth = _ref.svgWidth,
++    columnWidth = _ref.columnWidth,
++    todayColor = _ref.todayColor,
++    rtl = _ref.rtl;
+   var y = 0;
+   var gridRows = [];
+   var rowLines = [React__default.createElement("line", {
+@@ -679,15 +679,15 @@ var Grid = function Grid(props) {
+   }, React__default.createElement(GridBody, Object.assign({}, props)));
+ };
+ 
+-var styles$5 = {"calendarBottomText":"_9w8d5","calendarTopTick":"_1rLuZ","calendarTopText":"_2q1Kt","calendarHeader":"_35nLX"};
++var styles$5 = { "calendarBottomText": "_9w8d5", "calendarTopTick": "_1rLuZ", "calendarTopText": "_2q1Kt", "calendarHeader": "_35nLX" };
+ 
+ var TopPartOfCalendar = function TopPartOfCalendar(_ref) {
+   var value = _ref.value,
+-      x1Line = _ref.x1Line,
+-      y1Line = _ref.y1Line,
+-      y2Line = _ref.y2Line,
+-      xText = _ref.xText,
+-      yText = _ref.yText;
++    x1Line = _ref.x1Line,
++    y1Line = _ref.y1Line,
++    y2Line = _ref.y2Line,
++    xText = _ref.xText,
++    yText = _ref.yText;
+   return React__default.createElement("g", {
+     className: "calendarTop"
+   }, React__default.createElement("line", {
+@@ -707,13 +707,13 @@ var TopPartOfCalendar = function TopPartOfCalendar(_ref) {
+ 
+ var Calendar = function Calendar(_ref) {
+   var dateSetup = _ref.dateSetup,
+-      locale = _ref.locale,
+-      viewMode = _ref.viewMode,
+-      rtl = _ref.rtl,
+-      headerHeight = _ref.headerHeight,
+-      columnWidth = _ref.columnWidth,
+-      fontFamily = _ref.fontFamily,
+-      fontSize = _ref.fontSize;
++    locale = _ref.locale,
++    viewMode = _ref.viewMode,
++    rtl = _ref.rtl,
++    headerHeight = _ref.headerHeight,
++    columnWidth = _ref.columnWidth,
++    fontFamily = _ref.fontFamily,
++    fontSize = _ref.fontSize;
+ 
+   var getCalendarValuesForYear = function getCalendarValuesForYear() {
+     var topValues = [];
+@@ -1016,24 +1016,24 @@ const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symb
+ 
+ // Asynchronously call a function and send errors to recovery continuation
+ function _catch(body, recover) {
+-	try {
+-		var result = body();
+-	} catch(e) {
+-		return recover(e);
+-	}
+-	if (result && result.then) {
+-		return result.then(void 0, recover);
+-	}
+-	return result;
++  try {
++    var result = body();
++  } catch (e) {
++    return recover(e);
++  }
++  if (result && result.then) {
++    return result.then(void 0, recover);
++  }
++  return result;
+ }
+ 
+ var Arrow = function Arrow(_ref) {
+   var taskFrom = _ref.taskFrom,
+-      taskTo = _ref.taskTo,
+-      rowHeight = _ref.rowHeight,
+-      taskHeight = _ref.taskHeight,
+-      arrowIndent = _ref.arrowIndent,
+-      rtl = _ref.rtl;
++    taskTo = _ref.taskTo,
++    rowHeight = _ref.rowHeight,
++    taskHeight = _ref.taskHeight,
++    arrowIndent = _ref.arrowIndent,
++    rtl = _ref.rtl;
+   var path;
+   var trianglePoints;
+ 
+@@ -1145,8 +1145,8 @@ var convertToBar = function convertToBar(task, index, dates, columnWidth, rowHei
+   }
+ 
+   var _progressWithByParams = progressWithByParams(x1, x2, task.progress, rtl),
+-      progressWidth = _progressWithByParams[0],
+-      progressX = _progressWithByParams[1];
++    progressWidth = _progressWithByParams[0],
++    progressX = _progressWithByParams[1];
+ 
+   var y = taskYCoordinate(index, rowHeight, taskHeight);
+   var hideChildren = task.type === "project" ? task.hideChildren : undefined;
+@@ -1243,7 +1243,7 @@ var progressWithByParams = function progressWithByParams(taskX1, taskX2, progres
+ };
+ 
+ var progressByX = function progressByX(x, task) {
+-  if (x >= task.x2) return 100;else if (x <= task.x1) return 0;else {
++  if (x >= task.x2) return 100; else if (x <= task.x1) return 0; else {
+     var barWidth = task.x2 - task.x1;
+     var progressPercent = Math.round((x - task.x1) * 100 / barWidth);
+     return progressPercent;
+@@ -1251,7 +1251,7 @@ var progressByX = function progressByX(x, task) {
+ };
+ 
+ var progressByXRTL = function progressByXRTL(x, task) {
+-  if (x >= task.x2) return 0;else if (x <= task.x1) return 100;else {
++  if (x >= task.x2) return 0; else if (x <= task.x1) return 100; else {
+     var barWidth = task.x2 - task.x1;
+     var progressPercent = Math.round((task.x2 - x) * 100 / barWidth);
+     return progressPercent;
+@@ -1332,8 +1332,8 @@ var handleTaskBySVGMouseEventForBar = function handleTaskBySVGMouseEventForBar(s
+ 
+       if (isChanged) {
+         var _progressWithByParams2 = progressWithByParams(changedTask.x1, changedTask.x2, changedTask.progress, rtl),
+-            progressWidth = _progressWithByParams2[0],
+-            progressX = _progressWithByParams2[1];
++          progressWidth = _progressWithByParams2[0],
++          progressX = _progressWithByParams2[1];
+ 
+         changedTask.progressWidth = progressWidth;
+         changedTask.progressX = progressX;
+@@ -1355,8 +1355,8 @@ var handleTaskBySVGMouseEventForBar = function handleTaskBySVGMouseEventForBar(s
+           }
+ 
+           var _progressWithByParams3 = progressWithByParams(changedTask.x1, changedTask.x2, changedTask.progress, rtl),
+-              _progressWidth = _progressWithByParams3[0],
+-              _progressX = _progressWithByParams3[1];
++            _progressWidth = _progressWithByParams3[0],
++            _progressX = _progressWithByParams3[1];
+ 
+           changedTask.progressWidth = _progressWidth;
+           changedTask.progressX = _progressX;
+@@ -1379,8 +1379,8 @@ var handleTaskBySVGMouseEventForBar = function handleTaskBySVGMouseEventForBar(s
+           }
+ 
+           var _progressWithByParams4 = progressWithByParams(changedTask.x1, changedTask.x2, changedTask.progress, rtl),
+-              _progressWidth2 = _progressWithByParams4[0],
+-              _progressX2 = _progressWithByParams4[1];
++            _progressWidth2 = _progressWithByParams4[0],
++            _progressX2 = _progressWithByParams4[1];
+ 
+           changedTask.progressWidth = _progressWidth2;
+           changedTask.progressX = _progressX2;
+@@ -1392,8 +1392,8 @@ var handleTaskBySVGMouseEventForBar = function handleTaskBySVGMouseEventForBar(s
+     case "move":
+       {
+         var _moveByX = moveByX(svgX - initEventX1Delta, xStep, selectedTask),
+-            newMoveX1 = _moveByX[0],
+-            newMoveX2 = _moveByX[1];
++          newMoveX1 = _moveByX[0],
++          newMoveX2 = _moveByX[1];
+ 
+         isChanged = newMoveX1 !== selectedTask.x1;
+ 
+@@ -1404,8 +1404,8 @@ var handleTaskBySVGMouseEventForBar = function handleTaskBySVGMouseEventForBar(s
+           changedTask.x2 = newMoveX2;
+ 
+           var _progressWithByParams5 = progressWithByParams(changedTask.x1, changedTask.x2, changedTask.progress, rtl),
+-              _progressWidth3 = _progressWithByParams5[0],
+-              _progressX3 = _progressWithByParams5[1];
++            _progressWidth3 = _progressWithByParams5[0],
++            _progressX3 = _progressWithByParams5[1];
+ 
+           changedTask.progressWidth = _progressWidth3;
+           changedTask.progressX = _progressX3;
+@@ -1430,8 +1430,8 @@ var handleTaskBySVGMouseEventForMilestone = function handleTaskBySVGMouseEventFo
+     case "move":
+       {
+         var _moveByX2 = moveByX(svgX - initEventX1Delta, xStep, selectedTask),
+-            newMoveX1 = _moveByX2[0],
+-            newMoveX2 = _moveByX2[1];
++          newMoveX1 = _moveByX2[0],
++          newMoveX2 = _moveByX2[1];
+ 
+         isChanged = newMoveX1 !== selectedTask.x1;
+ 
+@@ -1511,19 +1511,19 @@ var sortTasks = function sortTasks(taskA, taskB) {
+   }
+ };
+ 
+-var styles$6 = {"barWrapper":"_KxSXS","barHandle":"_3w_5u","barBackground":"_31ERP"};
++var styles$6 = { "barWrapper": "_KxSXS", "barHandle": "_3w_5u", "barBackground": "_31ERP" };
+ 
+ var BarDisplay = function BarDisplay(_ref) {
+   var x = _ref.x,
+-      y = _ref.y,
+-      width = _ref.width,
+-      height = _ref.height,
+-      isSelected = _ref.isSelected,
+-      progressX = _ref.progressX,
+-      progressWidth = _ref.progressWidth,
+-      barCornerRadius = _ref.barCornerRadius,
+-      styles = _ref.styles,
+-      onMouseDown = _ref.onMouseDown;
++    y = _ref.y,
++    width = _ref.width,
++    height = _ref.height,
++    isSelected = _ref.isSelected,
++    progressX = _ref.progressX,
++    progressWidth = _ref.progressWidth,
++    barCornerRadius = _ref.barCornerRadius,
++    styles = _ref.styles,
++    onMouseDown = _ref.onMouseDown;
+ 
+   var getProcessColor = function getProcessColor() {
+     return isSelected ? styles.progressSelectedColor : styles.progressColor;
+@@ -1557,11 +1557,11 @@ var BarDisplay = function BarDisplay(_ref) {
+ 
+ var BarDateHandle = function BarDateHandle(_ref) {
+   var x = _ref.x,
+-      y = _ref.y,
+-      width = _ref.width,
+-      height = _ref.height,
+-      barCornerRadius = _ref.barCornerRadius,
+-      onMouseDown = _ref.onMouseDown;
++    y = _ref.y,
++    width = _ref.width,
++    height = _ref.height,
++    barCornerRadius = _ref.barCornerRadius,
++    onMouseDown = _ref.onMouseDown;
+   return React__default.createElement("rect", {
+     x: x,
+     y: y,
+@@ -1576,7 +1576,7 @@ var BarDateHandle = function BarDateHandle(_ref) {
+ 
+ var BarProgressHandle = function BarProgressHandle(_ref) {
+   var progressPoint = _ref.progressPoint,
+-      onMouseDown = _ref.onMouseDown;
++    onMouseDown = _ref.onMouseDown;
+   return React__default.createElement("polygon", {
+     className: styles$6.barHandle,
+     points: progressPoint,
+@@ -1586,11 +1586,11 @@ var BarProgressHandle = function BarProgressHandle(_ref) {
+ 
+ var Bar = function Bar(_ref) {
+   var task = _ref.task,
+-      isProgressChangeable = _ref.isProgressChangeable,
+-      isDateChangeable = _ref.isDateChangeable,
+-      rtl = _ref.rtl,
+-      onEventStart = _ref.onEventStart,
+-      isSelected = _ref.isSelected;
++    isProgressChangeable = _ref.isProgressChangeable,
++    isDateChangeable = _ref.isDateChangeable,
++    rtl = _ref.rtl,
++    onEventStart = _ref.onEventStart,
++    isSelected = _ref.isSelected;
+   var progressPoint = getProgressPoint(+!rtl * task.progressWidth + task.progressX, task.y, task.height);
+   var handleHeight = task.height - 2;
+   return React__default.createElement("g", {
+@@ -1639,10 +1639,10 @@ var Bar = function Bar(_ref) {
+ 
+ var BarSmall = function BarSmall(_ref) {
+   var task = _ref.task,
+-      isProgressChangeable = _ref.isProgressChangeable,
+-      isDateChangeable = _ref.isDateChangeable,
+-      onEventStart = _ref.onEventStart,
+-      isSelected = _ref.isSelected;
++    isProgressChangeable = _ref.isProgressChangeable,
++    isDateChangeable = _ref.isDateChangeable,
++    onEventStart = _ref.onEventStart,
++    isSelected = _ref.isSelected;
+   var progressPoint = getProgressPoint(task.progressWidth + task.x1, task.y, task.height);
+   return React__default.createElement("g", {
+     className: styles$6.barWrapper,
+@@ -1670,13 +1670,13 @@ var BarSmall = function BarSmall(_ref) {
+   })));
+ };
+ 
+-var styles$7 = {"milestoneWrapper":"_RRr13","milestoneBackground":"_2P2B1"};
++var styles$7 = { "milestoneWrapper": "_RRr13", "milestoneBackground": "_2P2B1" };
+ 
+ var Milestone = function Milestone(_ref) {
+   var task = _ref.task,
+-      isDateChangeable = _ref.isDateChangeable,
+-      onEventStart = _ref.onEventStart,
+-      isSelected = _ref.isSelected;
++    isDateChangeable = _ref.isDateChangeable,
++    onEventStart = _ref.onEventStart,
++    isSelected = _ref.isSelected;
+   var transform = "rotate(45 " + (task.x1 + task.height * 0.356) + " \n    " + (task.y + task.height * 0.85) + ")";
+ 
+   var getBarColor = function getBarColor() {
+@@ -1702,11 +1702,11 @@ var Milestone = function Milestone(_ref) {
+   }));
+ };
+ 
+-var styles$8 = {"projectWrapper":"_1KJ6x","projectBackground":"_2RbVy","projectTop":"_2pZMF"};
++var styles$8 = { "projectWrapper": "_1KJ6x", "projectBackground": "_2RbVy", "projectTop": "_2pZMF" };
+ 
+ var Project = function Project(_ref) {
+   var task = _ref.task,
+-      isSelected = _ref.isSelected;
++    isSelected = _ref.isSelected;
+   var barColor = isSelected ? task.styles.backgroundSelectedColor : task.styles.backgroundColor;
+   var processColor = isSelected ? task.styles.progressSelectedColor : task.styles.progressColor;
+   var projectWith = task.x2 - task.x1;
+@@ -1752,27 +1752,27 @@ var Project = function Project(_ref) {
+   }));
+ };
+ 
+-var style = {"barLabel":"_3zRJQ","barLabelOutside":"_3KcaM"};
++var style = { "barLabel": "_3zRJQ", "barLabelOutside": "_3KcaM" };
+ 
+ var TaskItem = function TaskItem(props) {
+   var _props = _extends({}, props),
+-      task = _props.task,
+-      arrowIndent = _props.arrowIndent,
+-      isDelete = _props.isDelete,
+-      taskHeight = _props.taskHeight,
+-      isSelected = _props.isSelected,
+-      rtl = _props.rtl,
+-      onEventStart = _props.onEventStart;
++    task = _props.task,
++    arrowIndent = _props.arrowIndent,
++    isDelete = _props.isDelete,
++    taskHeight = _props.taskHeight,
++    isSelected = _props.isSelected,
++    rtl = _props.rtl,
++    onEventStart = _props.onEventStart;
+ 
+   var textRef = React.useRef(null);
+ 
+   var _useState = React.useState(React__default.createElement("div", null)),
+-      taskItem = _useState[0],
+-      setTaskItem = _useState[1];
++    taskItem = _useState[0],
++    setTaskItem = _useState[1];
+ 
+   var _useState2 = React.useState(true),
+-      isTextInside = _useState2[0],
+-      setIsTextInside = _useState2[1];
++    isTextInside = _useState2[0],
++    setIsTextInside = _useState2[1];
+ 
+   React.useEffect(function () {
+     switch (task.typeInternal) {
+@@ -1844,7 +1844,7 @@ var TaskItem = function TaskItem(props) {
+   }, taskItem, React__default.createElement("text", {
+     x: getX(),
+     y: task.y + taskHeight * 0.5,
+-    className: isTextInside ? style.barLabel :  style.barLabelOutside,
++    className: isTextInside ? style.barLabel : style.barLabelOutside,
+     ref: textRef
+   }, task.name));
+ };
+@@ -1853,40 +1853,40 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+   var _svg$current;
+ 
+   var tasks = _ref.tasks,
+-      dates = _ref.dates,
+-      ganttEvent = _ref.ganttEvent,
+-      selectedTask = _ref.selectedTask,
+-      rowHeight = _ref.rowHeight,
+-      columnWidth = _ref.columnWidth,
+-      timeStep = _ref.timeStep,
+-      svg = _ref.svg,
+-      taskHeight = _ref.taskHeight,
+-      arrowColor = _ref.arrowColor,
+-      arrowIndent = _ref.arrowIndent,
+-      fontFamily = _ref.fontFamily,
+-      fontSize = _ref.fontSize,
+-      rtl = _ref.rtl,
+-      setGanttEvent = _ref.setGanttEvent,
+-      setFailedTask = _ref.setFailedTask,
+-      setSelectedTask = _ref.setSelectedTask,
+-      onDateChange = _ref.onDateChange,
+-      onProgressChange = _ref.onProgressChange,
+-      onDoubleClick = _ref.onDoubleClick,
+-      onClick = _ref.onClick,
+-      onDelete = _ref.onDelete;
++    dates = _ref.dates,
++    ganttEvent = _ref.ganttEvent,
++    selectedTask = _ref.selectedTask,
++    rowHeight = _ref.rowHeight,
++    columnWidth = _ref.columnWidth,
++    timeStep = _ref.timeStep,
++    svg = _ref.svg,
++    taskHeight = _ref.taskHeight,
++    arrowColor = _ref.arrowColor,
++    arrowIndent = _ref.arrowIndent,
++    fontFamily = _ref.fontFamily,
++    fontSize = _ref.fontSize,
++    rtl = _ref.rtl,
++    setGanttEvent = _ref.setGanttEvent,
++    setFailedTask = _ref.setFailedTask,
++    setSelectedTask = _ref.setSelectedTask,
++    onDateChange = _ref.onDateChange,
++    onProgressChange = _ref.onProgressChange,
++    onDoubleClick = _ref.onDoubleClick,
++    onClick = _ref.onClick,
++    onDelete = _ref.onDelete;
+   var point = svg === null || svg === void 0 ? void 0 : (_svg$current = svg.current) === null || _svg$current === void 0 ? void 0 : _svg$current.createSVGPoint();
+ 
+   var _useState = React.useState(0),
+-      xStep = _useState[0],
+-      setXStep = _useState[1];
++    xStep = _useState[0],
++    setXStep = _useState[1];
+ 
+   var _useState2 = React.useState(0),
+-      initEventX1Delta = _useState2[0],
+-      setInitEventX1Delta = _useState2[1];
++    initEventX1Delta = _useState2[0],
++    setInitEventX1Delta = _useState2[1];
+ 
+   var _useState3 = React.useState(false),
+-      isMoving = _useState3[0],
+-      setIsMoving = _useState3[1];
++    isMoving = _useState3[0],
++    setIsMoving = _useState3[1];
+ 
+   React.useEffect(function () {
+     var dateDelta = dates[1].getTime() - dates[0].getTime() - dates[1].getTimezoneOffset() * 60 * 1000 + dates[0].getTimezoneOffset() * 60 * 1000;
+@@ -1904,8 +1904,8 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+         var cursor = point.matrixTransform(svg === null || svg === void 0 ? void 0 : (_svg$current$getScree = svg.current.getScreenCTM()) === null || _svg$current$getScree === void 0 ? void 0 : _svg$current$getScree.inverse());
+ 
+         var _handleTaskBySVGMouse = handleTaskBySVGMouseEvent(cursor.x, ganttEvent.action, ganttEvent.changedTask, xStep, timeStep, initEventX1Delta, rtl),
+-            isChanged = _handleTaskBySVGMouse.isChanged,
+-            changedTask = _handleTaskBySVGMouse.changedTask;
++          isChanged = _handleTaskBySVGMouse.isChanged,
++          changedTask = _handleTaskBySVGMouse.changedTask;
+ 
+         if (isChanged) {
+           setGanttEvent({
+@@ -1931,15 +1931,15 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+         };
+ 
+         var action = ganttEvent.action,
+-            originalSelectedTask = ganttEvent.originalSelectedTask,
+-            changedTask = ganttEvent.changedTask;
++          originalSelectedTask = ganttEvent.originalSelectedTask,
++          changedTask = ganttEvent.changedTask;
+         if (!changedTask || !point || !(svg !== null && svg !== void 0 && svg.current) || !originalSelectedTask) return Promise.resolve();
+         event.preventDefault();
+         point.x = event.clientX;
+         var cursor = point.matrixTransform(svg === null || svg === void 0 ? void 0 : (_svg$current$getScree2 = svg.current.getScreenCTM()) === null || _svg$current$getScree2 === void 0 ? void 0 : _svg$current$getScree2.inverse());
+ 
+         var _handleTaskBySVGMouse2 = handleTaskBySVGMouseEvent(cursor.x, action, changedTask, xStep, timeStep, initEventX1Delta, rtl),
+-            newChangedTask = _handleTaskBySVGMouse2.changedTask;
++          newChangedTask = _handleTaskBySVGMouse2.changedTask;
+ 
+         var isNotLikeOriginal = originalSelectedTask.start !== newChangedTask.start || originalSelectedTask.end !== newChangedTask.end || originalSelectedTask.progress !== newChangedTask.progress;
+         svg.current.removeEventListener("mousemove", handleMouseMove);
+@@ -1962,7 +1962,7 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+               operationSuccess = false;
+             });
+ 
+-            if (_temp8 && _temp8.then) return _temp8.then(function () {});
++            if (_temp8 && _temp8.then) return _temp8.then(function () { });
+           } else {
+             var _temp9 = function () {
+               if (onProgressChange && isNotLikeOriginal) {
+@@ -1976,11 +1976,11 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+                   operationSuccess = false;
+                 });
+ 
+-                if (_temp10 && _temp10.then) return _temp10.then(function () {});
++                if (_temp10 && _temp10.then) return _temp10.then(function () { });
+               }
+             }();
+ 
+-            if (_temp9 && _temp9.then) return _temp9.then(function () {});
++            if (_temp9 && _temp9.then) return _temp9.then(function () { });
+           }
+         }();
+ 
+@@ -2023,15 +2023,15 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+                       console.error("Error on Delete. " + error);
+                     });
+ 
+-                    if (_temp16 && _temp16.then) return _temp16.then(function () {});
++                    if (_temp16 && _temp16.then) return _temp16.then(function () { });
+                   }
+                 }();
+ 
+-                if (_temp15 && _temp15.then) return _temp15.then(function () {});
++                if (_temp15 && _temp15.then) return _temp15.then(function () { });
+               }
+             }();
+ 
+-            if (_temp14 && _temp14.then) return _temp14.then(function () {});
++            if (_temp14 && _temp14.then) return _temp14.then(function () { });
+           } else if (action === "mouseenter") {
+             if (!ganttEvent.action) {
+               setGanttEvent({
+@@ -2114,15 +2114,15 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+   })));
+ };
+ 
+-var styles$9 = {"ganttVerticalContainer":"_CZjuD","horizontalContainer":"_2B2zv","wrapper":"_3eULf"};
++var styles$9 = { "ganttVerticalContainer": "_CZjuD", "horizontalContainer": "_2B2zv", "wrapper": "_3eULf" };
+ 
+ var TaskGantt = function TaskGantt(_ref) {
+   var gridProps = _ref.gridProps,
+-      calendarProps = _ref.calendarProps,
+-      barProps = _ref.barProps,
+-      ganttHeight = _ref.ganttHeight,
+-      scrollY = _ref.scrollY,
+-      scrollX = _ref.scrollX;
++    calendarProps = _ref.calendarProps,
++    barProps = _ref.barProps,
++    ganttHeight = _ref.ganttHeight,
++    scrollY = _ref.scrollY,
++    scrollX = _ref.scrollX;
+   var ganttSVGRef = React.useRef(null);
+   var horizontalContainerRef = React.useRef(null);
+   var verticalGanttContainerRef = React.useRef(null);
+@@ -2168,14 +2168,14 @@ var TaskGantt = function TaskGantt(_ref) {
+   }, React__default.createElement(Grid, Object.assign({}, gridProps)), React__default.createElement(TaskGanttContent, Object.assign({}, newBarProps)))));
+ };
+ 
+-var styles$a = {"scrollWrapper":"_2k9Ys","scroll":"_19jgW"};
++var styles$a = { "scrollWrapper": "_2k9Ys", "scroll": "_19jgW" };
+ 
+ var HorizontalScroll = function HorizontalScroll(_ref) {
+   var scroll = _ref.scroll,
+-      svgWidth = _ref.svgWidth,
+-      taskListWidth = _ref.taskListWidth,
+-      rtl = _ref.rtl,
+-      onScroll = _ref.onScroll;
++    svgWidth = _ref.svgWidth,
++    taskListWidth = _ref.taskListWidth,
++    rtl = _ref.rtl,
++    onScroll = _ref.onScroll;
+   var scrollRef = React.useRef(null);
+   React.useEffect(function () {
+     if (scrollRef.current) {
+@@ -2200,144 +2200,144 @@ var HorizontalScroll = function HorizontalScroll(_ref) {
+ 
+ var Gantt = function Gantt(_ref) {
+   var tasks = _ref.tasks,
+-      _ref$headerHeight = _ref.headerHeight,
+-      headerHeight = _ref$headerHeight === void 0 ? 50 : _ref$headerHeight,
+-      _ref$columnWidth = _ref.columnWidth,
+-      columnWidth = _ref$columnWidth === void 0 ? 60 : _ref$columnWidth,
+-      _ref$listCellWidth = _ref.listCellWidth,
+-      listCellWidth = _ref$listCellWidth === void 0 ? "155px" : _ref$listCellWidth,
+-      _ref$rowHeight = _ref.rowHeight,
+-      rowHeight = _ref$rowHeight === void 0 ? 50 : _ref$rowHeight,
+-      _ref$ganttHeight = _ref.ganttHeight,
+-      ganttHeight = _ref$ganttHeight === void 0 ? 0 : _ref$ganttHeight,
+-      _ref$viewMode = _ref.viewMode,
+-      viewMode = _ref$viewMode === void 0 ? exports.ViewMode.Day : _ref$viewMode,
+-      _ref$preStepsCount = _ref.preStepsCount,
+-      preStepsCount = _ref$preStepsCount === void 0 ? 1 : _ref$preStepsCount,
+-      _ref$locale = _ref.locale,
+-      locale = _ref$locale === void 0 ? "en-GB" : _ref$locale,
+-      _ref$barFill = _ref.barFill,
+-      barFill = _ref$barFill === void 0 ? 60 : _ref$barFill,
+-      _ref$barCornerRadius = _ref.barCornerRadius,
+-      barCornerRadius = _ref$barCornerRadius === void 0 ? 3 : _ref$barCornerRadius,
+-      _ref$barProgressColor = _ref.barProgressColor,
+-      barProgressColor = _ref$barProgressColor === void 0 ? "#a3a3ff" : _ref$barProgressColor,
+-      _ref$barProgressSelec = _ref.barProgressSelectedColor,
+-      barProgressSelectedColor = _ref$barProgressSelec === void 0 ? "#8282f5" : _ref$barProgressSelec,
+-      _ref$barBackgroundCol = _ref.barBackgroundColor,
+-      barBackgroundColor = _ref$barBackgroundCol === void 0 ? "#b8c2cc" : _ref$barBackgroundCol,
+-      _ref$barBackgroundSel = _ref.barBackgroundSelectedColor,
+-      barBackgroundSelectedColor = _ref$barBackgroundSel === void 0 ? "#aeb8c2" : _ref$barBackgroundSel,
+-      _ref$projectProgressC = _ref.projectProgressColor,
+-      projectProgressColor = _ref$projectProgressC === void 0 ? "#7db59a" : _ref$projectProgressC,
+-      _ref$projectProgressS = _ref.projectProgressSelectedColor,
+-      projectProgressSelectedColor = _ref$projectProgressS === void 0 ? "#59a985" : _ref$projectProgressS,
+-      _ref$projectBackgroun = _ref.projectBackgroundColor,
+-      projectBackgroundColor = _ref$projectBackgroun === void 0 ? "#fac465" : _ref$projectBackgroun,
+-      _ref$projectBackgroun2 = _ref.projectBackgroundSelectedColor,
+-      projectBackgroundSelectedColor = _ref$projectBackgroun2 === void 0 ? "#f7bb53" : _ref$projectBackgroun2,
+-      _ref$milestoneBackgro = _ref.milestoneBackgroundColor,
+-      milestoneBackgroundColor = _ref$milestoneBackgro === void 0 ? "#f1c453" : _ref$milestoneBackgro,
+-      _ref$milestoneBackgro2 = _ref.milestoneBackgroundSelectedColor,
+-      milestoneBackgroundSelectedColor = _ref$milestoneBackgro2 === void 0 ? "#f29e4c" : _ref$milestoneBackgro2,
+-      _ref$rtl = _ref.rtl,
+-      rtl = _ref$rtl === void 0 ? false : _ref$rtl,
+-      _ref$handleWidth = _ref.handleWidth,
+-      handleWidth = _ref$handleWidth === void 0 ? 8 : _ref$handleWidth,
+-      _ref$timeStep = _ref.timeStep,
+-      timeStep = _ref$timeStep === void 0 ? 300000 : _ref$timeStep,
+-      _ref$arrowColor = _ref.arrowColor,
+-      arrowColor = _ref$arrowColor === void 0 ? "grey" : _ref$arrowColor,
+-      _ref$fontFamily = _ref.fontFamily,
+-      fontFamily = _ref$fontFamily === void 0 ? "Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue" : _ref$fontFamily,
+-      _ref$fontSize = _ref.fontSize,
+-      fontSize = _ref$fontSize === void 0 ? "14px" : _ref$fontSize,
+-      _ref$arrowIndent = _ref.arrowIndent,
+-      arrowIndent = _ref$arrowIndent === void 0 ? 20 : _ref$arrowIndent,
+-      _ref$todayColor = _ref.todayColor,
+-      todayColor = _ref$todayColor === void 0 ? "rgba(252, 248, 227, 0.5)" : _ref$todayColor,
+-      viewDate = _ref.viewDate,
+-      _ref$TooltipContent = _ref.TooltipContent,
+-      TooltipContent = _ref$TooltipContent === void 0 ? StandardTooltipContent : _ref$TooltipContent,
+-      _ref$TaskListHeader = _ref.TaskListHeader,
+-      TaskListHeader = _ref$TaskListHeader === void 0 ? TaskListHeaderDefault : _ref$TaskListHeader,
+-      _ref$TaskListTable = _ref.TaskListTable,
+-      TaskListTable = _ref$TaskListTable === void 0 ? TaskListTableDefault : _ref$TaskListTable,
+-      onDateChange = _ref.onDateChange,
+-      onProgressChange = _ref.onProgressChange,
+-      onDoubleClick = _ref.onDoubleClick,
+-      onClick = _ref.onClick,
+-      onDelete = _ref.onDelete,
+-      onSelect = _ref.onSelect,
+-      onExpanderClick = _ref.onExpanderClick;
++    _ref$headerHeight = _ref.headerHeight,
++    headerHeight = _ref$headerHeight === void 0 ? 50 : _ref$headerHeight,
++    _ref$columnWidth = _ref.columnWidth,
++    columnWidth = _ref$columnWidth === void 0 ? 60 : _ref$columnWidth,
++    _ref$listCellWidth = _ref.listCellWidth,
++    listCellWidth = _ref$listCellWidth === void 0 ? "155px" : _ref$listCellWidth,
++    _ref$rowHeight = _ref.rowHeight,
++    rowHeight = _ref$rowHeight === void 0 ? 50 : _ref$rowHeight,
++    _ref$ganttHeight = _ref.ganttHeight,
++    ganttHeight = _ref$ganttHeight === void 0 ? 0 : _ref$ganttHeight,
++    _ref$viewMode = _ref.viewMode,
++    viewMode = _ref$viewMode === void 0 ? exports.ViewMode.Day : _ref$viewMode,
++    _ref$preStepsCount = _ref.preStepsCount,
++    preStepsCount = _ref$preStepsCount === void 0 ? 1 : _ref$preStepsCount,
++    _ref$locale = _ref.locale,
++    locale = _ref$locale === void 0 ? "en-GB" : _ref$locale,
++    _ref$barFill = _ref.barFill,
++    barFill = _ref$barFill === void 0 ? 60 : _ref$barFill,
++    _ref$barCornerRadius = _ref.barCornerRadius,
++    barCornerRadius = _ref$barCornerRadius === void 0 ? 3 : _ref$barCornerRadius,
++    _ref$barProgressColor = _ref.barProgressColor,
++    barProgressColor = _ref$barProgressColor === void 0 ? "#a3a3ff" : _ref$barProgressColor,
++    _ref$barProgressSelec = _ref.barProgressSelectedColor,
++    barProgressSelectedColor = _ref$barProgressSelec === void 0 ? "#8282f5" : _ref$barProgressSelec,
++    _ref$barBackgroundCol = _ref.barBackgroundColor,
++    barBackgroundColor = _ref$barBackgroundCol === void 0 ? "#b8c2cc" : _ref$barBackgroundCol,
++    _ref$barBackgroundSel = _ref.barBackgroundSelectedColor,
++    barBackgroundSelectedColor = _ref$barBackgroundSel === void 0 ? "#aeb8c2" : _ref$barBackgroundSel,
++    _ref$projectProgressC = _ref.projectProgressColor,
++    projectProgressColor = _ref$projectProgressC === void 0 ? "#7db59a" : _ref$projectProgressC,
++    _ref$projectProgressS = _ref.projectProgressSelectedColor,
++    projectProgressSelectedColor = _ref$projectProgressS === void 0 ? "#59a985" : _ref$projectProgressS,
++    _ref$projectBackgroun = _ref.projectBackgroundColor,
++    projectBackgroundColor = _ref$projectBackgroun === void 0 ? "#fac465" : _ref$projectBackgroun,
++    _ref$projectBackgroun2 = _ref.projectBackgroundSelectedColor,
++    projectBackgroundSelectedColor = _ref$projectBackgroun2 === void 0 ? "#f7bb53" : _ref$projectBackgroun2,
++    _ref$milestoneBackgro = _ref.milestoneBackgroundColor,
++    milestoneBackgroundColor = _ref$milestoneBackgro === void 0 ? "#f1c453" : _ref$milestoneBackgro,
++    _ref$milestoneBackgro2 = _ref.milestoneBackgroundSelectedColor,
++    milestoneBackgroundSelectedColor = _ref$milestoneBackgro2 === void 0 ? "#f29e4c" : _ref$milestoneBackgro2,
++    _ref$rtl = _ref.rtl,
++    rtl = _ref$rtl === void 0 ? false : _ref$rtl,
++    _ref$handleWidth = _ref.handleWidth,
++    handleWidth = _ref$handleWidth === void 0 ? 8 : _ref$handleWidth,
++    _ref$timeStep = _ref.timeStep,
++    timeStep = _ref$timeStep === void 0 ? 300000 : _ref$timeStep,
++    _ref$arrowColor = _ref.arrowColor,
++    arrowColor = _ref$arrowColor === void 0 ? "grey" : _ref$arrowColor,
++    _ref$fontFamily = _ref.fontFamily,
++    fontFamily = _ref$fontFamily === void 0 ? "Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue" : _ref$fontFamily,
++    _ref$fontSize = _ref.fontSize,
++    fontSize = _ref$fontSize === void 0 ? "14px" : _ref$fontSize,
++    _ref$arrowIndent = _ref.arrowIndent,
++    arrowIndent = _ref$arrowIndent === void 0 ? 20 : _ref$arrowIndent,
++    _ref$todayColor = _ref.todayColor,
++    todayColor = _ref$todayColor === void 0 ? "rgba(252, 248, 227, 0.5)" : _ref$todayColor,
++    viewDate = _ref.viewDate,
++    _ref$TooltipContent = _ref.TooltipContent,
++    TooltipContent = _ref$TooltipContent === void 0 ? StandardTooltipContent : _ref$TooltipContent,
++    _ref$TaskListHeader = _ref.TaskListHeader,
++    TaskListHeader = _ref$TaskListHeader === void 0 ? TaskListHeaderDefault : _ref$TaskListHeader,
++    _ref$TaskListTable = _ref.TaskListTable,
++    TaskListTable = _ref$TaskListTable === void 0 ? TaskListTableDefault : _ref$TaskListTable,
++    onDateChange = _ref.onDateChange,
++    onProgressChange = _ref.onProgressChange,
++    onDoubleClick = _ref.onDoubleClick,
++    onClick = _ref.onClick,
++    onDelete = _ref.onDelete,
++    onSelect = _ref.onSelect,
++    onExpanderClick = _ref.onExpanderClick;
+   var wrapperRef = React.useRef(null);
+   var taskListRef = React.useRef(null);
+ 
+   var _useState = React.useState(function () {
+     var _ganttDateRange = ganttDateRange(tasks, viewMode, preStepsCount),
+-        startDate = _ganttDateRange[0],
+-        endDate = _ganttDateRange[1];
++      startDate = _ganttDateRange[0],
++      endDate = _ganttDateRange[1];
+ 
+     return {
+       viewMode: viewMode,
+       dates: seedDates(startDate, endDate, viewMode)
+     };
+   }),
+-      dateSetup = _useState[0],
+-      setDateSetup = _useState[1];
++    dateSetup = _useState[0],
++    setDateSetup = _useState[1];
+ 
+   var _useState2 = React.useState(undefined),
+-      currentViewDate = _useState2[0],
+-      setCurrentViewDate = _useState2[1];
++    currentViewDate = _useState2[0],
++    setCurrentViewDate = _useState2[1];
+ 
+   var _useState3 = React.useState(0),
+-      taskListWidth = _useState3[0],
+-      setTaskListWidth = _useState3[1];
++    taskListWidth = _useState3[0],
++    setTaskListWidth = _useState3[1];
+ 
+   var _useState4 = React.useState(0),
+-      svgContainerWidth = _useState4[0],
+-      setSvgContainerWidth = _useState4[1];
++    svgContainerWidth = _useState4[0],
++    setSvgContainerWidth = _useState4[1];
+ 
+   var _useState5 = React.useState(ganttHeight),
+-      svgContainerHeight = _useState5[0],
+-      setSvgContainerHeight = _useState5[1];
++    svgContainerHeight = _useState5[0],
++    setSvgContainerHeight = _useState5[1];
+ 
+   var _useState6 = React.useState([]),
+-      barTasks = _useState6[0],
+-      setBarTasks = _useState6[1];
++    barTasks = _useState6[0],
++    setBarTasks = _useState6[1];
+ 
+   var _useState7 = React.useState({
+     action: ""
+   }),
+-      ganttEvent = _useState7[0],
+-      setGanttEvent = _useState7[1];
++    ganttEvent = _useState7[0],
++    setGanttEvent = _useState7[1];
+ 
+   var taskHeight = React.useMemo(function () {
+     return rowHeight * barFill / 100;
+   }, [rowHeight, barFill]);
+ 
+   var _useState8 = React.useState(),
+-      selectedTask = _useState8[0],
+-      setSelectedTask = _useState8[1];
++    selectedTask = _useState8[0],
++    setSelectedTask = _useState8[1];
+ 
+   var _useState9 = React.useState(null),
+-      failedTask = _useState9[0],
+-      setFailedTask = _useState9[1];
++    failedTask = _useState9[0],
++    setFailedTask = _useState9[1];
+ 
+   var svgWidth = dateSetup.dates.length * columnWidth;
+   var ganttFullHeight = barTasks.length * rowHeight;
+ 
+   var _useState10 = React.useState(0),
+-      scrollY = _useState10[0],
+-      setScrollY = _useState10[1];
++    scrollY = _useState10[0],
++    setScrollY = _useState10[1];
+ 
+   var _useState11 = React.useState(-1),
+-      scrollX = _useState11[0],
+-      setScrollX = _useState11[1];
++    scrollX = _useState11[0],
++    setScrollX = _useState11[1];
+ 
+   var _useState12 = React.useState(false),
+-      ignoreScrollEvent = _useState12[0],
+-      setIgnoreScrollEvent = _useState12[1];
++    ignoreScrollEvent = _useState12[0],
++    setIgnoreScrollEvent = _useState12[1];
+ 
+   React.useEffect(function () {
+     var filteredTasks;
+@@ -2351,8 +2351,8 @@ var Gantt = function Gantt(_ref) {
+     filteredTasks = filteredTasks.sort(sortTasks);
+ 
+     var _ganttDateRange2 = ganttDateRange(filteredTasks, viewMode, preStepsCount),
+-        startDate = _ganttDateRange2[0],
+-        endDate = _ganttDateRange2[1];
++      startDate = _ganttDateRange2[0],
++      endDate = _ganttDateRange2[1];
+ 
+     var newDates = seedDates(startDate, endDate, viewMode);
+ 
+@@ -2387,7 +2387,7 @@ var Gantt = function Gantt(_ref) {
+   }, [viewDate, columnWidth, dateSetup.dates, dateSetup.viewMode, viewMode, currentViewDate, setCurrentViewDate]);
+   React.useEffect(function () {
+     var changedTask = ganttEvent.changedTask,
+-        action = ganttEvent.action;
++      action = ganttEvent.action;
+ 
+     if (changedTask) {
+       if (action === "delete") {
+diff --git a/node_modules/gantt-task-react/dist/index.modern.js b/node_modules/gantt-task-react/dist/index.modern.js
+index b372269..3fec8e4 100644
+--- a/node_modules/gantt-task-react/dist/index.modern.js
++++ b/node_modules/gantt-task-react/dist/index.modern.js
+@@ -141,7 +141,7 @@ var ganttDateRange = function ganttDateRange(tasks, viewMode, preStepsCount) {
+       newStartDate = startOfDate(newStartDate, "day");
+       newStartDate = addToDate(newStartDate, -1 * preStepsCount, "day");
+       newEndDate = startOfDate(newEndDate, "day");
+-      newEndDate = addToDate(newEndDate, 19, "day");
++      newEndDate = addToDate(newEndDate, 2, "day");
+       break;
+ 
+     case ViewMode.QuarterDay:
+@@ -252,13 +252,13 @@ var getDaysInMonth = function getDaysInMonth(month, year) {
+   return new Date(year, month + 1, 0).getDate();
+ };
+ 
+-var styles = {"ganttTable":"_3_ygE","ganttTable_Header":"_1nBOt","ganttTable_HeaderSeparator":"_2eZzQ","ganttTable_HeaderItem":"_WuQ0f"};
++var styles = { "ganttTable": "_3_ygE", "ganttTable_Header": "_1nBOt", "ganttTable_HeaderSeparator": "_2eZzQ", "ganttTable_HeaderItem": "_WuQ0f" };
+ 
+ var TaskListHeaderDefault = function TaskListHeaderDefault(_ref) {
+   var headerHeight = _ref.headerHeight,
+-      fontFamily = _ref.fontFamily,
+-      fontSize = _ref.fontSize,
+-      rowWidth = _ref.rowWidth;
++    fontFamily = _ref.fontFamily,
++    fontSize = _ref.fontSize,
++    rowWidth = _ref.rowWidth;
+   return React.createElement("div", {
+     className: styles.ganttTable,
+     style: {
+@@ -300,7 +300,7 @@ var TaskListHeaderDefault = function TaskListHeaderDefault(_ref) {
+   }, "\xA0To")));
+ };
+ 
+-var styles$1 = {"taskListWrapper":"_3ZbQT","taskListTableRow":"_34SS0","taskListCell":"_3lLk3","taskListNameWrapper":"_nI1Xw","taskListExpander":"_2QjE6","taskListEmptyExpander":"_2TfEi"};
++var styles$1 = { "taskListWrapper": "_3ZbQT", "taskListTableRow": "_34SS0", "taskListCell": "_3lLk3", "taskListNameWrapper": "_nI1Xw", "taskListExpander": "_2QjE6", "taskListEmptyExpander": "_2TfEi" };
+ 
+ var localeDateStringCache = {};
+ 
+@@ -326,12 +326,12 @@ var dateTimeOptions = {
+ };
+ var TaskListTableDefault = function TaskListTableDefault(_ref) {
+   var rowHeight = _ref.rowHeight,
+-      rowWidth = _ref.rowWidth,
+-      tasks = _ref.tasks,
+-      fontFamily = _ref.fontFamily,
+-      fontSize = _ref.fontSize,
+-      locale = _ref.locale,
+-      onExpanderClick = _ref.onExpanderClick;
++    rowWidth = _ref.rowWidth,
++    tasks = _ref.tasks,
++    fontFamily = _ref.fontFamily,
++    fontSize = _ref.fontSize,
++    locale = _ref.locale,
++    onExpanderClick = _ref.onExpanderClick;
+   var toLocaleDateString = useMemo(function () {
+     return toLocaleDateStringFactory(locale);
+   }, [locale]);
+@@ -386,31 +386,31 @@ var TaskListTableDefault = function TaskListTableDefault(_ref) {
+   }));
+ };
+ 
+-var styles$2 = {"tooltipDefaultContainer":"_3T42e","tooltipDefaultContainerParagraph":"_29NTg","tooltipDetailsContainer":"_25P-K","tooltipDetailsContainerHidden":"_3gVAq"};
++var styles$2 = { "tooltipDefaultContainer": "_3T42e", "tooltipDefaultContainerParagraph": "_29NTg", "tooltipDetailsContainer": "_25P-K", "tooltipDetailsContainerHidden": "_3gVAq" };
+ 
+ var Tooltip = function Tooltip(_ref) {
+   var task = _ref.task,
+-      rowHeight = _ref.rowHeight,
+-      rtl = _ref.rtl,
+-      svgContainerHeight = _ref.svgContainerHeight,
+-      svgContainerWidth = _ref.svgContainerWidth,
+-      scrollX = _ref.scrollX,
+-      scrollY = _ref.scrollY,
+-      arrowIndent = _ref.arrowIndent,
+-      fontSize = _ref.fontSize,
+-      fontFamily = _ref.fontFamily,
+-      headerHeight = _ref.headerHeight,
+-      taskListWidth = _ref.taskListWidth,
+-      TooltipContent = _ref.TooltipContent;
++    rowHeight = _ref.rowHeight,
++    rtl = _ref.rtl,
++    svgContainerHeight = _ref.svgContainerHeight,
++    svgContainerWidth = _ref.svgContainerWidth,
++    scrollX = _ref.scrollX,
++    scrollY = _ref.scrollY,
++    arrowIndent = _ref.arrowIndent,
++    fontSize = _ref.fontSize,
++    fontFamily = _ref.fontFamily,
++    headerHeight = _ref.headerHeight,
++    taskListWidth = _ref.taskListWidth,
++    TooltipContent = _ref.TooltipContent;
+   var tooltipRef = useRef(null);
+ 
+   var _useState = useState(0),
+-      relatedY = _useState[0],
+-      setRelatedY = _useState[1];
++    relatedY = _useState[0],
++    setRelatedY = _useState[1];
+ 
+   var _useState2 = useState(0),
+-      relatedX = _useState2[0],
+-      setRelatedX = _useState2[1];
++    relatedX = _useState2[0],
++    setRelatedX = _useState2[1];
+ 
+   useEffect(function () {
+     if (tooltipRef.current) {
+@@ -474,8 +474,8 @@ var Tooltip = function Tooltip(_ref) {
+ };
+ var StandardTooltipContent = function StandardTooltipContent(_ref2) {
+   var task = _ref2.task,
+-      fontSize = _ref2.fontSize,
+-      fontFamily = _ref2.fontFamily;
++    fontSize = _ref2.fontSize,
++    fontFamily = _ref2.fontFamily;
+   var style = {
+     fontSize: fontSize,
+     fontFamily: fontFamily
+@@ -494,15 +494,15 @@ var StandardTooltipContent = function StandardTooltipContent(_ref2) {
+   }, !!task.progress && "Progress: " + task.progress + " %"));
+ };
+ 
+-var styles$3 = {"scroll":"_1eT-t"};
++var styles$3 = { "scroll": "_1eT-t" };
+ 
+ var VerticalScroll = function VerticalScroll(_ref) {
+   var scroll = _ref.scroll,
+-      ganttHeight = _ref.ganttHeight,
+-      ganttFullHeight = _ref.ganttFullHeight,
+-      headerHeight = _ref.headerHeight,
+-      rtl = _ref.rtl,
+-      onScroll = _ref.onScroll;
++    ganttHeight = _ref.ganttHeight,
++    ganttFullHeight = _ref.ganttFullHeight,
++    headerHeight = _ref.headerHeight,
++    rtl = _ref.rtl,
++    onScroll = _ref.onScroll;
+   var scrollRef = useRef(null);
+   useEffect(function () {
+     if (scrollRef.current) {
+@@ -528,21 +528,21 @@ var VerticalScroll = function VerticalScroll(_ref) {
+ 
+ var TaskList = function TaskList(_ref) {
+   var headerHeight = _ref.headerHeight,
+-      fontFamily = _ref.fontFamily,
+-      fontSize = _ref.fontSize,
+-      rowWidth = _ref.rowWidth,
+-      rowHeight = _ref.rowHeight,
+-      scrollY = _ref.scrollY,
+-      tasks = _ref.tasks,
+-      selectedTask = _ref.selectedTask,
+-      setSelectedTask = _ref.setSelectedTask,
+-      onExpanderClick = _ref.onExpanderClick,
+-      locale = _ref.locale,
+-      ganttHeight = _ref.ganttHeight,
+-      taskListRef = _ref.taskListRef,
+-      horizontalContainerClass = _ref.horizontalContainerClass,
+-      TaskListHeader = _ref.TaskListHeader,
+-      TaskListTable = _ref.TaskListTable;
++    fontFamily = _ref.fontFamily,
++    fontSize = _ref.fontSize,
++    rowWidth = _ref.rowWidth,
++    rowHeight = _ref.rowHeight,
++    scrollY = _ref.scrollY,
++    tasks = _ref.tasks,
++    selectedTask = _ref.selectedTask,
++    setSelectedTask = _ref.setSelectedTask,
++    onExpanderClick = _ref.onExpanderClick,
++    locale = _ref.locale,
++    ganttHeight = _ref.ganttHeight,
++    taskListRef = _ref.taskListRef,
++    horizontalContainerClass = _ref.horizontalContainerClass,
++    TaskListHeader = _ref.TaskListHeader,
++    TaskListTable = _ref.TaskListTable;
+   var horizontalContainerRef = useRef(null);
+   useEffect(function () {
+     if (horizontalContainerRef.current) {
+@@ -578,16 +578,16 @@ var TaskList = function TaskList(_ref) {
+   }, React.createElement(TaskListTable, Object.assign({}, tableProps))));
+ };
+ 
+-var styles$4 = {"gridRow":"_2dZTy","gridRowLine":"_3rUKi","gridTick":"_RuwuK"};
++var styles$4 = { "gridRow": "_2dZTy", "gridRowLine": "_3rUKi", "gridTick": "_RuwuK" };
+ 
+ var GridBody = function GridBody(_ref) {
+   var tasks = _ref.tasks,
+-      dates = _ref.dates,
+-      rowHeight = _ref.rowHeight,
+-      svgWidth = _ref.svgWidth,
+-      columnWidth = _ref.columnWidth,
+-      todayColor = _ref.todayColor,
+-      rtl = _ref.rtl;
++    dates = _ref.dates,
++    rowHeight = _ref.rowHeight,
++    svgWidth = _ref.svgWidth,
++    columnWidth = _ref.columnWidth,
++    todayColor = _ref.todayColor,
++    rtl = _ref.rtl;
+   var y = 0;
+   var gridRows = [];
+   var rowLines = [React.createElement("line", {
+@@ -678,15 +678,15 @@ var Grid = function Grid(props) {
+   }, React.createElement(GridBody, Object.assign({}, props)));
+ };
+ 
+-var styles$5 = {"calendarBottomText":"_9w8d5","calendarTopTick":"_1rLuZ","calendarTopText":"_2q1Kt","calendarHeader":"_35nLX"};
++var styles$5 = { "calendarBottomText": "_9w8d5", "calendarTopTick": "_1rLuZ", "calendarTopText": "_2q1Kt", "calendarHeader": "_35nLX" };
+ 
+ var TopPartOfCalendar = function TopPartOfCalendar(_ref) {
+   var value = _ref.value,
+-      x1Line = _ref.x1Line,
+-      y1Line = _ref.y1Line,
+-      y2Line = _ref.y2Line,
+-      xText = _ref.xText,
+-      yText = _ref.yText;
++    x1Line = _ref.x1Line,
++    y1Line = _ref.y1Line,
++    y2Line = _ref.y2Line,
++    xText = _ref.xText,
++    yText = _ref.yText;
+   return React.createElement("g", {
+     className: "calendarTop"
+   }, React.createElement("line", {
+@@ -706,13 +706,13 @@ var TopPartOfCalendar = function TopPartOfCalendar(_ref) {
+ 
+ var Calendar = function Calendar(_ref) {
+   var dateSetup = _ref.dateSetup,
+-      locale = _ref.locale,
+-      viewMode = _ref.viewMode,
+-      rtl = _ref.rtl,
+-      headerHeight = _ref.headerHeight,
+-      columnWidth = _ref.columnWidth,
+-      fontFamily = _ref.fontFamily,
+-      fontSize = _ref.fontSize;
++    locale = _ref.locale,
++    viewMode = _ref.viewMode,
++    rtl = _ref.rtl,
++    headerHeight = _ref.headerHeight,
++    columnWidth = _ref.columnWidth,
++    fontFamily = _ref.fontFamily,
++    fontSize = _ref.fontSize;
+ 
+   var getCalendarValuesForYear = function getCalendarValuesForYear() {
+     var topValues = [];
+@@ -1015,24 +1015,24 @@ const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symb
+ 
+ // Asynchronously call a function and send errors to recovery continuation
+ function _catch(body, recover) {
+-	try {
+-		var result = body();
+-	} catch(e) {
+-		return recover(e);
+-	}
+-	if (result && result.then) {
+-		return result.then(void 0, recover);
+-	}
+-	return result;
++  try {
++    var result = body();
++  } catch (e) {
++    return recover(e);
++  }
++  if (result && result.then) {
++    return result.then(void 0, recover);
++  }
++  return result;
+ }
+ 
+ var Arrow = function Arrow(_ref) {
+   var taskFrom = _ref.taskFrom,
+-      taskTo = _ref.taskTo,
+-      rowHeight = _ref.rowHeight,
+-      taskHeight = _ref.taskHeight,
+-      arrowIndent = _ref.arrowIndent,
+-      rtl = _ref.rtl;
++    taskTo = _ref.taskTo,
++    rowHeight = _ref.rowHeight,
++    taskHeight = _ref.taskHeight,
++    arrowIndent = _ref.arrowIndent,
++    rtl = _ref.rtl;
+   var path;
+   var trianglePoints;
+ 
+@@ -1144,8 +1144,8 @@ var convertToBar = function convertToBar(task, index, dates, columnWidth, rowHei
+   }
+ 
+   var _progressWithByParams = progressWithByParams(x1, x2, task.progress, rtl),
+-      progressWidth = _progressWithByParams[0],
+-      progressX = _progressWithByParams[1];
++    progressWidth = _progressWithByParams[0],
++    progressX = _progressWithByParams[1];
+ 
+   var y = taskYCoordinate(index, rowHeight, taskHeight);
+   var hideChildren = task.type === "project" ? task.hideChildren : undefined;
+@@ -1242,7 +1242,7 @@ var progressWithByParams = function progressWithByParams(taskX1, taskX2, progres
+ };
+ 
+ var progressByX = function progressByX(x, task) {
+-  if (x >= task.x2) return 100;else if (x <= task.x1) return 0;else {
++  if (x >= task.x2) return 100; else if (x <= task.x1) return 0; else {
+     var barWidth = task.x2 - task.x1;
+     var progressPercent = Math.round((x - task.x1) * 100 / barWidth);
+     return progressPercent;
+@@ -1250,7 +1250,7 @@ var progressByX = function progressByX(x, task) {
+ };
+ 
+ var progressByXRTL = function progressByXRTL(x, task) {
+-  if (x >= task.x2) return 0;else if (x <= task.x1) return 100;else {
++  if (x >= task.x2) return 0; else if (x <= task.x1) return 100; else {
+     var barWidth = task.x2 - task.x1;
+     var progressPercent = Math.round((task.x2 - x) * 100 / barWidth);
+     return progressPercent;
+@@ -1331,8 +1331,8 @@ var handleTaskBySVGMouseEventForBar = function handleTaskBySVGMouseEventForBar(s
+ 
+       if (isChanged) {
+         var _progressWithByParams2 = progressWithByParams(changedTask.x1, changedTask.x2, changedTask.progress, rtl),
+-            progressWidth = _progressWithByParams2[0],
+-            progressX = _progressWithByParams2[1];
++          progressWidth = _progressWithByParams2[0],
++          progressX = _progressWithByParams2[1];
+ 
+         changedTask.progressWidth = progressWidth;
+         changedTask.progressX = progressX;
+@@ -1354,8 +1354,8 @@ var handleTaskBySVGMouseEventForBar = function handleTaskBySVGMouseEventForBar(s
+           }
+ 
+           var _progressWithByParams3 = progressWithByParams(changedTask.x1, changedTask.x2, changedTask.progress, rtl),
+-              _progressWidth = _progressWithByParams3[0],
+-              _progressX = _progressWithByParams3[1];
++            _progressWidth = _progressWithByParams3[0],
++            _progressX = _progressWithByParams3[1];
+ 
+           changedTask.progressWidth = _progressWidth;
+           changedTask.progressX = _progressX;
+@@ -1378,8 +1378,8 @@ var handleTaskBySVGMouseEventForBar = function handleTaskBySVGMouseEventForBar(s
+           }
+ 
+           var _progressWithByParams4 = progressWithByParams(changedTask.x1, changedTask.x2, changedTask.progress, rtl),
+-              _progressWidth2 = _progressWithByParams4[0],
+-              _progressX2 = _progressWithByParams4[1];
++            _progressWidth2 = _progressWithByParams4[0],
++            _progressX2 = _progressWithByParams4[1];
+ 
+           changedTask.progressWidth = _progressWidth2;
+           changedTask.progressX = _progressX2;
+@@ -1391,8 +1391,8 @@ var handleTaskBySVGMouseEventForBar = function handleTaskBySVGMouseEventForBar(s
+     case "move":
+       {
+         var _moveByX = moveByX(svgX - initEventX1Delta, xStep, selectedTask),
+-            newMoveX1 = _moveByX[0],
+-            newMoveX2 = _moveByX[1];
++          newMoveX1 = _moveByX[0],
++          newMoveX2 = _moveByX[1];
+ 
+         isChanged = newMoveX1 !== selectedTask.x1;
+ 
+@@ -1403,8 +1403,8 @@ var handleTaskBySVGMouseEventForBar = function handleTaskBySVGMouseEventForBar(s
+           changedTask.x2 = newMoveX2;
+ 
+           var _progressWithByParams5 = progressWithByParams(changedTask.x1, changedTask.x2, changedTask.progress, rtl),
+-              _progressWidth3 = _progressWithByParams5[0],
+-              _progressX3 = _progressWithByParams5[1];
++            _progressWidth3 = _progressWithByParams5[0],
++            _progressX3 = _progressWithByParams5[1];
+ 
+           changedTask.progressWidth = _progressWidth3;
+           changedTask.progressX = _progressX3;
+@@ -1429,8 +1429,8 @@ var handleTaskBySVGMouseEventForMilestone = function handleTaskBySVGMouseEventFo
+     case "move":
+       {
+         var _moveByX2 = moveByX(svgX - initEventX1Delta, xStep, selectedTask),
+-            newMoveX1 = _moveByX2[0],
+-            newMoveX2 = _moveByX2[1];
++          newMoveX1 = _moveByX2[0],
++          newMoveX2 = _moveByX2[1];
+ 
+         isChanged = newMoveX1 !== selectedTask.x1;
+ 
+@@ -1510,19 +1510,19 @@ var sortTasks = function sortTasks(taskA, taskB) {
+   }
+ };
+ 
+-var styles$6 = {"barWrapper":"_KxSXS","barHandle":"_3w_5u","barBackground":"_31ERP"};
++var styles$6 = { "barWrapper": "_KxSXS", "barHandle": "_3w_5u", "barBackground": "_31ERP" };
+ 
+ var BarDisplay = function BarDisplay(_ref) {
+   var x = _ref.x,
+-      y = _ref.y,
+-      width = _ref.width,
+-      height = _ref.height,
+-      isSelected = _ref.isSelected,
+-      progressX = _ref.progressX,
+-      progressWidth = _ref.progressWidth,
+-      barCornerRadius = _ref.barCornerRadius,
+-      styles = _ref.styles,
+-      onMouseDown = _ref.onMouseDown;
++    y = _ref.y,
++    width = _ref.width,
++    height = _ref.height,
++    isSelected = _ref.isSelected,
++    progressX = _ref.progressX,
++    progressWidth = _ref.progressWidth,
++    barCornerRadius = _ref.barCornerRadius,
++    styles = _ref.styles,
++    onMouseDown = _ref.onMouseDown;
+ 
+   var getProcessColor = function getProcessColor() {
+     return isSelected ? styles.progressSelectedColor : styles.progressColor;
+@@ -1556,11 +1556,11 @@ var BarDisplay = function BarDisplay(_ref) {
+ 
+ var BarDateHandle = function BarDateHandle(_ref) {
+   var x = _ref.x,
+-      y = _ref.y,
+-      width = _ref.width,
+-      height = _ref.height,
+-      barCornerRadius = _ref.barCornerRadius,
+-      onMouseDown = _ref.onMouseDown;
++    y = _ref.y,
++    width = _ref.width,
++    height = _ref.height,
++    barCornerRadius = _ref.barCornerRadius,
++    onMouseDown = _ref.onMouseDown;
+   return React.createElement("rect", {
+     x: x,
+     y: y,
+@@ -1575,7 +1575,7 @@ var BarDateHandle = function BarDateHandle(_ref) {
+ 
+ var BarProgressHandle = function BarProgressHandle(_ref) {
+   var progressPoint = _ref.progressPoint,
+-      onMouseDown = _ref.onMouseDown;
++    onMouseDown = _ref.onMouseDown;
+   return React.createElement("polygon", {
+     className: styles$6.barHandle,
+     points: progressPoint,
+@@ -1585,11 +1585,11 @@ var BarProgressHandle = function BarProgressHandle(_ref) {
+ 
+ var Bar = function Bar(_ref) {
+   var task = _ref.task,
+-      isProgressChangeable = _ref.isProgressChangeable,
+-      isDateChangeable = _ref.isDateChangeable,
+-      rtl = _ref.rtl,
+-      onEventStart = _ref.onEventStart,
+-      isSelected = _ref.isSelected;
++    isProgressChangeable = _ref.isProgressChangeable,
++    isDateChangeable = _ref.isDateChangeable,
++    rtl = _ref.rtl,
++    onEventStart = _ref.onEventStart,
++    isSelected = _ref.isSelected;
+   var progressPoint = getProgressPoint(+!rtl * task.progressWidth + task.progressX, task.y, task.height);
+   var handleHeight = task.height - 2;
+   return React.createElement("g", {
+@@ -1638,10 +1638,10 @@ var Bar = function Bar(_ref) {
+ 
+ var BarSmall = function BarSmall(_ref) {
+   var task = _ref.task,
+-      isProgressChangeable = _ref.isProgressChangeable,
+-      isDateChangeable = _ref.isDateChangeable,
+-      onEventStart = _ref.onEventStart,
+-      isSelected = _ref.isSelected;
++    isProgressChangeable = _ref.isProgressChangeable,
++    isDateChangeable = _ref.isDateChangeable,
++    onEventStart = _ref.onEventStart,
++    isSelected = _ref.isSelected;
+   var progressPoint = getProgressPoint(task.progressWidth + task.x1, task.y, task.height);
+   return React.createElement("g", {
+     className: styles$6.barWrapper,
+@@ -1669,13 +1669,13 @@ var BarSmall = function BarSmall(_ref) {
+   })));
+ };
+ 
+-var styles$7 = {"milestoneWrapper":"_RRr13","milestoneBackground":"_2P2B1"};
++var styles$7 = { "milestoneWrapper": "_RRr13", "milestoneBackground": "_2P2B1" };
+ 
+ var Milestone = function Milestone(_ref) {
+   var task = _ref.task,
+-      isDateChangeable = _ref.isDateChangeable,
+-      onEventStart = _ref.onEventStart,
+-      isSelected = _ref.isSelected;
++    isDateChangeable = _ref.isDateChangeable,
++    onEventStart = _ref.onEventStart,
++    isSelected = _ref.isSelected;
+   var transform = "rotate(45 " + (task.x1 + task.height * 0.356) + " \n    " + (task.y + task.height * 0.85) + ")";
+ 
+   var getBarColor = function getBarColor() {
+@@ -1701,11 +1701,11 @@ var Milestone = function Milestone(_ref) {
+   }));
+ };
+ 
+-var styles$8 = {"projectWrapper":"_1KJ6x","projectBackground":"_2RbVy","projectTop":"_2pZMF"};
++var styles$8 = { "projectWrapper": "_1KJ6x", "projectBackground": "_2RbVy", "projectTop": "_2pZMF" };
+ 
+ var Project = function Project(_ref) {
+   var task = _ref.task,
+-      isSelected = _ref.isSelected;
++    isSelected = _ref.isSelected;
+   var barColor = isSelected ? task.styles.backgroundSelectedColor : task.styles.backgroundColor;
+   var processColor = isSelected ? task.styles.progressSelectedColor : task.styles.progressColor;
+   var projectWith = task.x2 - task.x1;
+@@ -1751,27 +1751,27 @@ var Project = function Project(_ref) {
+   }));
+ };
+ 
+-var style = {"barLabel":"_3zRJQ","barLabelOutside":"_3KcaM"};
++var style = { "barLabel": "_3zRJQ", "barLabelOutside": "_3KcaM" };
+ 
+ var TaskItem = function TaskItem(props) {
+   var _props = _extends({}, props),
+-      task = _props.task,
+-      arrowIndent = _props.arrowIndent,
+-      isDelete = _props.isDelete,
+-      taskHeight = _props.taskHeight,
+-      isSelected = _props.isSelected,
+-      rtl = _props.rtl,
+-      onEventStart = _props.onEventStart;
++    task = _props.task,
++    arrowIndent = _props.arrowIndent,
++    isDelete = _props.isDelete,
++    taskHeight = _props.taskHeight,
++    isSelected = _props.isSelected,
++    rtl = _props.rtl,
++    onEventStart = _props.onEventStart;
+ 
+   var textRef = useRef(null);
+ 
+   var _useState = useState(React.createElement("div", null)),
+-      taskItem = _useState[0],
+-      setTaskItem = _useState[1];
++    taskItem = _useState[0],
++    setTaskItem = _useState[1];
+ 
+   var _useState2 = useState(true),
+-      isTextInside = _useState2[0],
+-      setIsTextInside = _useState2[1];
++    isTextInside = _useState2[0],
++    setIsTextInside = _useState2[1];
+ 
+   useEffect(function () {
+     switch (task.typeInternal) {
+@@ -1843,7 +1843,7 @@ var TaskItem = function TaskItem(props) {
+   }, taskItem, React.createElement("text", {
+     x: getX(),
+     y: task.y + taskHeight * 0.5,
+-    className: isTextInside ? style.barLabel :  style.barLabelOutside,
++    className: isTextInside ? style.barLabel : style.barLabelOutside,
+     ref: textRef
+   }, task.name));
+ };
+@@ -1852,40 +1852,40 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+   var _svg$current;
+ 
+   var tasks = _ref.tasks,
+-      dates = _ref.dates,
+-      ganttEvent = _ref.ganttEvent,
+-      selectedTask = _ref.selectedTask,
+-      rowHeight = _ref.rowHeight,
+-      columnWidth = _ref.columnWidth,
+-      timeStep = _ref.timeStep,
+-      svg = _ref.svg,
+-      taskHeight = _ref.taskHeight,
+-      arrowColor = _ref.arrowColor,
+-      arrowIndent = _ref.arrowIndent,
+-      fontFamily = _ref.fontFamily,
+-      fontSize = _ref.fontSize,
+-      rtl = _ref.rtl,
+-      setGanttEvent = _ref.setGanttEvent,
+-      setFailedTask = _ref.setFailedTask,
+-      setSelectedTask = _ref.setSelectedTask,
+-      onDateChange = _ref.onDateChange,
+-      onProgressChange = _ref.onProgressChange,
+-      onDoubleClick = _ref.onDoubleClick,
+-      onClick = _ref.onClick,
+-      onDelete = _ref.onDelete;
++    dates = _ref.dates,
++    ganttEvent = _ref.ganttEvent,
++    selectedTask = _ref.selectedTask,
++    rowHeight = _ref.rowHeight,
++    columnWidth = _ref.columnWidth,
++    timeStep = _ref.timeStep,
++    svg = _ref.svg,
++    taskHeight = _ref.taskHeight,
++    arrowColor = _ref.arrowColor,
++    arrowIndent = _ref.arrowIndent,
++    fontFamily = _ref.fontFamily,
++    fontSize = _ref.fontSize,
++    rtl = _ref.rtl,
++    setGanttEvent = _ref.setGanttEvent,
++    setFailedTask = _ref.setFailedTask,
++    setSelectedTask = _ref.setSelectedTask,
++    onDateChange = _ref.onDateChange,
++    onProgressChange = _ref.onProgressChange,
++    onDoubleClick = _ref.onDoubleClick,
++    onClick = _ref.onClick,
++    onDelete = _ref.onDelete;
+   var point = svg === null || svg === void 0 ? void 0 : (_svg$current = svg.current) === null || _svg$current === void 0 ? void 0 : _svg$current.createSVGPoint();
+ 
+   var _useState = useState(0),
+-      xStep = _useState[0],
+-      setXStep = _useState[1];
++    xStep = _useState[0],
++    setXStep = _useState[1];
+ 
+   var _useState2 = useState(0),
+-      initEventX1Delta = _useState2[0],
+-      setInitEventX1Delta = _useState2[1];
++    initEventX1Delta = _useState2[0],
++    setInitEventX1Delta = _useState2[1];
+ 
+   var _useState3 = useState(false),
+-      isMoving = _useState3[0],
+-      setIsMoving = _useState3[1];
++    isMoving = _useState3[0],
++    setIsMoving = _useState3[1];
+ 
+   useEffect(function () {
+     var dateDelta = dates[1].getTime() - dates[0].getTime() - dates[1].getTimezoneOffset() * 60 * 1000 + dates[0].getTimezoneOffset() * 60 * 1000;
+@@ -1903,8 +1903,8 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+         var cursor = point.matrixTransform(svg === null || svg === void 0 ? void 0 : (_svg$current$getScree = svg.current.getScreenCTM()) === null || _svg$current$getScree === void 0 ? void 0 : _svg$current$getScree.inverse());
+ 
+         var _handleTaskBySVGMouse = handleTaskBySVGMouseEvent(cursor.x, ganttEvent.action, ganttEvent.changedTask, xStep, timeStep, initEventX1Delta, rtl),
+-            isChanged = _handleTaskBySVGMouse.isChanged,
+-            changedTask = _handleTaskBySVGMouse.changedTask;
++          isChanged = _handleTaskBySVGMouse.isChanged,
++          changedTask = _handleTaskBySVGMouse.changedTask;
+ 
+         if (isChanged) {
+           setGanttEvent({
+@@ -1930,15 +1930,15 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+         };
+ 
+         var action = ganttEvent.action,
+-            originalSelectedTask = ganttEvent.originalSelectedTask,
+-            changedTask = ganttEvent.changedTask;
++          originalSelectedTask = ganttEvent.originalSelectedTask,
++          changedTask = ganttEvent.changedTask;
+         if (!changedTask || !point || !(svg !== null && svg !== void 0 && svg.current) || !originalSelectedTask) return Promise.resolve();
+         event.preventDefault();
+         point.x = event.clientX;
+         var cursor = point.matrixTransform(svg === null || svg === void 0 ? void 0 : (_svg$current$getScree2 = svg.current.getScreenCTM()) === null || _svg$current$getScree2 === void 0 ? void 0 : _svg$current$getScree2.inverse());
+ 
+         var _handleTaskBySVGMouse2 = handleTaskBySVGMouseEvent(cursor.x, action, changedTask, xStep, timeStep, initEventX1Delta, rtl),
+-            newChangedTask = _handleTaskBySVGMouse2.changedTask;
++          newChangedTask = _handleTaskBySVGMouse2.changedTask;
+ 
+         var isNotLikeOriginal = originalSelectedTask.start !== newChangedTask.start || originalSelectedTask.end !== newChangedTask.end || originalSelectedTask.progress !== newChangedTask.progress;
+         svg.current.removeEventListener("mousemove", handleMouseMove);
+@@ -1961,7 +1961,7 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+               operationSuccess = false;
+             });
+ 
+-            if (_temp8 && _temp8.then) return _temp8.then(function () {});
++            if (_temp8 && _temp8.then) return _temp8.then(function () { });
+           } else {
+             var _temp9 = function () {
+               if (onProgressChange && isNotLikeOriginal) {
+@@ -1975,11 +1975,11 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+                   operationSuccess = false;
+                 });
+ 
+-                if (_temp10 && _temp10.then) return _temp10.then(function () {});
++                if (_temp10 && _temp10.then) return _temp10.then(function () { });
+               }
+             }();
+ 
+-            if (_temp9 && _temp9.then) return _temp9.then(function () {});
++            if (_temp9 && _temp9.then) return _temp9.then(function () { });
+           }
+         }();
+ 
+@@ -2022,15 +2022,15 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+                       console.error("Error on Delete. " + error);
+                     });
+ 
+-                    if (_temp16 && _temp16.then) return _temp16.then(function () {});
++                    if (_temp16 && _temp16.then) return _temp16.then(function () { });
+                   }
+                 }();
+ 
+-                if (_temp15 && _temp15.then) return _temp15.then(function () {});
++                if (_temp15 && _temp15.then) return _temp15.then(function () { });
+               }
+             }();
+ 
+-            if (_temp14 && _temp14.then) return _temp14.then(function () {});
++            if (_temp14 && _temp14.then) return _temp14.then(function () { });
+           } else if (action === "mouseenter") {
+             if (!ganttEvent.action) {
+               setGanttEvent({
+@@ -2113,15 +2113,15 @@ var TaskGanttContent = function TaskGanttContent(_ref) {
+   })));
+ };
+ 
+-var styles$9 = {"ganttVerticalContainer":"_CZjuD","horizontalContainer":"_2B2zv","wrapper":"_3eULf"};
++var styles$9 = { "ganttVerticalContainer": "_CZjuD", "horizontalContainer": "_2B2zv", "wrapper": "_3eULf" };
+ 
+ var TaskGantt = function TaskGantt(_ref) {
+   var gridProps = _ref.gridProps,
+-      calendarProps = _ref.calendarProps,
+-      barProps = _ref.barProps,
+-      ganttHeight = _ref.ganttHeight,
+-      scrollY = _ref.scrollY,
+-      scrollX = _ref.scrollX;
++    calendarProps = _ref.calendarProps,
++    barProps = _ref.barProps,
++    ganttHeight = _ref.ganttHeight,
++    scrollY = _ref.scrollY,
++    scrollX = _ref.scrollX;
+   var ganttSVGRef = useRef(null);
+   var horizontalContainerRef = useRef(null);
+   var verticalGanttContainerRef = useRef(null);
+@@ -2167,14 +2167,14 @@ var TaskGantt = function TaskGantt(_ref) {
+   }, React.createElement(Grid, Object.assign({}, gridProps)), React.createElement(TaskGanttContent, Object.assign({}, newBarProps)))));
+ };
+ 
+-var styles$a = {"scrollWrapper":"_2k9Ys","scroll":"_19jgW"};
++var styles$a = { "scrollWrapper": "_2k9Ys", "scroll": "_19jgW" };
+ 
+ var HorizontalScroll = function HorizontalScroll(_ref) {
+   var scroll = _ref.scroll,
+-      svgWidth = _ref.svgWidth,
+-      taskListWidth = _ref.taskListWidth,
+-      rtl = _ref.rtl,
+-      onScroll = _ref.onScroll;
++    svgWidth = _ref.svgWidth,
++    taskListWidth = _ref.taskListWidth,
++    rtl = _ref.rtl,
++    onScroll = _ref.onScroll;
+   var scrollRef = useRef(null);
+   useEffect(function () {
+     if (scrollRef.current) {
+@@ -2199,144 +2199,144 @@ var HorizontalScroll = function HorizontalScroll(_ref) {
+ 
+ var Gantt = function Gantt(_ref) {
+   var tasks = _ref.tasks,
+-      _ref$headerHeight = _ref.headerHeight,
+-      headerHeight = _ref$headerHeight === void 0 ? 50 : _ref$headerHeight,
+-      _ref$columnWidth = _ref.columnWidth,
+-      columnWidth = _ref$columnWidth === void 0 ? 60 : _ref$columnWidth,
+-      _ref$listCellWidth = _ref.listCellWidth,
+-      listCellWidth = _ref$listCellWidth === void 0 ? "155px" : _ref$listCellWidth,
+-      _ref$rowHeight = _ref.rowHeight,
+-      rowHeight = _ref$rowHeight === void 0 ? 50 : _ref$rowHeight,
+-      _ref$ganttHeight = _ref.ganttHeight,
+-      ganttHeight = _ref$ganttHeight === void 0 ? 0 : _ref$ganttHeight,
+-      _ref$viewMode = _ref.viewMode,
+-      viewMode = _ref$viewMode === void 0 ? ViewMode.Day : _ref$viewMode,
+-      _ref$preStepsCount = _ref.preStepsCount,
+-      preStepsCount = _ref$preStepsCount === void 0 ? 1 : _ref$preStepsCount,
+-      _ref$locale = _ref.locale,
+-      locale = _ref$locale === void 0 ? "en-GB" : _ref$locale,
+-      _ref$barFill = _ref.barFill,
+-      barFill = _ref$barFill === void 0 ? 60 : _ref$barFill,
+-      _ref$barCornerRadius = _ref.barCornerRadius,
+-      barCornerRadius = _ref$barCornerRadius === void 0 ? 3 : _ref$barCornerRadius,
+-      _ref$barProgressColor = _ref.barProgressColor,
+-      barProgressColor = _ref$barProgressColor === void 0 ? "#a3a3ff" : _ref$barProgressColor,
+-      _ref$barProgressSelec = _ref.barProgressSelectedColor,
+-      barProgressSelectedColor = _ref$barProgressSelec === void 0 ? "#8282f5" : _ref$barProgressSelec,
+-      _ref$barBackgroundCol = _ref.barBackgroundColor,
+-      barBackgroundColor = _ref$barBackgroundCol === void 0 ? "#b8c2cc" : _ref$barBackgroundCol,
+-      _ref$barBackgroundSel = _ref.barBackgroundSelectedColor,
+-      barBackgroundSelectedColor = _ref$barBackgroundSel === void 0 ? "#aeb8c2" : _ref$barBackgroundSel,
+-      _ref$projectProgressC = _ref.projectProgressColor,
+-      projectProgressColor = _ref$projectProgressC === void 0 ? "#7db59a" : _ref$projectProgressC,
+-      _ref$projectProgressS = _ref.projectProgressSelectedColor,
+-      projectProgressSelectedColor = _ref$projectProgressS === void 0 ? "#59a985" : _ref$projectProgressS,
+-      _ref$projectBackgroun = _ref.projectBackgroundColor,
+-      projectBackgroundColor = _ref$projectBackgroun === void 0 ? "#fac465" : _ref$projectBackgroun,
+-      _ref$projectBackgroun2 = _ref.projectBackgroundSelectedColor,
+-      projectBackgroundSelectedColor = _ref$projectBackgroun2 === void 0 ? "#f7bb53" : _ref$projectBackgroun2,
+-      _ref$milestoneBackgro = _ref.milestoneBackgroundColor,
+-      milestoneBackgroundColor = _ref$milestoneBackgro === void 0 ? "#f1c453" : _ref$milestoneBackgro,
+-      _ref$milestoneBackgro2 = _ref.milestoneBackgroundSelectedColor,
+-      milestoneBackgroundSelectedColor = _ref$milestoneBackgro2 === void 0 ? "#f29e4c" : _ref$milestoneBackgro2,
+-      _ref$rtl = _ref.rtl,
+-      rtl = _ref$rtl === void 0 ? false : _ref$rtl,
+-      _ref$handleWidth = _ref.handleWidth,
+-      handleWidth = _ref$handleWidth === void 0 ? 8 : _ref$handleWidth,
+-      _ref$timeStep = _ref.timeStep,
+-      timeStep = _ref$timeStep === void 0 ? 300000 : _ref$timeStep,
+-      _ref$arrowColor = _ref.arrowColor,
+-      arrowColor = _ref$arrowColor === void 0 ? "grey" : _ref$arrowColor,
+-      _ref$fontFamily = _ref.fontFamily,
+-      fontFamily = _ref$fontFamily === void 0 ? "Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue" : _ref$fontFamily,
+-      _ref$fontSize = _ref.fontSize,
+-      fontSize = _ref$fontSize === void 0 ? "14px" : _ref$fontSize,
+-      _ref$arrowIndent = _ref.arrowIndent,
+-      arrowIndent = _ref$arrowIndent === void 0 ? 20 : _ref$arrowIndent,
+-      _ref$todayColor = _ref.todayColor,
+-      todayColor = _ref$todayColor === void 0 ? "rgba(252, 248, 227, 0.5)" : _ref$todayColor,
+-      viewDate = _ref.viewDate,
+-      _ref$TooltipContent = _ref.TooltipContent,
+-      TooltipContent = _ref$TooltipContent === void 0 ? StandardTooltipContent : _ref$TooltipContent,
+-      _ref$TaskListHeader = _ref.TaskListHeader,
+-      TaskListHeader = _ref$TaskListHeader === void 0 ? TaskListHeaderDefault : _ref$TaskListHeader,
+-      _ref$TaskListTable = _ref.TaskListTable,
+-      TaskListTable = _ref$TaskListTable === void 0 ? TaskListTableDefault : _ref$TaskListTable,
+-      onDateChange = _ref.onDateChange,
+-      onProgressChange = _ref.onProgressChange,
+-      onDoubleClick = _ref.onDoubleClick,
+-      onClick = _ref.onClick,
+-      onDelete = _ref.onDelete,
+-      onSelect = _ref.onSelect,
+-      onExpanderClick = _ref.onExpanderClick;
++    _ref$headerHeight = _ref.headerHeight,
++    headerHeight = _ref$headerHeight === void 0 ? 50 : _ref$headerHeight,
++    _ref$columnWidth = _ref.columnWidth,
++    columnWidth = _ref$columnWidth === void 0 ? 60 : _ref$columnWidth,
++    _ref$listCellWidth = _ref.listCellWidth,
++    listCellWidth = _ref$listCellWidth === void 0 ? "155px" : _ref$listCellWidth,
++    _ref$rowHeight = _ref.rowHeight,
++    rowHeight = _ref$rowHeight === void 0 ? 50 : _ref$rowHeight,
++    _ref$ganttHeight = _ref.ganttHeight,
++    ganttHeight = _ref$ganttHeight === void 0 ? 0 : _ref$ganttHeight,
++    _ref$viewMode = _ref.viewMode,
++    viewMode = _ref$viewMode === void 0 ? ViewMode.Day : _ref$viewMode,
++    _ref$preStepsCount = _ref.preStepsCount,
++    preStepsCount = _ref$preStepsCount === void 0 ? 1 : _ref$preStepsCount,
++    _ref$locale = _ref.locale,
++    locale = _ref$locale === void 0 ? "en-GB" : _ref$locale,
++    _ref$barFill = _ref.barFill,
++    barFill = _ref$barFill === void 0 ? 60 : _ref$barFill,
++    _ref$barCornerRadius = _ref.barCornerRadius,
++    barCornerRadius = _ref$barCornerRadius === void 0 ? 3 : _ref$barCornerRadius,
++    _ref$barProgressColor = _ref.barProgressColor,
++    barProgressColor = _ref$barProgressColor === void 0 ? "#a3a3ff" : _ref$barProgressColor,
++    _ref$barProgressSelec = _ref.barProgressSelectedColor,
++    barProgressSelectedColor = _ref$barProgressSelec === void 0 ? "#8282f5" : _ref$barProgressSelec,
++    _ref$barBackgroundCol = _ref.barBackgroundColor,
++    barBackgroundColor = _ref$barBackgroundCol === void 0 ? "#b8c2cc" : _ref$barBackgroundCol,
++    _ref$barBackgroundSel = _ref.barBackgroundSelectedColor,
++    barBackgroundSelectedColor = _ref$barBackgroundSel === void 0 ? "#aeb8c2" : _ref$barBackgroundSel,
++    _ref$projectProgressC = _ref.projectProgressColor,
++    projectProgressColor = _ref$projectProgressC === void 0 ? "#7db59a" : _ref$projectProgressC,
++    _ref$projectProgressS = _ref.projectProgressSelectedColor,
++    projectProgressSelectedColor = _ref$projectProgressS === void 0 ? "#59a985" : _ref$projectProgressS,
++    _ref$projectBackgroun = _ref.projectBackgroundColor,
++    projectBackgroundColor = _ref$projectBackgroun === void 0 ? "#fac465" : _ref$projectBackgroun,
++    _ref$projectBackgroun2 = _ref.projectBackgroundSelectedColor,
++    projectBackgroundSelectedColor = _ref$projectBackgroun2 === void 0 ? "#f7bb53" : _ref$projectBackgroun2,
++    _ref$milestoneBackgro = _ref.milestoneBackgroundColor,
++    milestoneBackgroundColor = _ref$milestoneBackgro === void 0 ? "#f1c453" : _ref$milestoneBackgro,
++    _ref$milestoneBackgro2 = _ref.milestoneBackgroundSelectedColor,
++    milestoneBackgroundSelectedColor = _ref$milestoneBackgro2 === void 0 ? "#f29e4c" : _ref$milestoneBackgro2,
++    _ref$rtl = _ref.rtl,
++    rtl = _ref$rtl === void 0 ? false : _ref$rtl,
++    _ref$handleWidth = _ref.handleWidth,
++    handleWidth = _ref$handleWidth === void 0 ? 8 : _ref$handleWidth,
++    _ref$timeStep = _ref.timeStep,
++    timeStep = _ref$timeStep === void 0 ? 300000 : _ref$timeStep,
++    _ref$arrowColor = _ref.arrowColor,
++    arrowColor = _ref$arrowColor === void 0 ? "grey" : _ref$arrowColor,
++    _ref$fontFamily = _ref.fontFamily,
++    fontFamily = _ref$fontFamily === void 0 ? "Arial, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue" : _ref$fontFamily,
++    _ref$fontSize = _ref.fontSize,
++    fontSize = _ref$fontSize === void 0 ? "14px" : _ref$fontSize,
++    _ref$arrowIndent = _ref.arrowIndent,
++    arrowIndent = _ref$arrowIndent === void 0 ? 20 : _ref$arrowIndent,
++    _ref$todayColor = _ref.todayColor,
++    todayColor = _ref$todayColor === void 0 ? "rgba(252, 248, 227, 0.5)" : _ref$todayColor,
++    viewDate = _ref.viewDate,
++    _ref$TooltipContent = _ref.TooltipContent,
++    TooltipContent = _ref$TooltipContent === void 0 ? StandardTooltipContent : _ref$TooltipContent,
++    _ref$TaskListHeader = _ref.TaskListHeader,
++    TaskListHeader = _ref$TaskListHeader === void 0 ? TaskListHeaderDefault : _ref$TaskListHeader,
++    _ref$TaskListTable = _ref.TaskListTable,
++    TaskListTable = _ref$TaskListTable === void 0 ? TaskListTableDefault : _ref$TaskListTable,
++    onDateChange = _ref.onDateChange,
++    onProgressChange = _ref.onProgressChange,
++    onDoubleClick = _ref.onDoubleClick,
++    onClick = _ref.onClick,
++    onDelete = _ref.onDelete,
++    onSelect = _ref.onSelect,
++    onExpanderClick = _ref.onExpanderClick;
+   var wrapperRef = useRef(null);
+   var taskListRef = useRef(null);
+ 
+   var _useState = useState(function () {
+     var _ganttDateRange = ganttDateRange(tasks, viewMode, preStepsCount),
+-        startDate = _ganttDateRange[0],
+-        endDate = _ganttDateRange[1];
++      startDate = _ganttDateRange[0],
++      endDate = _ganttDateRange[1];
+ 
+     return {
+       viewMode: viewMode,
+       dates: seedDates(startDate, endDate, viewMode)
+     };
+   }),
+-      dateSetup = _useState[0],
+-      setDateSetup = _useState[1];
++    dateSetup = _useState[0],
++    setDateSetup = _useState[1];
+ 
+   var _useState2 = useState(undefined),
+-      currentViewDate = _useState2[0],
+-      setCurrentViewDate = _useState2[1];
++    currentViewDate = _useState2[0],
++    setCurrentViewDate = _useState2[1];
+ 
+   var _useState3 = useState(0),
+-      taskListWidth = _useState3[0],
+-      setTaskListWidth = _useState3[1];
++    taskListWidth = _useState3[0],
++    setTaskListWidth = _useState3[1];
+ 
+   var _useState4 = useState(0),
+-      svgContainerWidth = _useState4[0],
+-      setSvgContainerWidth = _useState4[1];
++    svgContainerWidth = _useState4[0],
++    setSvgContainerWidth = _useState4[1];
+ 
+   var _useState5 = useState(ganttHeight),
+-      svgContainerHeight = _useState5[0],
+-      setSvgContainerHeight = _useState5[1];
++    svgContainerHeight = _useState5[0],
++    setSvgContainerHeight = _useState5[1];
+ 
+   var _useState6 = useState([]),
+-      barTasks = _useState6[0],
+-      setBarTasks = _useState6[1];
++    barTasks = _useState6[0],
++    setBarTasks = _useState6[1];
+ 
+   var _useState7 = useState({
+     action: ""
+   }),
+-      ganttEvent = _useState7[0],
+-      setGanttEvent = _useState7[1];
++    ganttEvent = _useState7[0],
++    setGanttEvent = _useState7[1];
+ 
+   var taskHeight = useMemo(function () {
+     return rowHeight * barFill / 100;
+   }, [rowHeight, barFill]);
+ 
+   var _useState8 = useState(),
+-      selectedTask = _useState8[0],
+-      setSelectedTask = _useState8[1];
++    selectedTask = _useState8[0],
++    setSelectedTask = _useState8[1];
+ 
+   var _useState9 = useState(null),
+-      failedTask = _useState9[0],
+-      setFailedTask = _useState9[1];
++    failedTask = _useState9[0],
++    setFailedTask = _useState9[1];
+ 
+   var svgWidth = dateSetup.dates.length * columnWidth;
+   var ganttFullHeight = barTasks.length * rowHeight;
+ 
+   var _useState10 = useState(0),
+-      scrollY = _useState10[0],
+-      setScrollY = _useState10[1];
++    scrollY = _useState10[0],
++    setScrollY = _useState10[1];
+ 
+   var _useState11 = useState(-1),
+-      scrollX = _useState11[0],
+-      setScrollX = _useState11[1];
++    scrollX = _useState11[0],
++    setScrollX = _useState11[1];
+ 
+   var _useState12 = useState(false),
+-      ignoreScrollEvent = _useState12[0],
+-      setIgnoreScrollEvent = _useState12[1];
++    ignoreScrollEvent = _useState12[0],
++    setIgnoreScrollEvent = _useState12[1];
+ 
+   useEffect(function () {
+     var filteredTasks;
+@@ -2350,8 +2350,8 @@ var Gantt = function Gantt(_ref) {
+     filteredTasks = filteredTasks.sort(sortTasks);
+ 
+     var _ganttDateRange2 = ganttDateRange(filteredTasks, viewMode, preStepsCount),
+-        startDate = _ganttDateRange2[0],
+-        endDate = _ganttDateRange2[1];
++      startDate = _ganttDateRange2[0],
++      endDate = _ganttDateRange2[1];
+ 
+     var newDates = seedDates(startDate, endDate, viewMode);
+ 
+@@ -2386,7 +2386,7 @@ var Gantt = function Gantt(_ref) {
+   }, [viewDate, columnWidth, dateSetup.dates, dateSetup.viewMode, viewMode, currentViewDate, setCurrentViewDate]);
+   useEffect(function () {
+     var changedTask = ganttEvent.changedTask,
+-        action = ganttEvent.action;
++      action = ganttEvent.action;
+ 
+     if (changedTask) {
+       if (action === "delete") {

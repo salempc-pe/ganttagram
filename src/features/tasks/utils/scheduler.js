@@ -108,7 +108,11 @@ function validatePredecessors(itemId, itemMap, dependencies, calendar) {
     const preds = dependencies.filter(d => d.toTaskId === itemId);
     if (preds.length === 0) return;
 
-    const workingDuration = getWorkingDuration(item._start, item._end, calendar);
+    const storedDuration = parseInt(item.duration, 10);
+    const workingDuration = !isNaN(storedDuration) && storedDuration > 0
+        ? storedDuration
+        : getWorkingDuration(item._start, item._end, calendar);
+
     let changed = false;
 
     // Iteramos hasta que se cumplan todos los predecesores (puede haber múltiples)
@@ -131,15 +135,25 @@ function validatePredecessors(itemId, itemMap, dependencies, calendar) {
  * Lógica central de ajuste de una dependencia específica
  */
 function applyDependencyConstraint(dep, from, to, calendar) {
-    const duration = getWorkingDuration(to._start, to._end, calendar);
+    const storedDuration = parseInt(to.duration, 10);
+    const duration = !isNaN(storedDuration) && storedDuration > 0
+        ? storedDuration
+        : getWorkingDuration(to._start, to._end, calendar);
+
+    const lag = parseInt(dep.lag || 0);
+
+    // Regla del usuario:
+    // FS/SS -> Días después (+lag)
+    // FF/SF -> Días antes (-lag)
+    const effectiveLag = (dep.type === 'FS' || dep.type === 'SS') ? lag : -lag;
 
     // NOTA: Las dependencias actúan como restricciones de tipo "mayor o igual que".
     // Solo ajustamos la tarea sucesora ('to') si esta viola la restricción (está "antes" de lo permitido).
     // Si la tarea sucesora ya está días después (holgura), NO se modifica.
 
     switch (dep.type) {
-        case 'FS': { // Fin-a-Inicio: Start(B) >= End(A) + 1 día
-            const minStartFS = adjustToWorkingDay(addDays(startOfDay(from._end), 1), calendar, 1);
+        case 'FS': { // Fin-a-Inicio: Start(B) >= End(A) + 1 día + lag
+            const minStartFS = adjustToWorkingDay(addDays(startOfDay(from._end), 1 + effectiveLag), calendar, 1);
             if (to._start.getTime() < minStartFS.getTime()) {
                 to._start = minStartFS;
                 to._end = endOfDay(addWorkingDays(to._start, duration - 1, calendar));
@@ -147,8 +161,8 @@ function applyDependencyConstraint(dep, from, to, calendar) {
             break;
         }
 
-        case 'SS': { // Inicio-a-Inicio: Start(B) >= Start(A)
-            const minStartSS = startOfDay(from._start);
+        case 'SS': { // Inicio-a-Inicio: Start(B) >= Start(A) + lag
+            const minStartSS = adjustToWorkingDay(addDays(startOfDay(from._start), effectiveLag), calendar, 1);
             if (to._start.getTime() < minStartSS.getTime()) {
                 to._start = minStartSS;
                 to._end = endOfDay(addWorkingDays(to._start, duration - 1, calendar));
@@ -156,25 +170,40 @@ function applyDependencyConstraint(dep, from, to, calendar) {
             break;
         }
 
-        case 'FF': { // Fin-a-Fin: End(B) >= End(A)
-            const minEndFF = endOfDay(from._end);
+        case 'FF': { // Fin-a-Fin: End(B) >= End(A) + lag
+            // Nota: effectiveLag es negativo aquí según la regla
+            const minEndFF = endOfDay(addDays(from._end, effectiveLag));
+
             if (to._end.getTime() < minEndFF.getTime()) {
                 to._end = minEndFF;
                 // Ajustar inicio para mantener duración
+                // Buscamos hacia atrás un inicio válido
                 let testS = adjustToWorkingDay(addDays(to._end, -(duration + 7)), calendar, 1);
                 let checkE = endOfDay(addWorkingDays(testS, duration - 1, calendar));
+
+                // Avanzamos hasta encontrar el ajuste correcto
                 while (checkE.getTime() < to._end.getTime()) {
                     testS = addDays(testS, 1);
                     checkE = endOfDay(addWorkingDays(testS, duration - 1, calendar));
                 }
+
+                // Si nos pasamos, ajustamos hacia atrás si es necesario, 
+                // pero el loop anterior garantiza checkE >= to._end. 
+                // Sin embargo, queremos que checkE sea LO MÁS CERCANO posible a to._end 
+                // para respetar la duración exacta.
+                // En este bloque simple asumimos que el loop encuentra el 'start' que genera exactamente 'to._end'
+                // o el siguiente día válido.
+
                 to._start = startOfDay(testS);
                 to._end = checkE;
             }
             break;
         }
 
-        case 'SF': { // Inicio-a-Fin: End(B) >= Start(A)
-            const minEndSF = endOfDay(from._start);
+        case 'SF': { // Inicio-a-Fin: End(B) >= Start(A) + lag
+            // Nota: effectiveLag es negativo aquí según la regla
+            const minEndSF = endOfDay(addDays(from._start, effectiveLag));
+
             if (to._end.getTime() < minEndSF.getTime()) {
                 to._end = minEndSF;
                 let testS2 = adjustToWorkingDay(addDays(to._end, -(duration + 7)), calendar, 1);

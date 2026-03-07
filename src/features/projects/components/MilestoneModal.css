@@ -3,7 +3,28 @@
 }
 
 /* Responsive Milestone Modal - Diseño Compacto */
-@media (max-width: 600px) {
+@media (max-width: 767px) {
+    .milestone-modal {
+        width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        max-width: none;
+        border-radius: 0;
+        box-shadow: none;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        margin: 0;
+    }
+
+    .milestone-modal .modal-form {
+        padding-bottom: 6.5rem;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .dependency-add-row {
         display: grid !important;
         grid-template-columns: 1fr 1fr auto !important;

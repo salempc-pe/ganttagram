@@ -1,42 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 
 /* === TOKENS DE DISEÑO INDUSTRIAL-TECH PREMIUM === */
 :root {
+  /* Slate/Graphite Palette */
+  --graphite-900: #1a1d24;
+  /* Pizarra oscura */
+  --graphite-800: #222831;
+  /* Grafito base */
+  --graphite-700: #2a3038;
+  /* Acento Grafito */
+  --graphite-100: #e2e8f0;
+
   /* Paleta Base: Technical Blueprint (Light Mode) */
   --bg-primary: #f8fafc;
-  /* Slate 50 */
   --bg-secondary: #f1f5f9;
-  /* Slate 100 */
   --bg-tertiary: #e2e8f0;
-  /* Slate 200 */
   --bg-card: #ffffff;
   --bg-blueprint: #f8fafc;
 
   --text-primary: #0f172a;
-  /* Slate 900 */
   --text-secondary: #475569;
-  /* Slate 600 */
   --text-tertiary: #94a3b8;
-  /* Slate 400 */
 
   /* Colores de Marca y Acento */
-  --sidebar-bg: #1e293b;
-  /* Slate 800 */
+  --sidebar-bg: var(--graphite-800);
   --sidebar-text: #94a3b8;
-  --sidebar-active: #2563eb;
-  /* Blueprint Blue */
+  --sidebar-active: var(--accent-color);
 
-  /* Color de Acento Construcción */
+  /* Color de Acento Construcción (Naranja) */
   --accent-color: #f97316;
-  /* Construction Orange */
   --accent-hover: #ea580c;
-  --primary-color: #2563eb;
-  /* Blueprint Blue */
+  --primary-color: var(--graphite-700);
+  --primary-hover: var(--graphite-900);
 
   --border-color: #e2e8f0;
-  /* Slate 200 */
   --border-hover: #cbd5e1;
-  /* Slate 300 */
   --border-light: #f1f5f9;
 
   /* Estados Críticos */
@@ -65,7 +63,7 @@
 
   /* Tipografía Blueprint */
   --font-main: 'Inter', system-ui, sans-serif;
-  --font-title: 'Space Grotesk', sans-serif;
+  --font-title: 'IBM Plex Sans', sans-serif;
   --font-tech: 'JetBrains Mono', monospace;
 
   /* Grid Background */
@@ -85,7 +83,7 @@
   --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Modo oscuro eliminado - Solo modo claro */
+
 
 /* === RESET Y BASE === */
 *,
@@ -166,7 +164,6 @@ p {
   color: var(--text-secondary);
 }
 
-/* === INPUTS Y FORMULARIOS === */
 input,
 textarea,
 select,
@@ -176,10 +173,27 @@ button {
   line-height: inherit;
 }
 
-button {
+button,
+[role="button"],
+.cursor-pointer {
   cursor: pointer;
+}
+
+button {
   border: none;
   background: none;
+  transition: all var(--transition-fast);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--transition-fast);
+  cursor: pointer;
+}
+
+a:hover {
+  color: var(--primary-color);
 }
 
 /* === SCROLLBAR PERSONALIZADO === */
@@ -660,6 +674,7 @@ button {
   font-weight: 600;
   color: var(--text-tertiary);
   margin-top: 2px;
+  margin-bottom: 0;
 }
 
 .pro-card {

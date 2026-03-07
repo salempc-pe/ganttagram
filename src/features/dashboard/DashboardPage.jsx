@@ -180,7 +180,6 @@ export const DashboardPage = () => {
                     </div>
 
                     <section className="mt-8">
-                        <h2 className="mb-4">Todos los Proyectos</h2>
                         <ProjectList />
                     </section>
                 </div>

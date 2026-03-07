@@ -138,7 +138,8 @@
 }
 
 .form-col-date .input,
-.form-col-duration .input {
+.form-col-duration .input,
+.dep-input-lag .input {
     border: none;
     background: transparent;
     padding: 4px 0;
@@ -146,7 +147,8 @@
 }
 
 .form-col-date .input:focus,
-.form-col-duration .input:focus {
+.form-col-duration .input:focus,
+.dep-input-lag .input:focus {
     box-shadow: none;
 }
 
@@ -294,6 +296,14 @@
     width: 80px;
 }
 
+.dep-input-lag {
+    width: 80px;
+    background: #f8fafc;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    min-width: 60px;
+}
+
 .dep-label {
     display: block;
     font-size: 11px;
@@ -340,6 +350,9 @@
     background: white;
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
 }
 
 .btn-cancel-mini {
@@ -396,12 +409,44 @@
     border-radius: 10px;
 }
 
-@media (max-width: 767px) {
+.parent-task-notice {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1px solid #fbbf24;
+    border-radius: var(--radius-md);
+    color: #92400e;
+    font-size: 0.813rem;
+    font-weight: 500;
+    line-height: 1.4;
+    animation: fadeIn 0.3s ease;
+}
+
+.parent-task-notice strong {
+    font-weight: 700;
+    color: #78350f;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 767px) and (orientation: portrait),
+(max-height: 500px) {
     .modal-overlay {
         padding: 0;
         background-color: white;
         align-items: stretch;
-        /* Ocupa todo el alto */
     }
 
     .task-modal {
@@ -412,12 +457,10 @@
         border-radius: 0;
         box-shadow: none;
         overflow: hidden;
-        /* IMPORTANTE: El modal ya no hace scroll */
         display: flex;
         flex-direction: column;
         background: white;
         animation: none;
-        /* Quitar animación para evitar filtraciones de layout */
     }
 
     .modal-header {
@@ -425,21 +468,11 @@
         border-bottom: 1px solid var(--border-color);
         background: white;
         flex-shrink: 0;
-        /* No se encoge */
         z-index: 100;
     }
 
     .modal-header h2 {
         font-size: 1.25rem;
-    }
-
-    .modal-form {
-        padding: 1.25rem;
-        padding-bottom: 2rem;
-        gap: 1.5rem;
-        flex: 1;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
     }
 
     .modal-actions-compact {
@@ -452,10 +485,8 @@
         background: white;
         border-top: 1px solid var(--border-color);
         z-index: 1000;
-        /* Asegurar que esté por encima de todo */
         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
         display: flex;
-        /* Mantener la línea horizontal */
         gap: 0.75rem;
     }
 
@@ -464,49 +495,80 @@
         border-radius: 12px;
     }
 
-    .btn-cancel-mini {
+    .btn-cancel-mini,
+    .btn-delete-mini {
         height: 54px;
         width: 54px;
         border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: #f1f5f9;
-    }
-
-    .form-row,
-    .dep-input-row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 1rem !important;
-    }
-
-    .form-row-dates {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: wrap;
-        background: #f1f5f9;
-        padding: 2px;
-        gap: 2px;
-    }
-
-    .dep-input-row {
-        background: transparent;
-        padding: 0;
         border: none;
+        color: var(--text-secondary);
+        transition: all 0.2s;
     }
 
-    .dep-input-type,
-    .dep-add-btn,
-    .form-col-date,
-    .form-col-duration {
-        width: 100%;
+    .btn-delete-mini {
+        color: #ef4444;
+        background: #fef2f2;
     }
 
-    .dep-add-btn {
-        height: 48px;
+    .btn-delete-mini:active {
+        background: #fee2e2;
+        transform: scale(0.95);
     }
 
-    .form-col-date,
-    .form-col-duration {
-        border: none;
-        padding: 0.75rem;
+    .modal-form {
+        padding: 1.25rem;
+        padding-bottom: 6.5rem;
+        gap: 1.5rem;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Solo en teléfonos verticales se apilan; en horizontales aguantan flex */
+    @media (orientation: portrait) {
+
+        .form-row,
+        .dep-input-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem !important;
+        }
+
+        .form-row-dates {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap;
+            background: #f1f5f9;
+            padding: 2px;
+            gap: 2px;
+        }
+
+        .dep-input-row {
+            background: transparent;
+            padding: 0;
+            border: none;
+        }
+
+        .dep-input-type,
+        .dep-input-lag,
+        .dep-add-btn,
+        .form-col-date,
+        .form-col-duration {
+            width: 100% !important;
+        }
+
+        .dep-add-btn {
+            height: 48px;
+        }
+
+        .form-col-date,
+        .form-col-duration {
+            border: none;
+            padding: 0.75rem;
+        }
     }
 }

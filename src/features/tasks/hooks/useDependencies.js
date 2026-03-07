@@ -29,7 +29,7 @@ export const useDependencies = (projectId) => {
         return () => unsubscribe();
     }, [projectId]);
 
-    const addDependency = async (fromTaskId, toTaskId, type = 'FS') => {
+    const addDependency = async (fromTaskId, toTaskId, type = 'FS', lag = 0) => {
         try {
             // Evitar duplicados exactos
             const exists = dependencies.find(d =>
@@ -44,6 +44,7 @@ export const useDependencies = (projectId) => {
                 fromTaskId,
                 toTaskId,
                 type,
+                lag: Number(lag),
                 createdAt: serverTimestamp()
             });
             return { success: true };

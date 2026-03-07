@@ -100,6 +100,7 @@ export const useProjects = () => {
             const newProject = {
                 name: projectData.name,
                 description: projectData.description || '',
+                emoji: projectData.emoji || '🏗️',
                 ownerId: user.uid,
                 ownerName: user.displayName,
                 memberUids: [user.uid],

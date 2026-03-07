@@ -11,29 +11,16 @@
     flex-direction: column;
     min-width: 0;
     background-color: var(--bg-primary);
-    /* Cambiado a primary para el fondo del grid */
+    overflow-x: hidden;
+    /* Evitar scrollbar horizontal a nivel de página */
 }
 
+/* Header padding reducido a la mitad */
 .project-header {
-    padding: 0 var(--space-xl);
-    border-bottom: 2px solid var(--border-color);
-    background-color: #ffffff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 80px;
-    z-index: 20;
-}
-
-.project-header h1 {
-    font-family: var(--font-title);
-    font-size: 1.25rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--text-primary);
-    border-left: 4px solid var(--primary-color);
-    padding-left: var(--space-md);
-    margin: 0;
+    padding: 1rem 1.5rem !important;
+    /* 16px vertical, 24px horizontal */
+    min-height: 72px;
+    box-sizing: border-box;
 }
 
 .view-selector-btn {
@@ -47,14 +34,34 @@
 
 .project-content {
     flex: 1;
-    padding: var(--space-lg);
+    padding: 0;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
 
 /* === RESPONSIVE MODS === */
+
+/* CLASES DE UTILIDAD PARA INDEPENDIZARSE DE TAILWIND `md:` Y USAR 1024px */
+@media (min-width: 768px) {
+    .mobile-only {
+        display: none !important;
+    }
+
+    .desktop-only {
+        display: flex !important;
+    }
+}
+
 @media (max-width: 767px) {
+    .desktop-only {
+        display: none !important;
+    }
+}
+
+
+/* Móvil y Tablets en vertical */
+@media (max-width: 767px) and (orientation: portrait) {
     .project-layout {
         flex-direction: column;
     }
@@ -73,9 +80,48 @@
     .project-content {
         padding: 0;
         padding-bottom: 96px;
+        /* Espacio para el MobileNav tradicional abajo */
         overflow: hidden;
         display: flex;
         flex-direction: column;
+    }
+
+    .project-content>div:not(.flex) {
+        padding: 1rem;
+        overflow-y: auto;
+        flex: 1;
+    }
+}
+
+/* Móvil y Tablets horizontales (Landscape) */
+@media (max-width: 767px) and (orientation: landscape) {
+    .project-layout {
+        flex-direction: row;
+        /* NavLateral (MobileNav) a un lado, contenido al otro */
+    }
+
+    .project-header {
+        display: none !important;
+    }
+
+    .project-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        /* El Nav flotará encima del gráfico, dándole una mejor estética */
+    }
+
+    .project-content {
+        padding: 0;
+        overflow-y: visible;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-view-controls {
+        padding-right: 88px !important;
+        /* Salva los botones del solapamiento con el menú lateral flotante */
     }
 
     .project-content>div:not(.flex) {
@@ -138,4 +184,11 @@
     font-family: var(--font-tech);
     font-size: 0.75rem;
     font-weight: 600;
+}
+
+/* Ocultar elementos auxiliares redundantes en versión vertical */
+@media (max-width: 767px) and (orientation: portrait) {
+    .mobile-back-btn {
+        display: none !important;
+    }
 }

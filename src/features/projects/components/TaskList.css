@@ -26,7 +26,7 @@
 .task-items {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    /* gap: 12px; REMOVED to allow margin animation */
 }
 
 /* --- TARJETA TÉCNICA --- */
@@ -34,9 +34,30 @@
     background-color: var(--bg-primary);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
-    transition: all var(--transition-normal);
+    margin-bottom: 12px;
+    /* Replaces gap */
+
+    /* Animation props */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 500px;
+    /* Arbitrary max height for transition */
+    opacity: 1;
+    transform: translateY(0);
     position: relative;
     overflow: hidden;
+}
+
+.task-card:last-child {
+    margin-bottom: 0;
+}
+
+.task-card.collapsed-hidden {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+    border-width: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
 }
 
 .task-card:hover {
@@ -208,6 +229,56 @@
     color: var(--warning);
 }
 
+/* --- PARENT/SUMMARY TASK VARIANT --- */
+.parent-task-card {
+    border-left: 4px solid #64748b;
+    background: linear-gradient(135deg, #f8fafc, #ffffff);
+}
+
+.parent-task-card:hover {
+    border-color: #475569;
+}
+
+.parent-expand-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(100, 116, 139, 0.08);
+    color: #64748b;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.parent-expand-icon:hover {
+    background: rgba(100, 116, 139, 0.15);
+    color: #334155;
+    transform: scale(1.05);
+}
+
+.subtask-count-pill {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 99px;
+    border: 1px solid #e2e8f0;
+}
+
+.parent-title {
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    color: #334155;
+}
+
 /* --- MOBILE APP ADAPTATION --- */
 @media (max-width: 767px) {
     .task-card-main {
@@ -238,4 +309,29 @@
         width: 100%;
         max-width: none;
     }
+
+    /* Reducir indentación en móvil */
+    .task-card {
+        margin-left: 0 !important;
+    }
+}
+
+/* --- Empty state style --- */
+.empty-tasks {
+    padding: var(--space-3xl) var(--space-xl);
+    text-align: center;
+    color: var(--text-secondary);
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    border: 1px dashed var(--border-color);
+    margin: var(--space-md) 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-tasks p {
+    font-size: 1rem;
+    font-weight: 500;
 }

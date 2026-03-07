@@ -8,6 +8,7 @@ import './index.css';
 // Lazy loading para Code Splitting
 const LoginPage = lazy(() => import('./features/auth/LoginPage').then(module => ({ default: module.LoginPage })));
 const RegisterPage = lazy(() => import('./features/auth/RegisterPage').then(module => ({ default: module.RegisterPage })));
+const ForgotPasswordPage = lazy(() => import('./features/auth/ForgotPasswordPage').then(module => ({ default: module.ForgotPasswordPage })));
 const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage').then(module => ({ default: module.DashboardPage })));
 const ProjectPage = lazy(() => import('./features/projects/pages/ProjectPage').then(module => ({ default: module.ProjectPage })));
 
@@ -22,6 +23,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route
                 path="/dashboard"
                 element={

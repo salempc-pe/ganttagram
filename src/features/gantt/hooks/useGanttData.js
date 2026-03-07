@@ -4,6 +4,7 @@ import { useMilestones } from '../../projects/hooks/useMilestones';
 import { useDependencies } from '../../tasks/hooks/useDependencies';
 import { useResources } from '../../resources/hooks/useResources';
 import { useCategories } from '../../projects/hooks/useCategories';
+import { buildFlatTree, isParentTask } from '../../tasks/utils/hierarchy';
 
 export const useGanttData = (projectId) => {
     const { tasks, loading: tasksLoading } = useTasks(projectId);
@@ -23,60 +24,82 @@ export const useGanttData = (projectId) => {
             return isNaN(d.getTime()) ? new Date() : d;
         };
 
-        // Transformar tareas (filtrando las que no tienen fechas válidas)
-        const formattedTasks = tasks
-            .filter(task => task.startDate && task.endDate)
-            .map(task => {
-                const start = toDate(task.startDate);
-                const end = toDate(task.endDate);
+        const parentIds = new Set(tasks.map(t => t.parentId).filter(Boolean));
+        const validNodeIds = new Set([...tasks.map(t => t.id), ...milestones.map(m => m.id)]);
 
-                // Buscar dependencias donde esta tarea es la "hija" (toTaskId)
-                const taskDeps = dependencies
-                    .filter(d => d.toTaskId === task.id)
-                    .map(d => d.fromTaskId)
-                    .filter(fromId =>
-                        tasks.some(t => t.id === fromId) ||
-                        milestones.some(m => m.id === fromId)
-                    );
+        const depsByToTaskId = new Map();
+        dependencies.forEach(d => {
+            if (validNodeIds.has(d.fromTaskId)) {
+                if (!depsByToTaskId.has(d.toTaskId)) {
+                    depsByToTaskId.set(d.toTaskId, []);
+                }
+                depsByToTaskId.get(d.toTaskId).push(d.fromTaskId);
+            }
+        });
 
-                // Mapear recursos
-                const taskResources = (task.resources || []).map(resId => {
-                    return resources.find(r => r.id === resId);
-                }).filter(Boolean);
+        const resourceMap = new Map(resources.map(r => [r.id, r]));
+        const categoryMap = new Map(categories.map(c => [c.id, c.color]));
 
-                // Obtener color de categoría
-                const category = categories.find(c => c.id === task.categoryId);
-                const categoryColor = category ? category.color : '#3b82f6';
+        // --- Construir estructura de árbol plano (DFS) ---
+        const orderedTasks = buildFlatTree(tasks.filter(t => t.startDate && t.endDate));
 
-                return {
-                    id: task.id,
-                    name: task.name,
-                    start,
-                    end,
-                    progress: task.progress || 0,
-                    type: 'task',
-                    dependencies: taskDeps,
-                    resources: taskResources,
-                    displayResources: taskResources.map(r => r.name).join(', '),
-                    styles: {
-                        backgroundColor: categoryColor,
-                        backgroundSelectedColor: categoryColor,
-                        progressColor: 'rgba(255,255,255,0.4)',
-                        progressSelectedColor: 'rgba(255,255,255,0.6)'
-                    },
-                    isDisabled: false,
-                    project: projectId
-                };
-            });
+        // Transformar tareas en formato Gantt
+        const formattedTasks = orderedTasks.map(task => {
+            const start = toDate(task.startDate);
+            const end = toDate(task.endDate);
+            const hasChildren = parentIds.has(task.id);
+
+            // Buscar dependencias donde esta tarea es la "hija" (toTaskId)
+            const taskDeps = depsByToTaskId.get(task.id) || [];
+
+            // Mapear recursos
+            const taskResources = (task.resources || [])
+                .map(resId => resourceMap.get(resId))
+                .filter(Boolean);
+
+            // Obtener color de categoría
+            const categoryColor = categoryMap.get(task.categoryId) || '#3b82f6';
+
+            // Si es tarea padre, se muestra como tipo "project" en el Gantt
+            // para que gantt-task-react la renderice como barra de resumen
+            const ganttType = hasChildren ? 'project' : 'task';
+
+            const progress = task.progress || 0;
+
+            return {
+                id: task.id,
+                name: `${task.name} (${progress}%)`,
+                _rawName: task.name,
+                start,
+                end,
+                progress,
+                type: ganttType,
+                dependencies: taskDeps,
+                resources: taskResources,
+                displayResources: taskResources.map(r => r.name).join(', '),
+                styles: {
+                    backgroundColor: hasChildren ? '#64748b' : categoryColor,
+                    backgroundSelectedColor: hasChildren ? '#475569' : categoryColor,
+                    progressColor: hasChildren ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.4)',
+                    progressSelectedColor: 'rgba(255,255,255,0.6)'
+                },
+                isDisabled: false,
+                project: task.parentId || projectId,
+                // Campos de jerarquía para la lista personalizada
+                _level: task._level || 0,
+                _hasChildren: hasChildren,
+                _parentId: task.parentId || null,
+                // Las tareas-padre comienzan expandidas
+                hideChildren: hasChildren ? false : undefined
+            };
+        });
 
         // Transformar hitos (solo si tienen fecha)
         const formattedMilestones = milestones
             .filter(ms => ms.date)
             .map(ms => {
                 const date = toDate(ms.date);
-                const msDeps = dependencies
-                    .filter(d => d.toTaskId === ms.id)
-                    .map(d => d.fromTaskId);
+                const msDeps = depsByToTaskId.get(ms.id) || [];
 
                 return {
                     id: ms.id,
@@ -87,7 +110,10 @@ export const useGanttData = (projectId) => {
                     type: 'milestone',
                     dependencies: msDeps,
                     isDisabled: false,
-                    project: projectId
+                    project: projectId,
+                    _level: 0,
+                    _hasChildren: false,
+                    _parentId: null
                 };
             });
 
@@ -103,15 +129,30 @@ export const useGanttData = (projectId) => {
         const minDate = new Date(Math.min(...allDates));
         const maxDate = new Date(Math.max(...allDates));
 
+        // Calcular progreso promedio del proyecto (basado en tareas hoja)
+        let totalProgress = 0;
+        let leafTasksCount = 0;
+        formattedTasks.forEach(t => {
+            if (!t._hasChildren) {
+                totalProgress += t.progress;
+                leafTasksCount++;
+            }
+        });
+        const projectProgress = leafTasksCount > 0 ? Math.round(totalProgress / leafTasksCount) : 0;
+
         const projectRoot = {
             id: projectId,
-            name: "Proyecto",
+            name: `Proyecto (${projectProgress}%)`,
+            _rawName: "Proyecto",
             start: minDate,
             end: maxDate,
-            progress: 0,
+            progress: projectProgress,
             type: 'project',
             hideChildren: false,
-            dependencies: []
+            dependencies: [],
+            _level: -1,
+            _hasChildren: true,
+            _parentId: null
         };
 
         return [projectRoot, ...formattedTasks, ...formattedMilestones];

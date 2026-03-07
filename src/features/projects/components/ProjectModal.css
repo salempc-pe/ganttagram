@@ -20,9 +20,6 @@
     width: 95%;
     max-width: 480px;
     overflow: hidden;
-    /* Add shadow */
-    border-radius: var(--radius-lg);
-    /* Ensure radius */
 }
 
 .emoji-selector-grid {
@@ -72,5 +69,7 @@
         position: fixed !important;
         bottom: 0 !important;
         top: auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 }

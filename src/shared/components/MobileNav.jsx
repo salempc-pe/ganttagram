@@ -20,7 +20,7 @@ export const MobileNav = ({ activeTab, onTabChange }) => {
     ];
 
     return (
-        <nav className="mobile-nav md:hidden">
+        <nav className="mobile-nav">
             {navItems.map(item => (
                 <button
                     key={item.id}

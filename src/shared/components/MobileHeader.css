@@ -66,6 +66,13 @@
     }
 }
 
+/* Ocultar Cabecera Frontal MÓVIL completamente en Landscape Mode para dar todo el ancho a las vistas */
+@media (max-width: 767px) and (orientation: landscape) {
+    .mobile-header {
+        display: none !important;
+    }
+}
+
 /* === MOBILE MENU PRO MAX === */
 .mobile-menu-overlay {
     position: fixed;

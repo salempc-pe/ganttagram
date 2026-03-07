@@ -13,17 +13,19 @@ export default defineConfig({
         name: 'Ganttagram - Gestión de Proyectos',
         short_name: 'Ganttagram',
         description: 'Planificación y control de obras con diagramas de Gantt dinámicos.',
-        theme_color: '#4f46e5',
+        theme_color: '#ffffff',
+        display: 'standalone',
+        orientation: 'any',
         icons: [
           {
-            src: 'app-icon.png',
+            src: 'app-icon.svg',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/svg+xml'
           },
           {
-            src: 'app-icon.png',
+            src: 'app-icon.svg',
             sizes: '512x512',
-            type: 'image/png',
+            type: 'image/svg+xml',
             purpose: 'any maskable'
           }
         ]
@@ -31,6 +33,7 @@ export default defineConfig({
     })
   ],
   build: {
+    cssCodeSplit: false, // Desactivar división de CSS para evitar errores de precarga en móviles/redes lentas
     rollupOptions: {
       output: {
         manualChunks: {
@@ -48,5 +51,10 @@ export default defineConfig({
     hmr: {
       overlay: false // Evitar que errores de HMR bloqueen la pantalla
     }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/setupTests.js',
   }
 })

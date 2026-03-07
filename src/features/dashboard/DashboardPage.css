@@ -126,7 +126,7 @@
     }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
     .dashboard-grid {
         grid-template-columns: 1fr 1fr;
     }
@@ -161,6 +161,12 @@
     text-transform: uppercase;
     color: var(--text-primary);
     letter-spacing: 0.02em;
+    margin: 0;
+    line-height: 1;
+}
+
+.card-header svg {
+    display: block;
 }
 
 .summary-list {

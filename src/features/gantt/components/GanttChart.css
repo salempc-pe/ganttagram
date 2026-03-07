@@ -17,7 +17,7 @@
 @media (max-width: 768px) {
     .gantt-scroll-container {
         overflow-x: auto !important;
-        overflow-y: hidden;
+        overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
         scroll-behavior: smooth;
         scrollbar-width: none;
@@ -31,12 +31,16 @@
     }
 }
 
+.gantt-wrapper svg rect,
+.gantt-wrapper svg text,
+.gantt-wrapper svg line,
+.gantt-wrapper svg path {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .gantt-wrapper {
     position: relative;
-    border-radius: var(--radius-sm);
     background: transparent;
-    width: fit-content;
-    min-width: 100%;
     overflow: visible;
     display: flex;
 }
@@ -78,7 +82,36 @@
     padding: var(--space-md) !important;
     border: 2px solid var(--primary-color) !important;
     min-width: 240px;
+    max-width: 320px;
+    white-space: normal;
     z-index: 1000;
+    pointer-events: none !important;
+}
+
+/* Fuerza absoluta sobre los encapsuladores de la librería gantt-task-react */
+div[class*="tooltipDetailsContainer"] {
+    pointer-events: none !important;
+    transform: translateY(25px) !important;
+}
+
+div[class*="tooltipDefaultContainer"] {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+@media (max-width: 768px) {
+    .gantt-tooltip {
+        position: fixed !important;
+        top: auto !important;
+        left: 50% !important;
+        bottom: 20px !important;
+        transform: translateX(-50%) !important;
+        min-width: 80vw !important;
+        max-width: 90vw !important;
+        z-index: 10000 !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2) !important;
+    }
 }
 
 .task-badge {
@@ -156,4 +189,57 @@
     border-radius: 2px;
     font-weight: 600;
     font-family: var(--font-tech);
+}
+
+/* --- Subtask Hierarchy Styles --- */
+
+.gantt-parent-row {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.03), transparent) !important;
+}
+
+.gantt-parent-row:hover {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.06), transparent) !important;
+}
+
+.gantt-expander:hover {
+    background: rgba(99, 102, 241, 0.15) !important;
+    transform: scale(1.1);
+}
+
+/* --- Row Interactions --- */
+.gantt-list-row {
+    transition: background-color 0.2s ease !important;
+}
+
+.gantt-list-row:hover {
+    background-color: var(--bg-secondary);
+}
+
+.gantt-list-row span {
+    transition: color 0.2s ease;
+}
+
+.gantt-list-row:hover span {
+    color: var(--sidebar-active);
+}
+
+/* --- Empty State --- */
+.gantt-empty {
+    padding: var(--space-2xl);
+    margin: var(--space-xl);
+    background: var(--bg-primary);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: var(--space-sm);
+    color: var(--text-primary);
+}
+
+.gantt-empty p:first-child {
+    font-weight: 700;
+    font-size: 1.1rem;
 }

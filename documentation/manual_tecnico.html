@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Técnico - Ganttagram</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --radius: 6px;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                margin: 0;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .page-break {
+                page-break-before: always;
+            }
+
+            .container {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                border-radius: 0 !important;
+                background: white !important;
+            }
+
+            pre {
+                background: #f8fafc !important;
+                color: black !important;
+                border: 1px solid #ddd;
+            }
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            color: var(--text-main);
+            background: var(--bg);
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--surface);
+            padding: 50px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        header {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: -0.01em;
+        }
+
+        h2 {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-top: 40px;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin-top: 30px;
+            color: var(--primary);
+        }
+
+        .tech-badge {
+            display: inline-block;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 20px;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: #f1f5f9;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th,
+        table td {
+            border: 1px solid var(--border);
+            padding: 12px;
+            text-align: left;
+        }
+
+        table th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        .arch-box {
+            border: 1px dashed var(--accent);
+            padding: 20px;
+            text-align: center;
+            background: #f0f7ff;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <button class="print-btn no-print" onclick="window.print()">Imprimir Manual Técnico</button>
+
+    <div class="container">
+        <header>
+            <h1>Manual Técnico: Ganttagram</h1>
+            <p>Documentación técnica de arquitectura, desarrollo y despliegue.</p>
+            <div>
+                <span class="tech-badge">React</span>
+                <span class="tech-badge">Vite</span>
+                <span class="tech-badge">Firebase</span>
+                <span class="tech-badge">Tauri</span>
+                <span class="tech-badge">Lucide React</span>
+            </div>
+        </header>
+
+        <h2>1. Introducción Técnica</h2>
+        <p>Ganttagram es una Aplicación Web de una sola página (SPA) construida con React y Vite, diseñada para alto
+            rendimiento en la gestión de datos tabulares y cronogramas. Utiliza una arquitectura orientada a
+            características (Feature-driven architecture) y Firebase como Backend-as-a-Service (BaaS) para persistencia
+            en tiempo real.</p>
+
+        <h2>2. Entorno de Desarrollo</h2>
+        <p>Para trabajar en este proyecto, se requiere el siguiente software:</p>
+        <ul>
+            <li><strong>Node.js:</strong> v18.x o superior.</li>
+            <li><strong>Manejador de paquetes:</strong> NPM (incluido con Node).</li>
+            <li><strong>Tauri Dependencies (Opcional):</strong> Si se compila para escritorio (Windows/macOS/Linux), se
+                requiere Rust y las dependencias de Tauri (Webkit2Gtk en Linux, Visual Studio Build Tools en Windows).
+            </li>
+        </ul>
+        <pre>
+# Instalación de dependencias
+npm install
+
+# Ejecución en modo desarrollo
+npm run dev
+
+# Construcción para producción (Web)
+npm run build
+        </pre>
+
+        <h2>3. Arquitectura del Proyecto</h2>
+        <p>El código se organiza siguiendo el patrón de <strong>Bounded Contexts</strong> dentro de
+            <code>src/features</code>:</p>
+        <div class="arch-box">
+            UI Components &lt;--&gt; Custom Hooks &lt;--&gt; Services (Firebase)
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Directorio</th>
+                    <th>Propósito</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>src/features/</code></td>
+                    <td>Contiene la lógica y UI específica de cada dominio (auth, projects, tasks, etc).</td>
+                </tr>
+                <tr>
+                    <td><code>src/shared/</code></td>
+                    <td>Componentes de UI comunes (botones, inputs, modales) y utilidades generales.</td>
+                </tr>
+                <tr>
+                    <td><code>src/services/</code></td>
+                    <td>Configuración de servicios externos (Firebase Firestore/Auth).</td>
+                </tr>
+                <tr>
+                    <td><code>src-tauri/</code></td>
+                    <td>Configuración de la aplicación nativa para escritorio.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>4. Persistencia y Backend (Firebase)</h2>
+        <p>Ganttagram utiliza Firebase para gestionar la autenticación y la base de datos NoSQL.</p>
+
+        <h3>4.1. Firebase Config</h3>
+        <p>La configuración se carga mediante variables de entorno (<code>VITE_FIREBASE_*</code>). El archivo clave es
+            <code>src/services/firebase/config.js</code>.</p>
+
+        <h3>4.2. Seguridad (Firestore Rules)</h3>
+        <p>Las reglas de seguridad están configuradas para restringir el acceso solo a usuarios autenticados, excepto
+            para la lectura de perfiles básicos necesaria para el inicio de sesión.</p>
+        <pre>
+match /{document=**} {
+  allow read, write: if request.auth != null;
+}
+        </pre>
+
+        <h2>5. Gestión del Estado</h2>
+        <p>Se utiliza una combinación de:</p>
+        <ul>
+            <li><strong>React Hooks:</strong> <code>useState</code> y <code>useEffect</code> dentro de hooks
+                personalizados (ej: <code>useProjects</code>) para manejar la lógica de negocio.</li>
+            <li><strong>Firebase Snapshots:</strong> Para actualizaciones en tiempo real sin necesidad de recargar la
+                página.</li>
+            <li><strong>Context API:</strong> Para el estado global de autenticación (<code>AuthContext</code>).</li>
+        </ul>
+
+        <h2>6. Estilo y Diseño</h2>
+        <p>El sistema de diseño "Industrial-Tech Premium" se implementa mediante CSS puro con variables en
+            <code>index.css</code>. Se prioriza una estética compacta y de alta densidad de datos, ideal para
+            herramientas de ingeniería.</p>
+        <ul>
+            <li><strong>Colores:</strong> Slate 50-900 para la base, Blueprint Blue (#2563eb) y Construction Orange
+                (#f97316) para acentos.</li>
+            <li><strong>Tipografía:</strong> Space Grotesk (Títulos) e Inter (Cuerpo).</li>
+        </ul>
+
+        <h2>7. Despliegue y Distribución</h2>
+        <h3>7.1. Aplicación Web</h3>
+        <p>La web se despliega automáticamente en Netlify mediante el archivo <code>netlify.toml</code> que maneja las
+            redirecciones para el Router de React.</p>
+
+        <h3>7.2. Aplicación Escritorio (Tauri)</h3>
+        <p>Se utiliza Tauri para empaquetar la web en un ejecutable nativo ligero. El motor de renderizado es el WebView
+            del sistema operativo host, lo que reduce el tamaño del ejecutable significativamente.</p>
+
+        <footer>
+            <p>&copy; 2026 Documentación Técnica de Ganttagram | v1.0.0</p>
+        </footer>
+    </div>
+</body>
+
+</html>

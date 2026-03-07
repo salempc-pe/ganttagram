@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Calendar, User, Link as LinkIcon, Trash2, Tag, Percent, Users, AlignLeft, Clock, Plus, Settings2 } from 'lucide-react';
+import { X, Calendar, User, Link as LinkIcon, Trash2, Tag, Percent, Users, AlignLeft, Clock, Plus, Settings2, FolderTree } from 'lucide-react';
 import { Button } from '../../../shared/components/Button';
 import { Input } from '../../../shared/components/Input';
 import { useCategories } from '../../projects/hooks/useCategories';
@@ -8,6 +8,7 @@ import { useDependencies } from '../../tasks/hooks/useDependencies';
 import { useMilestones } from '../../projects/hooks/useMilestones';
 import { useTasks } from '../../tasks/hooks/useTasks';
 import { calculateAutoSchedule } from '../../tasks/utils/scheduler';
+import { getDescendantIds, isParentTask } from '../../tasks/utils/hierarchy';
 import { format, addDays, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { adjustToWorkingDay, getWorkingDuration, addWorkingDays } from '../../../shared/utils/calendar';
@@ -19,7 +20,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
     const { categories, addCategory } = useCategories(projectId);
     const { resources, addResource } = useResources(projectId);
     const { milestones, updateMilestone } = useMilestones(projectId);
-    const { tasks, updateTasksBatch } = useTasks(projectId);
+    const { tasks, updateTasksBatch, deleteTask } = useTasks(projectId);
     const { dependencies, addDependency, deleteDependency } = useDependencies(projectId);
 
     const [formData, setFormData] = useState({
@@ -30,7 +31,8 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
         description: '',
         progress: 0,
         resources: [],
-        duration: 1
+        duration: 1,
+        parentId: null
     });
 
     const [isNewCategoryMode, setIsNewCategoryMode] = useState(false);
@@ -45,7 +47,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
     const [newResourceRole, setNewResourceRole] = useState('');
 
     // Estado para nueva dependencia
-    const [newDep, setNewDep] = useState({ fromTaskId: '', type: 'FS' });
+    const [newDep, setNewDep] = useState({ fromTaskId: '', type: 'FS', lag: 0 });
     const [pendingDeps, setPendingDeps] = useState([]);
 
     const [loading, setLoading] = useState(false);
@@ -74,7 +76,8 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                 description: initialData.description || '',
                 progress: initialData.progress || 0,
                 resources: initialData.resources || [],
-                duration: getWorkingDuration(new Date(startStr + 'T00:00:00'), new Date(endStr + 'T00:00:00'), calendar)
+                duration: getWorkingDuration(new Date(startStr + 'T00:00:00'), new Date(endStr + 'T00:00:00'), calendar),
+                parentId: initialData.parentId || null
             });
         } else {
             setFormData(prev => ({
@@ -86,7 +89,8 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                 resources: [],
                 startDate: format(new Date(), 'yyyy-MM-dd'),
                 endDate: format(new Date(), 'yyyy-MM-dd'),
-                duration: 1
+                duration: 1,
+                parentId: null
             }));
             setPendingDeps([]);
         }
@@ -95,19 +99,67 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
         setIsNewResourceMode(false);
         setNewResourceName('');
         setNewResourceRole('');
-        setNewDep({ fromTaskId: '', type: 'FS' });
+        setNewDep({ fromTaskId: '', type: 'FS', lag: 0 });
 
         // Bloquear scroll del fondo de forma agresiva
-        document.documentElement.classList.add('modal-open');
-        document.body.classList.add('modal-open');
+        document.body.style.overflow = 'hidden';
+
+        // Ocultar tooltips del gantt que puedan haber quedado abiertos (fix visual)
+        const tooltips = document.querySelectorAll('.gantt-tooltip');
+        tooltips.forEach(t => t.style.display = 'none');
 
         return () => {
-            document.documentElement.classList.remove('modal-open');
-            document.body.classList.remove('modal-open');
+            document.body.style.overflow = 'unset';
+            // Restaurar tooltips si es necesario (el gantt los maneja, así que solo limpiar style)
+            tooltips.forEach(t => t.style.display = '');
         };
-    }, [isOpen, initialData]);
+    }, [isOpen, initialData, categories, projectId, calendar]);
+
+    const handleDelete = async () => {
+        if (!initialData) return;
+
+        const hasChildren = isParentTask(initialData.id, tasks);
+        const confirmMessage = hasChildren
+            ? "⚠️ Esta es una tarea principal. Si la eliminas, se borrarán TAMBIÉN todas sus subtareas.\n\n¿Estás seguro de continuar?"
+            : "¿Estás seguro de que deseas eliminar esta tarea?";
+
+        if (window.confirm(confirmMessage)) {
+            setLoading(true);
+            const result = await deleteTask(initialData.id);
+            setLoading(false);
+            if (result.success) {
+                onClose();
+            } else {
+                alert('Error al eliminar: ' + result.error);
+            }
+        }
+    };
 
     if (!isOpen) return null;
+
+    // Detectar si esta tarea es "padre" (tiene subtareas)
+    const isThisAParent = initialData ? isParentTask(initialData.id, tasks) : false;
+
+    // Tareas que NO pueden ser seleccionadas como padre:
+    // 1. La tarea misma
+    // 2. Sus descendientes (evitar ciclos)
+    const excludedIds = initialData
+        ? [initialData.id, ...getDescendantIds(initialData.id, tasks)]
+        : [];
+
+    // Lista de tareas disponibles como "Tarea Principal"
+    const availableParents = tasks.filter(t => !excludedIds.includes(t.id));
+
+    // Helper para construir nombre indentado en el selector de padres
+    const getParentLabel = (task) => {
+        let level = 0;
+        let current = task;
+        while (current.parentId) {
+            level++;
+            current = tasks.find(t => t.id === current.parentId) || {};
+        }
+        return `${'─'.repeat(level)} ${task.name}`;
+    };
 
     // Obtener mis dependencias (quiénes son mis predecesores)
     const myPredecessors = initialData
@@ -123,6 +175,13 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
     const getItemName = (id) => {
         const item = availablePredecessors.find(p => p.id === id);
         return item ? item.name : 'Elemento desconocido';
+    };
+
+    const depTypeLabels = {
+        'FS': 'F-I',
+        'SS': 'I-I',
+        'FF': 'F-F',
+        'SF': 'I-F'
     };
 
     const toggleResource = (resourceId) => {
@@ -169,7 +228,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
 
         // Si estamos editando, guardar en DB
         if (initialData) {
-            const res = await addDependency(newDep.fromTaskId, initialData.id, newDep.type);
+            const res = await addDependency(newDep.fromTaskId, initialData.id, newDep.type, newDep.lag);
             if (!res.success) {
                 alert(res.error);
                 return;
@@ -182,7 +241,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
 
             const updatesMap = calculateAutoSchedule(
                 tasks,
-                [...dependencies, { fromTaskId: newDep.fromTaskId, toTaskId: initialData.id, type: newDep.type }],
+                [...dependencies, { fromTaskId: newDep.fromTaskId, toTaskId: initialData.id, type: newDep.type, lag: Number(newDep.lag || 0) }],
                 newDep.fromTaskId,
                 predDates,
                 milestones,
@@ -216,20 +275,25 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
             const predStart = predecessor.startDate || predecessor.date;
             const predEnd = predecessor.endDate || predecessor.date;
 
+            const lag = parseInt(newDep.lag || 0);
+            const effectiveLag = (newDep.type === 'FS' || newDep.type === 'SS') ? lag : -lag;
+
             let suggestedStart = new Date(formData.startDate + 'T00:00:00');
 
             switch (newDep.type) {
                 case 'FS':
-                    suggestedStart = addDays(startOfDay(predEnd), 1);
+                    suggestedStart = addDays(startOfDay(predEnd), 1 + effectiveLag);
                     break;
                 case 'SS':
-                    suggestedStart = startOfDay(predStart);
+                    suggestedStart = addDays(startOfDay(predStart), effectiveLag);
                     break;
                 case 'FF':
                 case 'SF': {
                     // Para FF y SF, el fin de la tarea depende del predecesor
                     // Necesitamos calcular el inicio que haga que el fin sea >= restricción
-                    const targetEnd = newDep.type === 'FF' ? predEnd : predStart;
+                    const targetBase = newDep.type === 'FF' ? predEnd : predStart;
+                    const targetEnd = addDays(targetBase, effectiveLag);
+
                     // Empezamos asumiendo que el fin es targetEnd y buscamos el inicio
                     let tempStart = adjustToWorkingDay(addDays(targetEnd, -(currentDuration * 2)), calendar, 1);
                     let checkEnd = addWorkingDays(tempStart, currentDuration - 1, calendar);
@@ -256,7 +320,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
             }
         }
 
-        setNewDep({ fromTaskId: '', type: 'FS' });
+        setNewDep({ fromTaskId: '', type: 'FS', lag: 0 });
     };
 
     const handleDateChange = (field, value) => {
@@ -358,7 +422,8 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                 categoryId: categoryIdToUse,
                 description: formData.description.trim(),
                 progress: Number(formData.progress),
-                resources: resourcesToUse
+                resources: resourcesToUse,
+                parentId: formData.parentId || null
             };
 
             const result = await onSubmit(taskPayload);
@@ -411,9 +476,9 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
             <div className="modal-content task-modal">
                 <div className="modal-header">
                     <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-1">
-                            <Clock className="text-indigo-500" size={24} />
-                            <h2>{initialData ? 'Editar Tarea' : 'Nueva Tarea'}</h2>
+                        <div className="flex items-center gap-3 mb-0">
+                            <Clock className="text-slate-900" size={28} strokeWidth={2.5} />
+                            <h2 className="m-0 leading-none">{initialData ? 'Editar Tarea' : 'Nueva Tarea'}</h2>
                         </div>
                         {initialData && (
                             <div className="modal-tabs mt-4">
@@ -432,9 +497,6 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                             </div>
                         )}
                     </div>
-                    <button onClick={onClose} className="btn-close hover:bg-gray-100 p-2 rounded-full transition-colors">
-                        <X size={20} />
-                    </button>
                 </div>
 
                 {activeTab === 'details' ? (
@@ -450,8 +512,32 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 placeholder="Ej: Vaciado de columnas, Tarrajeo de muros..."
                                 required
-                                autoFocus
                             />
+
+                            <div className="form-row">
+                                <div className="form-col-flex">
+                                    <label className="input-label-with-icon">
+                                        <FolderTree size={14} /> TAREA PRINCIPAL
+                                    </label>
+                                    <select
+                                        className="select"
+                                        value={formData.parentId || ''}
+                                        onChange={(e) => setFormData({ ...formData, parentId: e.target.value || null })}
+                                    >
+                                        <option value="">Sin tarea principal (raíz)</option>
+                                        {availableParents.map(t => (
+                                            <option key={t.id} value={t.id}>{getParentLabel(t)}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            {isThisAParent && (
+                                <div className="parent-task-notice">
+                                    <FolderTree size={16} />
+                                    <span>Esta tarea es <strong>Resumen</strong>: sus fechas y progreso se calculan automáticamente desde sus subtareas.</span>
+                                </div>
+                            )}
 
                             <div className="form-row">
                                 <div className="form-col-flex">
@@ -508,24 +594,24 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                 </div>
                             </div>
 
-                            <div className="form-row">
-                                <div className="form-col-flex">
-                                    <label className="input-label-with-icon">
-                                        <Percent size={14} /> AVANCE DEL PROYECTO
-                                    </label>
-                                    <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-inner">
-                                        <input
-                                            type="range"
-                                            className="flex-1 accent-indigo-600 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-                                            min="0"
-                                            max="100"
-                                            step="5"
-                                            value={formData.progress}
-                                            onChange={(e) => setFormData({ ...formData, progress: e.target.value })}
-                                        />
-                                        <div className="flex items-center justify-center min-w-[70px] h-10 bg-white border-2 border-indigo-600/20 rounded-lg shadow-sm">
-                                            <span className="font-tech font-bold text-indigo-700 text-lg">{formData.progress}%</span>
-                                        </div>
+                            <div className="form-row-dates" style={{ padding: '0.75rem', background: '#f8fafc', flexDirection: 'column', gap: '8px' }}>
+                                <label className="input-label-with-icon" style={{ marginBottom: 0 }}>
+                                    <Percent size={14} /> AVANCE DEL PROYECTO
+                                </label>
+                                <div className="flex items-center gap-4 w-full">
+                                    <input
+                                        type="range"
+                                        className="flex-1 w-full accent-indigo-600 h-2 bg-slate-200 rounded-[10px] appearance-none cursor-pointer"
+                                        min="0"
+                                        max="100"
+                                        step="5"
+                                        value={formData.progress}
+                                        onChange={(e) => setFormData({ ...formData, progress: e.target.value })}
+                                        disabled={isThisAParent}
+                                        style={{ opacity: isThisAParent ? 0.5 : 1, cursor: isThisAParent ? 'not-allowed' : 'pointer' }}
+                                    />
+                                    <div className="flex items-center justify-center min-w-[70px] h-10 bg-white border-2 border-indigo-600/20 rounded-lg shadow-sm shrink-0">
+                                        <span className="font-tech font-bold text-indigo-700 text-lg">{formData.progress}%</span>
                                     </div>
                                 </div>
                             </div>
@@ -541,6 +627,8 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                         value={formData.startDate}
                                         onChange={(e) => handleDateChange('startDate', e.target.value)}
                                         required
+                                        disabled={isThisAParent}
+                                        style={{ opacity: isThisAParent ? 0.6 : 1, cursor: isThisAParent ? 'not-allowed' : 'text' }}
                                     />
                                 </div>
                                 <div className="form-col-duration">
@@ -559,6 +647,8 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                             }
                                         }}
                                         required
+                                        disabled={isThisAParent}
+                                        style={{ opacity: isThisAParent ? 0.6 : 1, cursor: isThisAParent ? 'not-allowed' : 'text' }}
                                     />
                                 </div>
                                 <div className="form-col-date">
@@ -571,6 +661,8 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                         value={formData.endDate}
                                         onChange={(e) => handleDateChange('endDate', e.target.value)}
                                         required
+                                        disabled={isThisAParent}
+                                        style={{ opacity: isThisAParent ? 0.6 : 1, cursor: isThisAParent ? 'not-allowed' : 'text' }}
                                     />
                                 </div>
                             </div>
@@ -627,6 +719,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                                     onChange={(e) => setNewResourceColor(e.target.value)}
                                                 />
                                                 <Button
+                                                    type="button"
                                                     size="sm"
                                                     onClick={handleQuickAddResource}
                                                     disabled={!newResourceName.trim()}
@@ -672,11 +765,16 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                                 <div key={dep.id} className="dependency-item group">
                                                     <div className="flex items-center gap-3 flex-1">
                                                         <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                                                            {dep.type}
+                                                            {depTypeLabels[dep.type] || dep.type}
                                                         </div>
                                                         <span className="text-sm font-medium text-slate-700 truncate">
                                                             {getItemName(dep.fromTaskId)}
                                                         </span>
+                                                        {dep.lag && dep.lag !== 0 && (
+                                                            <span className="text-xs bg-slate-200 px-1.5 py-0.5 rounded text-slate-600 font-medium ml-2">
+                                                                {dep.lag > 0 ? `+${dep.lag}d` : `${dep.lag}d`}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <button
                                                         type="button"
@@ -718,6 +816,16 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                                 <option value="SF">I-F</option>
                                             </select>
                                         </div>
+                                        <div className="dep-input-lag">
+                                            <label className="dep-label">Días</label>
+                                            <input
+                                                type="number"
+                                                className="input text-center px-1"
+                                                value={newDep.lag}
+                                                onChange={(e) => setNewDep({ ...newDep, lag: parseInt(e.target.value) || 0 })}
+                                                placeholder="0"
+                                            />
+                                        </div>
                                         <button
                                             type="button"
                                             className="dep-add-btn"
@@ -752,6 +860,18 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                             >
                                 <X size={20} />
                             </button>
+
+                            {initialData && (
+                                <button
+                                    type="button"
+                                    onClick={handleDelete}
+                                    className="btn-delete-mini"
+                                    title="Eliminar tarea"
+                                >
+                                    <Trash2 size={20} />
+                                </button>
+                            )}
+
                             <Button
                                 type="submit"
                                 variant="primary"
@@ -759,7 +879,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                 onClick={handleSubmit}
                                 className="btn-save-large"
                             >
-                                {initialData ? 'GUARDAR CAMBIOS' : 'CREAR TAREA'}
+                                {initialData ? 'GUARDAR' : 'CREAR TAREA'}
                             </Button>
                         </div>
                     </>

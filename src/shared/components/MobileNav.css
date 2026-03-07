@@ -53,3 +53,23 @@
         display: none;
     }
 }
+
+/* Landscape mode: Barra a la derecha (COMO EN LA FOTO DEL CLIENTE) */
+@media (max-width: 767px) and (orientation: landscape) {
+    .mobile-nav {
+        flex-direction: column;
+        top: 12px;
+        right: 12px;
+        bottom: 12px;
+        left: auto;
+        width: 64px;
+        height: auto;
+        padding: 4px 0;
+    }
+
+    .mobile-nav-item {
+        flex: 1;
+        width: 100%;
+        padding: 0;
+    }
+}

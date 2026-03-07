@@ -2,7 +2,7 @@ import { Trash2, Edit2, User, PenTool, Briefcase, Plus, Package } from 'lucide-r
 import { Button } from '../../../shared/components/Button';
 import './ResourceList.css';
 
-export const ResourceList = ({ resources, loading, onAdd, onEdit, onDelete, canEdit = true }) => {
+export const ResourceList = ({ resources, loading, tasks = [], onAdd, onEdit, onDelete, canEdit = true }) => {
     if (loading) return <div className="resources-loading">Cargando recursos...</div>;
 
     const getIcon = (type) => {
@@ -21,6 +21,10 @@ export const ResourceList = ({ resources, loading, onAdd, onEdit, onDelete, canE
             case 'material': return 'Material';
             default: return 'Otro';
         }
+    };
+
+    const getAssignedTasks = (resourceId) => {
+        return tasks.filter(task => task.resources && task.resources.includes(resourceId));
     };
 
     return (
@@ -55,6 +59,7 @@ export const ResourceList = ({ resources, loading, onAdd, onEdit, onDelete, canE
                 <div className="resources-grid">
                     {resources.map((resource) => {
                         const Icon = getIcon(resource.type);
+                        const assignedTasks = getAssignedTasks(resource.id);
                         return (
                             <div key={resource.id} className="resource-card">
                                 <div className="resource-type-tag">
@@ -80,6 +85,26 @@ export const ResourceList = ({ resources, loading, onAdd, onEdit, onDelete, canE
                                         <h4 className="resource-name" title={resource.name}>{resource.name}</h4>
                                         <p className="resource-role truncate">{resource.role || 'General'}</p>
                                     </div>
+                                </div>
+
+                                {/* Seccion de Tareas Asignadas */}
+                                <div className="resource-tasks-section">
+                                    <span className="tasks-label">Tareas Asignadas ({assignedTasks.length}):</span>
+                                    {assignedTasks.length > 0 ? (
+                                        <div className="tasks-mini-list">
+                                            {assignedTasks.slice(0, 3).map(task => (
+                                                <div key={task.id} className="task-mini-item">
+                                                    <div className="task-dot" style={{ backgroundColor: resource.color }}></div>
+                                                    <span className="task-mini-name">{task.name}</span>
+                                                </div>
+                                            ))}
+                                            {assignedTasks.length > 3 && (
+                                                <span className="task-more-count">+{assignedTasks.length - 3} más...</span>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p className="no-tasks-text">Sin tareas asignadas</p>
+                                    )}
                                 </div>
 
                                 <div className="resource-footer">

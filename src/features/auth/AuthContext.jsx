@@ -4,6 +4,10 @@ import {
     onAuthStateChanged,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider,
+    signInWithRedirect,
+    getRedirectResult,
     signOut,
     updateProfile
 } from 'firebase/auth';
@@ -22,39 +26,88 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [authError, setAuthError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Timeout de seguridad: si después de 8 segundos Firebase no responde, dejamos de cargar
+        // Timeout de seguridad: si después de 12 segundos Firebase no responde, dejamos de cargar
         const timeout = setTimeout(() => {
             if (loading) {
                 console.warn("Auth timeout: Firebase tardó demasiado en responder.");
                 setLoading(false);
-                // Si hay un error detectable por window.onerror, lo disparamos
+                setAuthError("Tiempo de espera agotado. Revisa tu conexión.");
+
                 if (typeof window.showError === 'function') {
                     window.showError("Timeout de Autenticación", "Firebase no responde. Revisa tu conexión a internet o la configuración del proyecto.");
                 }
             }
-        }, 8000);
+        }, 12000);
+
+        // Comprobar si volvemos de una redirección de Google
+        const checkRedirect = async () => {
+            try {
+                const result = await getRedirectResult(auth);
+                if (result && result.user) {
+                    // Login exitoso, se limpia la bandera
+                    sessionStorage.removeItem('isAuthRedirecting');
+                } else if (!result && sessionStorage.getItem('isAuthRedirecting')) {
+                    // Si regresamos pero no hay resultado, probablemente el navegador bloqueó las cookies (ITP en iOS/iPadOS)
+                    sessionStorage.removeItem('isAuthRedirecting');
+                    console.warn("Auth Redirect falló silenciosamente (probablemente por 'Anti-Tracking' o cookies de terceros).");
+                    if (typeof window.showError === 'function') {
+                        window.showError(
+                            "Inicio de sesión bloqueado",
+                            "El navegador ha bloqueado la sesión por seguridad. Si usas iPad/iPhone, por favor ve a Configuración > Safari y desactiva 'Prevenir rastreo entre sitios'. También asegúrate de no estar en Modo Incógnito."
+                        );
+                    }
+                }
+            } catch (error) {
+                console.error("Error capturado de Auth Redirect:", error);
+                sessionStorage.removeItem('isAuthRedirecting');
+                if (typeof window.showError === 'function') {
+                    window.showError("Error de Autenticación", "No se pudo iniciar sesión con Google: " + error.message);
+                }
+            }
+        };
+        checkRedirect();
 
         const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
-            clearTimeout(timeout);
             try {
                 if (authUser) {
-                    const userDoc = await getDoc(doc(db, 'users', authUser.uid));
+                    const userRef = doc(db, 'users', authUser.uid);
+                    let userDoc = await getDoc(userRef);
+                    let userData = userDoc.data();
+
+                    // Si es totalmente nuevo...
+                    if (!userDoc.exists()) {
+                        userData = {
+                            email: authUser.email,
+                            displayName: authUser.displayName || '',
+                            createdAt: new Date(),
+                        };
+                        try {
+                            await setDoc(userRef, userData);
+                        } catch (e) {
+                            console.warn("Auth: No se pudo crear el doc del usuario en Firestore", e);
+                        }
+                    }
+
                     setUser({
                         uid: authUser.uid,
                         email: authUser.email,
-                        displayName: authUser.displayName || userDoc.data()?.displayName || '',
-                        ...userDoc.data()
+                        displayName: authUser.displayName || userData?.displayName || '',
+                        ...userData
                     });
                 } else {
                     setUser(null);
                 }
+                setAuthError(null);
             } catch (err) {
                 console.error("Auth hydration error:", err);
                 setUser(null);
+                setAuthError("Error de sincronización con la base de datos.");
             } finally {
+                clearTimeout(timeout);
                 setLoading(false);
             }
         });
@@ -146,11 +199,51 @@ export const AuthProvider = ({ children }) => {
             return { success: false, error: error.message };
         }
     };
+
+    const loginWithGoogle = async () => {
+        try {
+            const provider = new GoogleAuthProvider();
+            // Ya no forzamos redirect por defecto en tablets/móviles porque en tablets 
+            // como el iPad, si falla por ITP o Strict Cookies, se crea un bucle infinito de recargas.
+            // En su lugar, preferimos SIEMPRE el Popup. Safari permite Popups si los gatilla 
+            // explícitamente el usuario (el botón de Login).
+
+            await signInWithPopup(auth, provider);
+            return { success: true };
+
+        } catch (error) {
+            console.error("Google Login error:", error);
+
+            // Si el error es estrictamente que se bloqueó el popup o se cerró sin terminar, probamos Redirect
+            if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+                try {
+                    const provider = new GoogleAuthProvider();
+                    // Colocamos bandera para detectar si la redirección falla silenciosamente a la vuelta
+                    sessionStorage.setItem('isAuthRedirecting', 'true');
+                    await signInWithRedirect(auth, provider);
+                    return { success: true, redirecting: true };
+                } catch (fallbackError) {
+                    sessionStorage.removeItem('isAuthRedirecting');
+                    return { success: false, error: fallbackError.message };
+                }
+            }
+
+            // Si el error es sobre cookies de terceros (ITP en Firefox/Safari)
+            if (error.code === 'auth/web-storage-unsupported') {
+                return { success: false, error: "Tu navegador bloquea el almacenamiento necesario. Desactiva 'Prevenir rastreo entre sitios' o el 'Modo estricto' de tu navegador e intenta de nuevo." };
+            }
+
+            return { success: false, error: error.message };
+        }
+    };
+
     const value = {
         user,
         loading,
+        authError,
         register,
         login,
+        loginWithGoogle,
         logout,
         updateUserProfile,
     };

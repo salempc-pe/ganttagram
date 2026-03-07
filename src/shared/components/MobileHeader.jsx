@@ -4,7 +4,7 @@ import './MobileHeader.css';
 
 export const MobileHeader = ({ projectName, onMenuClick, showBack = true, children }) => {
     return (
-        <header className="mobile-header md:hidden">
+        <header className="mobile-header">
             <div className="mobile-header-top">
                 {showBack && (
                     <Link to="/dashboard" className="mobile-back">

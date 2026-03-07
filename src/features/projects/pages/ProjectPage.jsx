@@ -33,7 +33,6 @@ const ResourceList = lazy(() => import('../../resources/components/ResourceList'
 const ProjectMembers = lazy(() => import('../components/ProjectMembers').then(module => ({ default: module.ProjectMembers })));
 const CategoryManager = lazy(() => import('../components/CategoryManager').then(module => ({ default: module.CategoryManager })));
 const CalendarSettings = lazy(() => import('../components/CalendarSettings').then(module => ({ default: module.CalendarSettings })));
-import './ProjectPage.css';
 
 export const ProjectPage = () => {
     const { projectId } = useParams();
@@ -59,8 +58,6 @@ export const ProjectPage = () => {
     const { resources, loading: resourcesLoading, addResource, updateResource, deleteResource } = useResources(projectId);
     const { categories, addCategory, updateCategory, deleteCategory } = useCategories(projectId);
     const { canEdit, isOwner } = useProjectPermissions(projectId);
-
-
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -109,7 +106,10 @@ export const ProjectPage = () => {
 
             await applyBatchUpdates(updatesMap);
         } else {
-            await addTask(taskData);
+            const result = await addTask(taskData);
+            setIsTaskModalOpen(false);
+            setEditingTask(null);
+            return result;
         }
         setIsTaskModalOpen(false);
         setEditingTask(null);
@@ -164,7 +164,10 @@ export const ProjectPage = () => {
 
             await applyBatchUpdates(updatesMap);
         } else {
-            await addMilestone(milestoneData);
+            const result = await addMilestone(milestoneData);
+            setIsMilestoneModalOpen(false);
+            setEditingMilestone(null);
+            return result;
         }
         setIsMilestoneModalOpen(false);
         setEditingMilestone(null);
@@ -176,9 +179,11 @@ export const ProjectPage = () => {
     };
 
     const handleGanttDoubleClick = (item) => {
-        if (item.type === 'project') return;
+        // Solo bloquear el nodo raíz del proyecto (no las tareas padre)
+        if (item.id === projectId) return;
 
-        if (item.type === 'task') {
+        if (item.type === 'task' || item.type === 'project') {
+            // Las tareas padre se renderizan como 'project' en el Gantt
             const task = tasks.find(t => t.id === item.id);
             if (task) handleEditTask(task);
         } else if (item.type === 'milestone') {
@@ -188,40 +193,57 @@ export const ProjectPage = () => {
     };
 
     const handleGanttTaskChange = async (task) => {
-        if (task.type === 'project') return;
+        // Bloquear el nodo raíz del proyecto y tareas padre (sus fechas son auto-calculadas)
+        if (task.id === projectId) return;
+        if (task._hasChildren) return;
 
-        let start = startOfDay(new Date(task.start));
-        let end = endOfDay(new Date(task.end));
+        let rawStart = startOfDay(new Date(task.start));
+        let rawEnd = endOfDay(new Date(task.end));
+        let start = rawStart;
+        let end = rawEnd;
 
         if (project.calendar) {
             const original = tasks.find(t => t.id === task.id) || milestones.find(m => m.id === task.id);
             if (original) {
                 // Fechas originales normalizadas
-                const origStart = original.startDate || original.date;
-                const origEnd = original.endDate || original.date;
+                const origStart = startOfDay(original.startDate || original.date);
+                const origEnd = endOfDay(original.endDate || original.date);
 
-                const oldWorkingDuration = getWorkingDuration(origStart, origEnd, project.calendar);
+                // Buscar duración base (prioriza la escrita explicitamente por el usuario en el modal)
+                const storedDuration = parseInt(original.duration, 10);
+                let oldWorkingDuration = !isNaN(storedDuration) && storedDuration > 0
+                    ? storedDuration
+                    : getWorkingDuration(origStart, origEnd, project.calendar);
 
-                // Ajustar inicio si cae en día no laborable
+                // Detectar si fue un movimiento evaluando si AMBAS esquinas cambiaron simultáneamente
+                // Si la librería aplasta o topa límites visuales, un resize es cuando solo un lado es manipulado
+                const startChanged = Math.abs(rawStart.getTime() - origStart.getTime()) > (1000 * 60 * 1); // tolerancia 1 min
+                const endChanged = Math.abs(rawEnd.getTime() - origEnd.getTime()) > (1000 * 60 * 1);
+                const isDragMove = startChanged && endChanged;
+
+                // Ajustar inicio si cae en día no laborable SIEMPRE
                 if (!isWorkingDay(start, project.calendar)) {
                     start = adjustToWorkingDay(start, project.calendar, 1);
                 }
 
-                // Detectar si fue un redimensionamiento (cambio intencional de duración) o movimiento
-                // Calculamos la duración absoluta en días calendarios para comparar con la duración absoluta anterior
-                const oldAbsDuration = Math.round((origEnd.getTime() - origStart.getTime()) / (1000 * 60 * 60 * 24));
-                const newAbsDuration = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-
-                if (oldAbsDuration === newAbsDuration) {
-                    // Si la duración absoluta es igual, el usuario solo arrastró el bloque.
-                    // Preservamos la duración laborable original.
+                if (isDragMove) {
+                    // Si es un Drag&Drop puro, preservamos STRICTAMENTE la cantidad de días
                     end = endOfDay(addWorkingDays(start, oldWorkingDuration - 1, project.calendar));
                 } else {
-                    // El usuario redimensionó la barra. Respetamos la nueva duración laborable.
-                    // Pero aseguramos que el fin sea laborable.
+                    // El usuario redimensionó la barra manualmente
+                    // Restaurar borde no manipulado si existiese un pequeño desfase
+                    if (!endChanged) end = origEnd;
+                    if (!startChanged) start = origStart;
+
                     if (!isWorkingDay(end, project.calendar)) {
                         end = endOfDay(adjustToWorkingDay(end, project.calendar, -1));
                     }
+                    if (end < start) {
+                        end = endOfDay(start);
+                    }
+
+                    // Al redimensionar un proyecto, su nueva duración también cambia
+                    // Idealmente se propagaría hasta original.duration
                 }
             }
         }
@@ -245,6 +267,20 @@ export const ProjectPage = () => {
                 milestones,
                 project.calendar
             );
+
+            // Recomputar duración explícita para sobreescribir DB en caso de un Resize
+            if (updatesMap[task.id]) {
+                const updatedItem = updatesMap[task.id];
+                updatesMap[task.id].duration = getWorkingDuration(updatedItem.startDate, updatedItem.endDate, project.calendar).toString();
+            }
+
+            // Actualizar también tareas hijas o sucesoras arrastradas secundariamente
+            Object.keys(updatesMap).forEach(key => {
+                if (key !== task.id && updatesMap[key].startDate && updatesMap[key].endDate) {
+                    updatesMap[key].duration = getWorkingDuration(updatesMap[key].startDate, updatesMap[key].endDate, project.calendar).toString();
+                }
+            });
+
             await applyBatchUpdates(updatesMap);
         }
     };
@@ -277,15 +313,11 @@ export const ProjectPage = () => {
         }
     };
 
-    // Las categorías ahora se gestionan dentro de las tareas
-
     if (loading) return <LoadingScreen text="Cargando proyecto..." />;
     if (!project) return <div className="flex justify-center p-8">Proyecto no encontrado</div>;
 
     return (
-        <div
-            className="project-layout"
-        >
+        <div className="project-layout">
             <MobileHeader
                 projectName={project.name}
                 onMenuClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -368,17 +400,21 @@ export const ProjectPage = () => {
                 </div>
             )}
 
-            <div className="hidden md:block">
+            <div className="desktop-sidebar-container">
                 <ProjectSidebar activeTab={activeTab} onTabChange={setActiveTab} />
             </div>
 
             <main className="project-main">
-                <header className="project-header hidden md:flex px-8 justify-between items-center bg-white border-b border-slate-200 h-20 shadow-sm z-30 relative">
-                    <div className="flex items-center gap-6 pt-4">
-                        <div className="h-10 w-1.5 bg-blue-600 rounded-full shadow-sm"></div>
+                <header className="project-header desktop-only px-6 py-4 justify-between items-center bg-white border-b border-slate-200 shadow-sm z-30 relative shrink-0">
+                    <div className="flex items-center gap-4">
+                        {/* Decorative Bar - Centered */}
+                        <div className="h-10 w-1.5 bg-blue-600 rounded-full shadow-sm shrink-0"></div>
+
+                        {/* Title & Description stack */}
                         <div className="flex flex-col justify-center">
-                            <h1 className="text-2xl font-black uppercase tracking-tight text-slate-800 leading-none">{project.name}</h1>
-                            {project.description && <p className="text-xs text-slate-500 mt-1 font-bold tracking-wide uppercase opacity-60">{project.description}</p>}
+                            <h1 className="text-xl font-black uppercase tracking-tight text-slate-900 leading-tight m-0 p-0">
+                                {project.name}
+                            </h1>
                         </div>
                     </div>
 
@@ -390,7 +426,7 @@ export const ProjectPage = () => {
                                         <div className="today-indicator">
                                             <Calendar size={14} strokeWidth={2.5} />
                                             <span className="whitespace-nowrap">
-                                                T-DATA: {format(new Date(), "dd.MM.yyyy", { locale: es })}
+                                                HOY: {format(new Date(), "dd.MM.yyyy", { locale: es })}
                                             </span>
                                         </div>
                                         <div className="flex bg-slate-100 p-1 rounded border text-[10px] gap-1 font-bold">
@@ -441,46 +477,54 @@ export const ProjectPage = () => {
                     <Suspense fallback={<LoadingScreen />}>
                         {activeTab === 'gantt' && (
                             <div className="flex flex-col h-full">
-                                {/* Mobile View Controls - Sticky */}
-                                <div className="md:hidden flex p-2 gap-2 overflow-x-auto bg-white border-b sticky top-0 z-10">
-                                    <button
-                                        className={`px-3 py-1 text-xs rounded-full whitespace-nowrap ${viewMode === ViewMode.Day ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
-                                        onClick={() => setViewMode(ViewMode.Day)}
-                                    >
-                                        Día
-                                    </button>
-                                    <button
-                                        className={`px-3 py-1 text-xs rounded-full whitespace-nowrap ${viewMode === ViewMode.Week ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
-                                        onClick={() => setViewMode(ViewMode.Week)}
-                                    >
-                                        Semana
-                                    </button>
-                                    <button
-                                        className={`px-3 py-1 text-xs rounded-full whitespace-nowrap ${viewMode === ViewMode.Month ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
-                                        onClick={() => setViewMode(ViewMode.Month)}
-                                    >
-                                        Mes
-                                    </button>
+                                {/* Mobile View Controls */}
+                                <div className="mobile-only flex items-center justify-between p-2 bg-white border-b w-full overflow-x-auto shrink-0 mobile-view-controls">
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            className="mobile-back-btn px-2 py-1 flex items-center justify-center bg-transparent border-none text-slate-500 hover:text-slate-800 transition-colors mr-1"
+                                            onClick={() => navigate('/dashboard')}
+                                            aria-label="Volver"
+                                        >
+                                            <ChevronLeft size={20} />
+                                        </button>
+                                        <button
+                                            className={`px-3 py-1 text-xs rounded-full whitespace-nowrap ${viewMode === ViewMode.Day ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+                                            onClick={() => setViewMode(ViewMode.Day)}
+                                        >
+                                            Día
+                                        </button>
+                                        <button
+                                            className={`px-3 py-1 text-xs rounded-full whitespace-nowrap ${viewMode === ViewMode.Week ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+                                            onClick={() => setViewMode(ViewMode.Week)}
+                                        >
+                                            Semana
+                                        </button>
+                                        <button
+                                            className={`px-3 py-1 text-xs rounded-full whitespace-nowrap ${viewMode === ViewMode.Month ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
+                                            onClick={() => setViewMode(ViewMode.Month)}
+                                        >
+                                            Mes
+                                        </button>
+                                    </div>
 
-                                    {/* Separador */}
-                                    <div className="w-px bg-gray-300 mx-1"></div>
-
-                                    {/* Botones de acción */}
                                     {canEdit && (
-                                        <>
+                                        <div className="flex items-center gap-2 pl-2">
+                                            <div className="w-px h-6 bg-gray-300 mx-1"></div>
                                             <button
-                                                className="px-3 py-1 text-xs rounded-full whitespace-nowrap bg-indigo-600 text-white"
+                                                className="btn-add-task"
                                                 onClick={() => { setEditingTask(null); setIsTaskModalOpen(true); }}
+                                                style={{ padding: '6px 12px', fontSize: '0.7rem' }}
                                             >
-                                                + Tarea
+                                                <Plus size={14} /> Tarea
                                             </button>
                                             <button
-                                                className="px-3 py-1 text-xs rounded-full whitespace-nowrap bg-orange-500 text-white"
+                                                className="btn-add-milestone"
                                                 onClick={() => { setEditingMilestone(null); setIsMilestoneModalOpen(true); }}
+                                                style={{ padding: '6px 12px', fontSize: '0.7rem' }}
                                             >
-                                                + Hito
+                                                <Flag size={14} /> Hito
                                             </button>
-                                        </>
+                                        </div>
                                     )}
                                 </div>
                                 <GanttChart
@@ -493,34 +537,34 @@ export const ProjectPage = () => {
                             </div>
                         )}
                         {activeTab === 'list' && (
-                            <TaskList
+                            <div className="p-4"><TaskList
                                 projectId={projectId}
                                 onAddTask={() => { setEditingTask(null); setIsTaskModalOpen(true); }}
                                 onAddMilestone={() => { setEditingMilestone(null); setIsMilestoneModalOpen(true); }}
                                 onEditTask={handleEditTask}
                                 onEditMilestone={handleEditMilestone}
                                 canEdit={canEdit}
-                            />
+                            /></div>
                         )}
                         {activeTab === 'recursos' && (
-                            <div className="animate-in flex flex-col gap-12 pb-12">
+                            <div className="animate-in flex flex-col gap-12 pb-12 p-4">
                                 <ResourceList
                                     resources={resources}
+                                    tasks={tasks}
                                     loading={resourcesLoading}
                                     onAdd={() => { setEditingResource(null); setIsResourceModalOpen(true); }}
                                     onEdit={handleEditResource}
                                     onDelete={handleDeleteResource}
                                     canEdit={canEdit}
                                 />
-                                <div className="border-t pt-12">
-                                    <CategoryManager
-                                        categories={categories}
-                                        onAdd={addCategory}
-                                        onUpdate={updateCategory}
-                                        onDelete={deleteCategory}
-                                        canEdit={canEdit}
-                                    />
-                                </div>
+                                <CategoryManager
+                                    categories={categories}
+                                    tasks={tasks}
+                                    onAdd={addCategory}
+                                    onUpdate={updateCategory}
+                                    onDelete={deleteCategory}
+                                    canEdit={canEdit}
+                                />
                             </div>
                         )}
                         {activeTab === 'board' && (
@@ -534,7 +578,7 @@ export const ProjectPage = () => {
                             />
                         )}
                         {activeTab === 'team' && (
-                            <ProjectMembers projectId={projectId} />
+                            <div className="p-4"><ProjectMembers projectId={projectId} /></div>
                         )}
                         {activeTab === 'settings' && (
                             <div className="p-4 space-y-12">
@@ -627,4 +671,3 @@ export const ProjectPage = () => {
         </div>
     );
 };
-

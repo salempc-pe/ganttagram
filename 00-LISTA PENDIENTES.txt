@@ -1,5 +1,0 @@
-00-LISTA PENDIENTES
-
-- Agregar algun tipo de control de inventario que conecte con recursos y de reportes
-- Agregar tambien algo para llevar control del historial de tareas culminadas
-

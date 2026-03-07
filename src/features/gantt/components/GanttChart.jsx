@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Gantt, ViewMode } from 'gantt-task-react';
 import "gantt-task-react/dist/index.css";
 import { useGanttData } from '../hooks/useGanttData';
@@ -11,6 +12,17 @@ const TooltipContent = ({ task }) => {
     const isProject = task.type === 'project';
     const isMilestone = task.type === 'milestone';
 
+    // Rastrear posición real del mouse para desvincular el tooltip del grid base
+    const [pos, setPos] = useState({ x: -9999, y: -9999 });
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            setPos({ x: e.clientX, y: e.clientY });
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
+
     const formatDateSafe = (date) => {
         try {
             if (!date) return '--';
@@ -21,8 +33,18 @@ const TooltipContent = ({ task }) => {
         }
     };
 
-    return (
-        <div className="gantt-tooltip">
+    return createPortal(
+        <div
+            className="gantt-tooltip"
+            style={{
+                pointerEvents: 'none',
+                position: 'fixed',
+                top: pos.y + 15,
+                left: pos.x + 15,
+                zIndex: 99999,
+                margin: 0
+            }}
+        >
             <header className="gantt-tooltip-header">
                 <span className={`task-badge ${task.type}`}>{task.type}</span>
                 <h4 className="gantt-tooltip-title">{task.name}</h4>
@@ -63,57 +85,65 @@ const TooltipContent = ({ task }) => {
                     </div>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
 const CustomTaskListHeader = ({ headerHeight }) => {
     return (
         <div
-            className="gantt-list-header"
+            className="gantt-list-header-custom"
             style={{
                 height: headerHeight,
                 fontFamily: 'var(--font-title)',
-                fontSize: '11px',
+                fontSize: '14px',
                 display: 'flex',
-                alignItems: 'center',
-                borderBottom: '2px solid var(--border-color)',
+                alignItems: 'flex-end',
+                paddingBottom: '8px',
+                borderBottom: '1px solid var(--border-color)',
                 background: 'var(--bg-primary)',
                 fontWeight: '800',
-                color: 'var(--text-tertiary)',
+                color: '#1e293b', // Dark Slate
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em'
             }}
         >
-            <div className="gantt-header-item" style={{ flex: '1', paddingLeft: '20px' }}>Partida / Tarea</div>
+            <div className="gantt-header-item" style={{ flex: '1', paddingLeft: '16px' }}>Partida / Tarea</div>
             <div className="gantt-header-item" style={{ width: '80px', textAlign: 'center' }}>Inicio</div>
             <div className="gantt-header-item" style={{ width: '80px', textAlign: 'center' }}>Fin</div>
         </div>
     );
 };
 
-const CustomTaskListTable = ({ rowHeight, tasks, fontSize, onExpanderClick }) => {
-    const formatDate = (date) => {
-        try {
-            if (!date) return '--';
-            const d = new Date(date);
-            if (isNaN(d.getTime())) return '--';
-            return format(d, 'dd/MM/yy');
-        } catch {
-            return '--';
-        }
-    };
+const formatDate = (date) => {
+    try {
+        if (!date) return '--';
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return '--';
+        return format(d, 'dd/MM/yy');
+    } catch {
+        return '--';
+    }
+};
 
+const CustomTaskListTable = ({ rowHeight, tasks, fontSize, onExpanderClick }) => {
     return (
         <div style={{ fontFamily: 'var(--font-main)', fontSize: fontSize, background: 'var(--bg-primary)' }}>
             {tasks.map((task) => {
                 const isProject = task.type === 'project';
                 const isMilestone = task.type === 'milestone';
+                const level = task._level || 0;
+                const hasChildren = task._hasChildren;
+                const isProjectRoot = task._level === -1;
+
+                // Indentación: 16px base + 20px por nivel
+                const indent = isProjectRoot ? 16 : 16 + Math.max(0, level) * 20;
 
                 return (
                     <div
                         key={task.id}
-                        className="gantt-list-row"
+                        className={`gantt-list-row ${hasChildren && !isProjectRoot ? 'gantt-parent-row' : ''}`}
                         style={{
                             height: `${rowHeight}px`,
                             display: 'flex',
@@ -125,49 +155,63 @@ const CustomTaskListTable = ({ rowHeight, tasks, fontSize, onExpanderClick }) =>
                             className="gantt-list-cell"
                             style={{
                                 flex: '1',
-                                paddingLeft: '16px',
+                                paddingLeft: `${indent}px`,
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '8px'
+                                gap: '6px'
                             }}
                         >
                             {task.hideChildren !== undefined ? (
                                 <div
                                     onClick={() => onExpanderClick(task)}
+                                    className="gantt-expander"
                                     style={{
                                         cursor: 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        width: '18px',
-                                        color: 'var(--sidebar-active)',
+                                        justifyContent: 'center',
+                                        width: '20px',
+                                        height: '20px',
+                                        borderRadius: '4px',
+                                        color: hasChildren && !isProjectRoot ? 'var(--sidebar-active)' : 'var(--text-tertiary)',
+                                        background: hasChildren && !isProjectRoot ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
                                         userSelect: 'none',
-                                        fontSize: '14px'
+                                        fontSize: '12px',
+                                        fontWeight: '700',
+                                        transition: 'all 0.15s ease'
                                     }}
                                 >
                                     {task.hideChildren ? '▸' : '▾'}
                                 </div>
                             ) : (
-                                <div style={{ width: '18px' }} />
+                                <div style={{ width: '20px' }} />
                             )}
                             <span style={{
-                                fontWeight: isProject ? '800' : '600',
-                                color: isProject ? 'var(--text-primary)' : 'var(--text-secondary)',
-                                fontSize: isProject ? '13px' : '12px',
-                                fontFamily: isProject ? 'var(--font-title)' : 'var(--font-main)'
+                                fontWeight: isProject || (hasChildren && !isProjectRoot) ? '800' : '600',
+                                color: isProjectRoot
+                                    ? 'var(--text-primary)'
+                                    : hasChildren
+                                        ? 'var(--text-primary)'
+                                        : 'var(--text-secondary)',
+                                fontSize: isProjectRoot ? '13px' : hasChildren ? '12.5px' : '12px',
+                                fontFamily: isProject || hasChildren ? 'var(--font-title)' : 'var(--font-main)',
+                                textTransform: hasChildren && !isProjectRoot ? 'uppercase' : 'none',
+                                letterSpacing: hasChildren && !isProjectRoot ? '0.02em' : 'normal'
                             }}>
-                                {task.name}
+                                {task._rawName || task.name}
                             </span>
                         </div>
                         <div className="gantt-list-cell" style={{
                             width: '80px',
                             textAlign: 'center',
                             color: 'var(--text-secondary)',
-                            fontSize: '11px',
+                            fontSize: '12px',
                             fontWeight: '600',
-                            fontFamily: 'var(--font-tech)'
+                            fontFamily: 'var(--font-main)',
+                            fontVariantNumeric: 'tabular-nums' // UI/UX Polish
                         }}>
                             {formatDate(task.start)}
                         </div>
@@ -175,22 +219,25 @@ const CustomTaskListTable = ({ rowHeight, tasks, fontSize, onExpanderClick }) =>
                             width: '80px',
                             textAlign: 'center',
                             color: 'var(--text-secondary)',
-                            fontSize: '11px',
+                            fontSize: '12px',
                             fontWeight: '600',
-                            fontFamily: 'var(--font-tech)'
+                            fontFamily: 'var(--font-main)',
+                            fontVariantNumeric: 'tabular-nums' // UI/UX Polish
                         }}>
                             {isMilestone ? '-' : formatDate(task.end)}
                         </div>
                     </div>
                 );
             })}
-        </div>
+        </div >
     );
 };
 
-export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, readOnly = false }) => {
+export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, readOnly = false, onTaskChange }) => {
     const { data, loading } = useGanttData(projectId);
-    // Nota: useTasks y useMilestones están disponibles si se quiere habilitar edición directa en el Gantt
+
+    // Estado local para manejar expand/collapse
+    const [collapsedIds, setCollapsedIds] = useState(new Set());
 
     // Referencias para scroll del wrapper completo
     const ganttRef = useRef(null);
@@ -199,7 +246,7 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
     // Estado para mostrar/ocultar la lista (en móvil empieza visible)
     const [isListVisible, setIsListVisible] = useState(true);
 
-    // Actualizar visibilidad si cambia el tamaño de ventana
+    // Atualizar visibilidad si cambia el tamaño de ventana
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth >= 768) setIsListVisible(true);
@@ -208,41 +255,66 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Construir tasks con hideChildren aplicado + filtrar hijos ocultos
+    const displayTasks = useMemo(() => {
+        if (!data || data.length === 0) return [];
 
-    // Limitar el ancho del Gantt al rango real de fechas + margen
-    useEffect(() => {
-        if (!ganttRef.current || !data || data.length === 0) return;
+        // Aplicar estado colapsado a las tareas
+        const tasksWithState = data.map(task => {
+            if (task._hasChildren || task._level === -1) {
+                return {
+                    ...task,
+                    hideChildren: collapsedIds.has(task.id)
+                };
+            }
+            return { ...task };
+        });
 
-        // Calcular el rango de fechas del proyecto
-        const allDates = data.flatMap(item => [item.start, item.end]).filter(Boolean);
-        if (allDates.length === 0) return;
+        // Filtrar tareas cuyos padres estén colapsados
+        const visibleTasks = [];
+        const hiddenParentIds = new Set();
 
-        const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
-        const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
+        for (const task of tasksWithState) {
+            // Verificar si algún ancestro está oculto
+            const isHidden = task._parentId && hiddenParentIds.has(task._parentId);
 
-        // Calcular días totales + margen de 5 días extra
-        const daysDiff = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24)) + 5;
+            if (isHidden) {
+                // Si está oculto y tiene hijos, sus hijos también se ocultan
+                if (task._hasChildren) {
+                    hiddenParentIds.add(task.id);
+                }
+                continue;
+            }
 
-        // Calcular ancho basado en columnWidth y modo de vista
-        const columnWidth = viewMode === ViewMode.Day ? 60 : 100;
-        const listWidth = window.innerWidth < 768 ? 160 : 220;
-        const calculatedWidth = listWidth + (daysDiff * columnWidth) + 50;
+            visibleTasks.push(task);
 
-        // Aplicar width al gantt-wrapper para forzar el límite
-        ganttRef.current.style.width = `${calculatedWidth}px`;
-        ganttRef.current.style.maxWidth = `${calculatedWidth}px`;
+            // Si esta tarea está colapsada, marcar sus hijos para ocultarlos
+            if (task.hideChildren && task._hasChildren) {
+                hiddenParentIds.add(task.id);
+            }
+        }
 
-    }, [data, viewMode]);
+        return visibleTasks;
+    }, [data, collapsedIds]);
 
+    // Handler para expandir/colapsar memoizado para evitar re-renders
+    const handleExpanderClick = useCallback((task) => {
+        setCollapsedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(task.id)) {
+                next.delete(task.id);
+            } else {
+                next.add(task.id);
+            }
+            return next;
+        });
+    }, []);
 
-    // Funciones para cambio de tareas (deshabilitadas temporalmente - readOnly mode)
-    // const handleTaskChange = async (task) => { ... };
-    // const handleProgressChange = async (task) => { ... };
 
 
     if (loading) return <div className="gantt-loading">Cargando cronograma...</div>;
 
-    if (!data || data.length === 0) return (
+    if (!displayTasks || displayTasks.length === 0) return (
         <div className="gantt-empty">
             <p>No hay tareas ni hitos para mostrar.</p>
             <p className="text-sm text-secondary">Agrega tareas en la pestaña de Lista para verlas aquí.</p>
@@ -251,7 +323,6 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
 
     return (
         <div className="gantt-container-outer">
-            {/* Contenedor scrollable nativo que mueve tabla + gantt juntos */}
             <div
                 ref={wrapperScrollRef}
                 className="gantt-scroll-container"
@@ -261,24 +332,25 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                     className={`gantt-wrapper ${!isListVisible ? 'list-collapsed' : ''}`}
                 >
                     <Gantt
-                        tasks={data}
+                        tasks={displayTasks}
                         viewMode={viewMode}
-                        onDateChange={undefined}
+                        onDateChange={readOnly ? undefined : onTaskChange}
                         onProgressChange={undefined}
-                        onDoubleClick={readOnly ? null : onDoubleClick}
+                        onDoubleClick={readOnly ? undefined : onDoubleClick}
+                        onExpanderClick={handleExpanderClick}
                         TooltipContent={TooltipContent}
                         TaskListHeader={CustomTaskListHeader}
                         TaskListTable={CustomTaskListTable}
                         locale="es"
                         listCellWidth={window.innerWidth < 768 ? "160px" : "240px"}
                         columnWidth={viewMode === ViewMode.Day ? 64 : 110}
-                        headerHeight={80}
-                        rowHeight={52}
+                        headerHeight={45} // Reduced from 80
+                        rowHeight={48}    // Reduced from 52
                         barFill={70}
                         barCornerRadius={8}
                         handleWidth={10}
                         fontFamily="var(--font-main)"
-                        fontSize="12px"
+                        fontSize="13px"   // Increased from 12px
                         arrowColor="var(--text-tertiary)"
                         arrowIndent={20}
                         todayColor="rgba(99, 102, 241, 0.08)"
@@ -289,4 +361,3 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
         </div>
     );
 };
-
