@@ -1,8 +1,8 @@
-/* === LAYOUT PRINCIPAL DEL PROYECTO === */
 .project-layout {
     display: flex;
-    min-height: 100vh;
+    height: 100dvh;
     width: 100%;
+    overflow: hidden;
 }
 
 .project-main {
@@ -10,34 +10,42 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+    min-height: 0;
     background-color: var(--bg-primary);
+    overflow-y: auto;
+    /* Restaurado para permitir scroll vertical de la página */
     overflow-x: hidden;
-    /* Evitar scrollbar horizontal a nivel de página */
 }
 
-/* Header padding reducido a la mitad */
-.project-header {
-    padding: 1rem 1.5rem !important;
-    /* 16px vertical, 24px horizontal */
-    min-height: 72px;
-    box-sizing: border-box;
-}
+/* Header padding se maneja localmente en el componente mediante inline styles */
 
 .view-selector-btn {
     transition: all var(--transition-fast);
     font-family: var(--font-title);
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.7rem;
-    letter-spacing: 0.05em;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    color: #475569;
+}
+
+.dark .view-selector-btn {
+    color: #cbd5e1;
+}
+
+.dark .view-selector-btn:hover {
+    color: #ffffff;
 }
 
 .project-content {
-    flex: 1;
+    flex: 1 0 auto;
+    /* Importante para que tome el alto del contenido y el parent haga scroll */
     padding: 0;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    position: relative;
+    overflow: visible;
 }
 
 /* === RESPONSIVE MODS === */
@@ -67,7 +75,7 @@
     }
 
     .project-header {
-        display: none;
+        display: none !important;
     }
 
     .project-main {
@@ -146,12 +154,14 @@
     transition: all var(--transition-fast);
     cursor: pointer;
     font-family: var(--font-title);
+    min-width: 110px;
+    justify-content: center;
 }
 
 .btn-add-milestone {
-    background-color: white;
+    background-color: transparent;
     color: var(--accent-color);
-    border: 1px solid var(--accent-color);
+    border: 2px solid var(--accent-color);
 }
 
 .btn-add-milestone:hover {
@@ -160,16 +170,37 @@
     transform: translateY(-1px);
 }
 
+.dark .btn-add-milestone {
+    background-color: transparent;
+    color: #fb923c;
+    border-color: #fb923c;
+}
+
+.dark .btn-add-milestone:hover {
+    background-color: #fb923c;
+    color: #0f172a;
+}
+
 .btn-add-task {
-    background-color: var(--primary-color);
+    background-color: #334155;
     color: white;
-    border: 1px solid var(--primary-color);
+    border: 2px solid #475569;
 }
 
 .btn-add-task:hover {
-    background-color: #1e40af;
+    background-color: #475569;
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
+}
+
+.dark .btn-add-task {
+    background-color: #334155;
+    color: #e2e8f0;
+    border-color: #475569;
+}
+
+.dark .btn-add-task:hover {
+    background-color: #475569;
 }
 
 .today-indicator {

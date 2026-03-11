@@ -180,7 +180,7 @@
     flex-direction: column;
     gap: 4px;
     padding: var(--space-md);
-    background: white;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     transition: all var(--transition-fast);
@@ -238,13 +238,4 @@
     font-style: italic;
 }
 
-/* Mobile Nav/Header Overrides for Blueprint */
-.mobile-nav {
-    background: white !important;
-    border-top: 1px solid var(--border-color) !important;
-}
-
-.mobile-header {
-    background: white !important;
-    border-bottom: 1px solid var(--border-color) !important;
-}
+/* Mobile Nav/Header Overrides removed for blueprint theme consistency */

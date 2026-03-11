@@ -40,6 +40,7 @@ export const DashboardPage = () => {
                 projectName="Ganttagram"
                 showBack={false}
                 onMenuClick={() => setIsMenuOpen(!isMenuOpen)}
+                showThemeToggle={true}
             />
 
             {isMenuOpen && (
@@ -59,8 +60,8 @@ export const DashboardPage = () => {
                                     {user?.displayName?.charAt(0) || 'U'}
                                 </div>
                                 <div className="flex flex-col overflow-hidden">
-                                    <p className="font-bold text-slate-800 leading-tight truncate">{user?.displayName}</p>
-                                    <p className="text-[11px] text-slate-500 truncate mt-0.5">{user?.email}</p>
+                                    <p className="font-bold leading-tight truncate" style={{ color: 'var(--text-primary)' }}>{user?.displayName}</p>
+                                    <p className="text-[11px] truncate mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{user?.email}</p>
                                 </div>
                             </div>
                         </div>
@@ -101,11 +102,11 @@ export const DashboardPage = () => {
                             <h1>Centro de Mando</h1>
                             <p className="text-secondary">Bienvenido al sistema de gestión de obras, {user?.displayName}</p>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-6">
                             <ThemeToggle />
-                            <Button variant="ghost" onClick={handleLogout} className="text-error">
+                            <Button variant="ghost" onClick={handleLogout} className="flex items-center gap-2" style={{ color: 'var(--error)', fontWeight: 700 }}>
                                 <LogOut size={18} />
-                                <span className="ml-2">Salir</span>
+                                <span>SALIR</span>
                             </Button>
                         </div>
                     </header>

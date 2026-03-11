@@ -142,7 +142,7 @@ export const useGanttData = (projectId) => {
 
         const projectRoot = {
             id: projectId,
-            name: `Proyecto (${projectProgress}%)`,
+            name: projectProgress > 0 ? `Proyecto (${projectProgress}%)` : `Proyecto`,
             _rawName: "Proyecto",
             start: minDate,
             end: maxDate,

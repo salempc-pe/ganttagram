@@ -13,28 +13,29 @@ import {
     PanelLeftOpen
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { ThemeToggle } from '../../../shared/components/ThemeToggle';
 import './ProjectSidebar.css';
 
 export const ProjectSidebar = ({ activeTab, onTabChange }) => {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
 
     const menuItems = [
         { id: 'gantt', label: 'Cronograma', icon: CalendarIcon },
         { id: 'list', label: 'Lista de Tareas', icon: List },
         { id: 'recursos', label: 'Recursos', icon: Briefcase },
-        { id: 'board', label: 'Tablero', icon: Layout }, // Futuro
+        { id: 'board', label: 'Kanban', icon: Layout }, // Futuro
         { id: 'team', label: 'Equipo', icon: Users },
         { id: 'settings', label: 'Configuración', icon: Settings },
     ];
 
     return (
         <div className={clsx('project-sidebar', { collapsed: isCollapsed })}>
-            <div className="sidebar-header">
-                <Link to="/dashboard" className="back-link">
-                    <ChevronLeft size={20} />
-                    {!isCollapsed && <span>Volver</span>}
-                </Link>
+            <div className="sidebar-header" style={{ justifyContent: isCollapsed ? 'center' : 'space-between' }}>
+                {!isCollapsed && (
+                    <Link to="/dashboard" className="back-link">
+                        <ChevronLeft size={20} />
+                        <span>Volver</span>
+                    </Link>
+                )}
                 <button
                     className="sidebar-toggle"
                     onClick={() => setIsCollapsed(!isCollapsed)}
@@ -58,9 +59,6 @@ export const ProjectSidebar = ({ activeTab, onTabChange }) => {
                 ))}
             </nav>
 
-            <div className="sidebar-footer mt-auto flex flex-col items-center gap-4 mb-4">
-                <ThemeToggle />
-            </div>
         </div>
     );
 };

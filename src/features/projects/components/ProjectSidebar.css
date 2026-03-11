@@ -1,6 +1,6 @@
 .project-sidebar {
     width: 72px;
-    background-color: #ffffff;
+    background-color: var(--bg-card);
     border-right: 2px solid var(--border-color);
     display: flex;
     flex-direction: column;

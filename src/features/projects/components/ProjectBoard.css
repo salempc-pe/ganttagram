@@ -43,6 +43,10 @@
     color: var(--text-secondary);
 }
 
+[data-theme="dark"] .task-count {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 .column-content {
     flex: 1;
     overflow-y: auto;
@@ -79,6 +83,7 @@
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: var(--space-sm);
+    gap: 12px;
 }
 
 .task-name {
@@ -86,6 +91,10 @@
     font-size: var(--font-sm);
     line-height: 1.5;
     color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
 }
 
 .card-meta {
@@ -95,13 +104,15 @@
     margin-bottom: var(--space-md);
 }
 
-.date-badge {
-    font-size: 11px;
+.task-dates {
+    font-size: 10px;
     font-weight: var(--font-weight-medium);
     color: var(--text-secondary);
     display: flex;
     align-items: center;
     gap: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .dep-badge {
@@ -139,6 +150,10 @@
     border-radius: var(--radius-lg);
     margin: var(--space-sm);
     background: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="dark"] .empty-column-state {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 /* Responsive Board */

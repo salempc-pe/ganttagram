@@ -50,23 +50,23 @@ export const ProjectModal = ({ isOpen, onClose, onSubmit, initialData = null }) 
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content project-modal" onClick={e => e.stopPropagation()}>
-                <div className="modal-header border-b border-slate-100 bg-slate-50/50 py-4 px-6">
+                <div className="modal-header py-4 px-6" style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)', opacity: 0.9 }}>
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-xl shadow-lg shadow-blue-200">
                             {formData.emoji}
                         </div>
-                        <h2 className="text-lg font-extrabold uppercase tracking-tight text-slate-800">
+                        <h2 className="text-lg font-extrabold uppercase tracking-tight" style={{ color: 'var(--text-primary)' }}>
                             {initialData ? 'Configurar Proyecto' : 'Nuevo Proyecto Técnico'}
                         </h2>
                     </div>
-                    <button onClick={onClose} className="btn-close hover:bg-slate-200 p-1.5 rounded-full transition-colors">
+                    <button onClick={onClose} className="btn-close p-1.5 rounded-full transition-colors" style={{ color: 'var(--text-secondary)' }}>
                         <X size={20} />
                     </button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="modal-form p-6 space-y-6">
                     <div>
-                        <label className="input-label font-bold text-[10px] uppercase tracking-wider text-slate-400 mb-2 block">Identificador Visual (Emoji)</label>
+                        <label className="input-label font-bold text-[10px] uppercase tracking-wider mb-2 block" style={{ color: 'var(--text-tertiary)' }}>Identificador Visual (Emoji)</label>
                         <div className="emoji-selector-grid">
                             {COMMON_EMOJIS.map(emo => (
                                 <button
@@ -91,7 +91,7 @@ export const ProjectModal = ({ isOpen, onClose, onSubmit, initialData = null }) 
                     />
 
                     <div className="input-wrapper">
-                        <label className="input-label font-bold text-[10px] uppercase tracking-wider text-slate-400">Descripción del Alcance</label>
+                        <label className="input-label font-bold text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Descripción del Alcance</label>
                         <textarea
                             className="input textarea min-h-[100px] mt-1"
                             value={formData.description}
@@ -101,7 +101,7 @@ export const ProjectModal = ({ isOpen, onClose, onSubmit, initialData = null }) 
                         />
                     </div>
 
-                    <div className="modal-actions pt-6 border-t border-slate-100 flex justify-end gap-3">
+                    <div className="modal-actions pt-6 flex justify-end gap-3" style={{ borderTop: '1px solid var(--border-color)' }}>
                         <Button type="button" variant="ghost" onClick={onClose} className="font-bold">
                             CANCELAR
                         </Button>

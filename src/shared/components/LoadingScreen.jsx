@@ -1,9 +1,11 @@
-
 import React, { useEffect, useRef } from 'react';
+import { useTheme } from '../context/ThemeContext';
 import './LoadingScreen.css';
 
 export const LoadingScreen = ({ text = 'Cargando Ganttagram...' }) => {
     const canvasRef = useRef(null);
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -24,7 +26,7 @@ export const LoadingScreen = ({ text = 'Cargando Ganttagram...' }) => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // 2. Dibujar la grilla minimalista (desplazada 64px a la derecha)
-            ctx.strokeStyle = "#2D2D35";
+            ctx.strokeStyle = isDark ? "#2D2D35" : "#E2E8F0";
             ctx.lineWidth = 2;
             ctx.beginPath();
 
@@ -67,7 +69,7 @@ export const LoadingScreen = ({ text = 'Cargando Ganttagram...' }) => {
         return () => {
             cancelAnimationFrame(animationFrameId);
         };
-    }, []);
+    }, [isDark]);
 
     return (
         <div className="loading-screen-container">

@@ -14,12 +14,21 @@
             --text-main: #0f172a;
             --text-secondary: #475569;
             --border: #e2e8f0;
-            --radius: 8px;
+            --radius: 12px;
         }
 
         @media print {
-            body {
+            @page {
+                size: A4;
+                margin: 20mm;
+            }
+
+            html, body {
+                width: auto;
+                height: auto;
                 background: white !important;
+                color: black !important;
+                font-size: 11pt;
                 margin: 0;
                 padding: 0;
             }
@@ -30,25 +39,42 @@
 
             .page-break {
                 page-break-before: always;
+                padding-top: 10mm;
             }
 
             .container {
                 box-shadow: none !important;
                 border: none !important;
-                max-width: 100% !important;
                 width: 100% !important;
+                max-width: none !important;
                 margin: 0 !important;
-                padding: 20px !important;
-                border-radius: 0 !important;
-                background: white !important;
+                padding: 0 !important;
+                display: block !important;
+                float: none !important;
+            }
+
+            p, li {
+                text-align: justify;
+                line-height: 1.6;
             }
 
             .logo {
                 background: none !important;
                 -webkit-text-fill-color: var(--primary) !important;
                 color: var(--primary) !important;
-                font-size: 2.5rem !important;
+                font-size: 32pt;
             }
+
+            h2 {
+                color: var(--primary) !important;
+                border-left: 5px solid var(--accent) !important;
+                page-break-after: avoid;
+                font-size: 20pt;
+                margin-top: 30pt;
+            }
+
+            h1 { font-size: 26pt; }
+            h3 { font-size: 16pt; }
         }
 
         body {
@@ -61,13 +87,13 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
             background: var(--surface);
             padding: 60px;
             border: 1px solid var(--border);
             border-radius: var(--radius);
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
         }
 
         header {
@@ -78,8 +104,8 @@
         }
 
         .logo {
-            font-size: 3rem;
-            font-weight: 800;
+            font-size: 3.5rem;
+            font-weight: 900;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             background-clip: text;
@@ -88,32 +114,38 @@
             letter-spacing: -0.05em;
         }
 
-        h1,
-        h2,
-        h3,
-        h4 {
+        h1, h2, h3, h4 {
             font-family: 'Space Grotesk', sans-serif;
             color: var(--text-main);
             letter-spacing: -0.02em;
         }
 
         h2 {
-            border-left: 5px solid var(--accent);
-            padding-left: 15px;
-            margin-top: 50px;
+            border-left: 6px solid var(--accent);
+            padding-left: 20px;
+            margin-top: 60px;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        h3 {
+            margin-top: 40px;
+            font-size: 1.5rem;
+            color: var(--text-main);
         }
 
         .subtitle {
-            font-size: 1.25rem;
+            font-size: 1.4rem;
             color: var(--text-secondary);
             margin-top: 0;
         }
 
         .toc {
             background: #f1f5f9;
-            padding: 25px;
+            padding: 35px;
             border-radius: var(--radius);
             margin: 40px 0;
+            border: 1px solid var(--border);
         }
 
         .toc h3 {
@@ -123,10 +155,21 @@
         .toc ul {
             list-style: none;
             padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
         }
 
         .toc li {
-            margin-bottom: 10px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .toc li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
         }
 
         .toc a {
@@ -136,183 +179,219 @@
         }
 
         .toc a:hover {
-            text-decoration: underline;
+            color: var(--accent);
         }
 
-        .feature-card {
+        .feature-box {
+            background: #ffffff;
             border: 1px solid var(--border);
-            padding: 20px;
             border-radius: var(--radius);
-            margin-bottom: 20px;
-            background: #fafafa;
+            padding: 25px;
+            margin: 25px 0;
+            border-top: 4px solid var(--primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
-        .feature-card h4 {
+        .feature-box h4 {
             margin-top: 0;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            color: var(--primary);
         }
 
-        .feature-card h4 svg {
-            color: var(--accent);
-            width: 24px;
-            height: 24px;
+        .step-list {
+            padding-left: 20px;
         }
 
-        img.screenshot {
-            width: 100%;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            margin: 20px 0;
+        .step-list li {
+            margin-bottom: 15px;
         }
 
         .tip {
-            background: #fff7ed;
-            border-left: 4px solid var(--accent);
-            padding: 15px;
-            margin: 20px 0;
-            font-size: 0.95rem;
+            background: #fffbeb;
+            border-left: 5px solid #f59e0b;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 10px 10px 0;
+            font-style: italic;
+        }
+
+        .important {
+            background: #fef2f2;
+            border-left: 5px solid #ef4444;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 0 10px 10px 0;
         }
 
         footer {
-            margin-top: 60px;
+            margin-top: 80px;
             text-align: center;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
             border-top: 1px solid var(--border);
-            padding-top: 20px;
+            padding-top: 30px;
         }
 
         .print-btn {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 25px;
+            right: 25px;
             background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 12px 28px;
+            border-radius: 50px;
             cursor: pointer;
             font-weight: 600;
-            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
 
         .print-btn:hover {
+            transform: scale(1.05);
             background: #1d4ed8;
         }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <button class="print-btn no-print" onclick="window.print()">Imprimir Manual</button>
+    <button class="print-btn no-print" onclick="window.print()">📲 Imprimir Manual de Usuario</button>
 
     <div class="container">
         <header>
             <div class="logo">GANTTAGRAM</div>
             <h1>Manual del Usuario</h1>
-            <p class="subtitle">Guía oficial para la gestión de proyectos de construcción</p>
-            <p><strong>Versión 1.0.0</strong> - 2026</p>
+            <p class="subtitle">La herramienta definitiva para el Ingeniero y Residente de Obra</p>
+            <p><strong>Versión 1.1.0</strong> - Guía paso a paso</p>
         </header>
 
         <section class="toc no-print">
-            <h3>Contenido</h3>
+            <h3>Guía de Navegación Rápida</h3>
             <ul>
-                <li><a href="#introduccion">1. Introducción</a></li>
-                <li><a href="#acceso">2. Acceso al Sistema</a></li>
-                <li><a href="#proyectos">3. Gestión de Proyectos</a></li>
-                <li><a href="#tareas">4. Tareas e Hitos (Milestones)</a></li>
-                <li><a href="#gantt">5. Diagrama de Gantt Interactivo</a></li>
-                <li><a href="#recursos">6. Gestión de Recursos</a></li>
-                <li><a href="#dashboard">7. Tablero de Control y Dashboard</a></li>
+                <li><a href="#primeros-pasos">1. Primeros Pasos y Acceso</a></li>
+                <li><a href="#dashboard-global">2. El Centro de Control (Dashboard)</a></li>
+                <li><a href="#crear-proyectos">3. Configuración de Nuevas Obras</a></li>
+                <li><a href="#gestion-tareas">4. Programación Detallada de Tareas</a></li>
+                <li><a href="#dependencias-hitos">5. Dependencias Críticas e Hitos</a></li>
+                <li><a href="#gantt-master">6. Dominio del Diagrama de Gantt</a></li>
+                <li><a href="#recursos-operativos">7. Gestión de Recursos y Costos</a></li>
+                <li><a href="#personalizacion">8. Entorno y Personalización</a></li>
             </ul>
         </section>
 
-        <h2 id="introduccion">1. Introducción</h2>
-        <p>Ganttagram es una herramienta de gestión de proyectos diseñada específicamente para la industria de la
-            construcción y arquitectura. Combina la robustez de los diagramas de Gantt tradicionales con una interfaz
-            moderna y ágil, permitiendo a los gerentes de proyecto planificar, ejecutar y monitorear obras con precisión
-            milimétrica.</p>
-
-        <div class="feature-card">
-            <h4>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round">
-                    <path d="M12 2v20M2 12h20M7 7l5 5 5-5M7 17l5-5 5 5" />
-                </svg>
-                Visión del Sistema
-            </h4>
-            <p>Ganttagram busca centralizar la información técnica: cronogramas, asignaciones de personal, hitos
-                críticos y dependencias entre tareas, todo en un entorno seguro y de alto rendimiento.</p>
+        <h2 id="primeros-pasos">1. Primeros Pasos y Acceso</h2>
+        <p>Ganttagram utiliza un sistema de autenticación seguro basado en la nube. Su información está protegida y disponible en cualquier dispositivo.</p>
+        
+        <div class="feature-box">
+            <h4>Acceso al Sistema</h4>
+            <ul class="step-list">
+                <li><strong>Registro de Usuario:</strong> Si es su primera vez, navegue a "Registrarse". Use un correo institucional para mejor trazabilidad.</li>
+                <li><strong>Inicio de Sesión:</strong> Introduzca sus credenciales. Puede activar "Recordarme" para sesiones rápidas en su computadora de confianza.</li>
+                <li><strong>Recuperación de Cuenta:</strong> En caso de olvido, el sistema enviará un token de seguridad a su correo autorizado.</li>
+            </ul>
         </div>
 
-        <h2 id="acceso">2. Acceso al Sistema</h2>
-        <p>Para ingresar a Ganttagram, debe contar con una cuenta autorizada.</p>
-        <ul>
-            <li><strong>Inicio de Sesión:</strong> Ingrese su correo electrónico y contraseña registrados.</li>
-            <li><strong>Recuperación:</strong> Si olvida su contraseña, utilice la opción "¿Olvidó su contraseña?" para
-                recibir un enlace de restablecimiento en su email.</li>
-        </ul>
-        <div class="tip"><strong>Consejo de seguridad:</strong> El sistema cerrará su sesión automáticamente después de
-            un periodo de inactividad para proteger los datos técnicos del proyecto.</div>
+        <h2 id="dashboard-global">2. El Centro de Control (Dashboard)</h2>
+        <p>Al ingresar, se le presentará una visión de 360 grados de todos sus frentes de trabajo.</p>
+        
+        <div class="feature-box">
+            <h4>Funciones del Tablero Principal</h4>
+            <ul class="step-list">
+                <li><strong>KPIs en Tiempo Real:</strong> Cuadros estadísticos que muestran Proyectos Totales, Tareas en Curso y Presupuesto Ejecutado.</li>
+                <li><strong>Resumen de Alertas:</strong> Listado automático de tareas que vencen en las próximas 48 horas.</li>
+                <li><strong>Acceso Rápido:</strong> Tarjetas de los últimos proyectos editados para retomar el trabajo de inmediato.</li>
+            </ul>
+        </div>
 
-        <h2 id="proyectos">3. Gestión de Proyectos</h2>
-        <p>Cada obra o construcción se organiza como un "Proyecto". En la pantalla principal podrà ver todos los
-            proyectos activos.</p>
-        <div class="feature-card">
-            <h4>Crear un Proyecto</h4>
-            <ol>
-                <li>Haga clic en el botón "Nuevo Proyecto" (+).</li>
-                <li>Defina el nombre de la obra, una descripción breve y el presupuesto estimado.</li>
-                <li>Establezca la fecha de inicio. La fecha de fin se calculará automáticamente en base a las tareas.
-                </li>
+        <div class="page-break"></div>
+
+        <h2 id="crear-proyectos">3. Configuración de Nuevas Obras (Proyectos)</h2>
+        <p>Cada proyecto en Ganttagram representa una unidad de ejecución independiente.</p>
+        
+        <div class="feature-box">
+            <h4>Creación paso a paso</h4>
+            <ol class="step-list">
+                <li>Haga clic en el botón flotante <strong>(+) Nuevo Proyecto</strong>.</li>
+                <li><strong>Datos Maestros:</strong> Ingrese el Nombre de la Obra (ej: Residencial "Las Lilas"), Descripción y la Fecha de Inicio oficial.</li>
+                <li><strong>Presupuesto:</strong> Defina el monto proyectado. El sistema comparará este dato con la sumatoria de costos de recursos asignados más adelante.</li>
+                <li><strong>Visualización:</strong> Elija un color distintivo para identificarlo fácilmente en el Dashboard.</li>
             </ol>
         </div>
 
-        <h2 id="tareas">4. Tareas e Hitos (Milestones)</h2>
-        <p>Las tareas representan las actividades específicas de la obra (ej. Cimentación, Estructura, Acabados).</p>
-        <ul>
-            <li><strong>Estado de Tarea:</strong> Pueden ser "Pendiente", "En Progreso" o "Completada".</li>
-            <li><strong>Dependencias:</strong> Permite vincular tareas para indicar que una no puede iniciar antes que
-                otra finalice.</li>
-            <li><strong>Hitos:</strong> Momentos clave del proyecto (ej. Entrega de Fase 1) que se marcan con una
-                estrella o punto de control en el cronograma.</li>
-        </ul>
+        <h2 id="gestion-tareas">4. Programación Detallada de Tareas</h2>
+        <p>Las tareas son el núcleo de la obra. Ganttagram permite un nivel de detalle granular.</p>
 
-        <h2 id="gantt">5. Diagrama de Gantt Interactivo</h2>
-        <p>Es el corazón de Ganttagram. Permite visualizar el tiempo y el avance de manera gráfica.</p>
-        <ul>
-            <li><strong>Línea de Tiempo:</strong> Desplacese lateralmente para ver la planeación meses adelante.</li>
-            <li><strong>Ajuste de Avance:</strong> Arrastre la barra de progreso dentro de la tarea para actualizar el
-                porcentaje completado.</li>
-            <li><strong>Alertas de Retraso:</strong> Las tareas que superan su fecha límite se resaltarán
-                automáticamente en color rojo.</li>
-        </ul>
+        <div class="feature-box">
+            <h4>Atributos de una Tarea</h4>
+            <ul class="step-list">
+                <li><strong>Nombre y Categoría:</strong> Clasifique la tarea (ej. Obra Gris, Instalaciones, Acabados).</li>
+                <li><strong>Periodo de Ejecución:</strong> Defina fecha de inicio y fin. El sistema calculará el número de días naturales automáticamente.</li>
+                <li><strong>Progreso (0-100%):</strong> Actualice el avance físico de la partida diariamente.</li>
+                <li><strong>Asignación de Recursos:</strong> Vincule qué personal o maquinaria es responsable de esta actividad.</li>
+            </ul>
+        </div>
 
-        <h2 id="recursos">6. Gestión de Recursos</h2>
-        <p>Permite administrar quién o qué se necesita para cada tarea.</p>
-        <ul>
-            <li><strong>Recursos Humanos:</strong> Asigne ingenieros, operarios y especialistas.</li>
-            <li><strong>Equipos y Materiales:</strong> Registre maquinaria pesada o materiales críticos asignados a
-                fases del proyecto.</li>
-        </ul>
+        <div class="tip"><strong>Consejo Pro:</strong> Use nombres claros y estandarizados según el RNE para facilitar la lectura de otros ingenieros.</div>
 
-        <h2 id="dashboard">7. Tablero de Control (Dashboard)</h2>
-        <p>Al iniciar sesión, verá un resumen global de su portafolio:</p>
-        <ul>
-            <li><strong>Estado General:</strong> Número de tareas pendientes vs completadas.</li>
-            <li><strong>Próximos Hitos:</strong> Calendario de entregas inmediatas.</li>
-            <li><strong>Proyectos Críticos:</strong> Lista de obras con mayor retraso o mayor consumo de presupuesto.
-            </li>
-        </ul>
+        <h2 id="dependencias-hitos">5. Dependencias Críticas e Hitos</h2>
+        <p>Para un flujo cronológico coherente, debe vincular sus actividades.</p>
+
+        <div class="feature-box">
+            <h4>Vinculación de Tareas</h4>
+            <p>Seleccione una tarea origen y una destino. El sistema por defecto aplicará una relación <strong>Fin-a-Inicio (FS)</strong>: la tarea B no comenzará hasta que la A termine.</p>
+            <div class="important"><strong>Validación Automática:</strong> El sistema impedirá crear "Lazos Infinitos" (ciclos), protegiendo la lógica de su cronograma.</div>
+        </div>
+
+        <h3>Hitos (Milestones)</h3>
+        <p>Representan entregas críticas (ej. Vaciado de Losa, Entrega de Llaves). No tienen duración, pero marcan puntos de no retorno en el tiempo.</p>
+
+        <div class="page-break"></div>
+
+        <h2 id="gantt-master">6. Dominio del Diagrama de Gantt</h2>
+        <p>La herramienta visual más potente del software. Se encuentra en la pestaña principal de cada proyecto.</p>
+
+        <div class="feature-box">
+            <h4>Interacciones en el Gráfico</h4>
+            <ul class="step-list">
+                <li><strong>Hierarchical View:</strong> El sistema agrupa automáticamente tareas hijas bajo tareas maestras, creando corchetes visuales de gran elegancia.</li>
+                <li><strong>Actualización por Arrastre:</strong> Mueva la barra de progreso interna de cualquier tarea directamente en el gráfico.</li>
+                <li><strong>Línea de Vida (Today Line):</strong> Una línea vertical roja indica exactamente dónde nos encontramos hoy respecto al plan.</li>
+                <li><strong>Zoom Adaptativo:</strong> Ajuste la vista para ver meses o semanas específicas con la rueda del ratón o los controles de pantalla.</li>
+            </ul>
+        </div>
+
+        <h2 id="recursos-operativos">7. Gestión de Recursos y Costos</h2>
+        <p>Controle lo que realmente mueve la obra: Gente, Fierro y Cemento.</p>
+
+        <div class="feature-box">
+            <h4>Tipos de Recursos</h4>
+            <ul class="step-list">
+                <li><strong>Personal:</strong> Ingenieros, Operarios, Peones. Guarde sus especialidades y costos por jornada.</li>
+                <li><strong>Maquinaria:</strong> Excavadoras, Mezcladoras. Controle su disponibilidad y asignación por frente de obra.</li>
+                <li><strong>Materiales:</strong> Insumos críticos. Registre cantidades y unidades de medida (m3, bolsas, etc).</li>
+            </ul>
+        </div>
+
+        <h2 id="personalizacion">8. Entorno y Personalización</h2>
+        <p>Haga de Ganttagram su espacio de trabajo ideal.</p>
+        
+        <div class="feature-box">
+            <h4>Modos Visuales</h4>
+            <p>En la parte superior derecha encontrará el selector de tema:</p>
+            <ul>
+                <li><strong>Modo Blueprint:</strong> Ideal para laptops con mucho brillo solar en campo.</li>
+                <li><strong>Modo Deep Slate:</strong> Ideal para el trabajo de gabinete en oficina con poca luz.</li>
+            </ul>
+        </div>
 
         <footer>
-            <p>&copy; 2026 Ganttagram S.A. - Desarrollado por Antigravity</p>
+            <p>&copy; 2026 Ganttagram S.A. | Software de Precisión para el Mundo Real | Versión Impresa</p>
         </footer>
     </div>
 </body>

@@ -477,7 +477,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                 <div className="modal-header">
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-0">
-                            <Clock className="text-slate-900" size={28} strokeWidth={2.5} />
+                            <Clock style={{ color: 'var(--text-primary)' }} size={28} strokeWidth={2.5} />
                             <h2 className="m-0 leading-none">{initialData ? 'Editar Tarea' : 'Nueva Tarea'}</h2>
                         </div>
                         {initialData && (
@@ -594,7 +594,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                 </div>
                             </div>
 
-                            <div className="form-row-dates" style={{ padding: '0.75rem', background: '#f8fafc', flexDirection: 'column', gap: '8px' }}>
+                            <div className="form-row-dates" style={{ padding: '0.75rem', background: 'var(--bg-secondary)', flexDirection: 'column', gap: '8px' }}>
                                 <label className="input-label-with-icon" style={{ marginBottom: 0 }}>
                                     <Percent size={14} /> AVANCE DEL PROYECTO
                                 </label>

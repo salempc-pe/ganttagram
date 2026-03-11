@@ -81,13 +81,13 @@
 
 /* Base Card Style */
 .category-card {
-    background: white;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 16px;
     overflow: hidden;
     position: relative;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    box-shadow: var(--shadow-sm);
 }
 
 .category-card:hover {
@@ -154,8 +154,8 @@
     width: 36px;
     height: 36px;
     border-radius: 10px;
-    background: #f8fafc;
-    border: 1px solid transparent;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     cursor: pointer;
     color: var(--text-secondary);
     display: flex;
@@ -229,7 +229,7 @@
     padding: 0.5rem;
     border: 1px solid var(--border-color);
     border-radius: 0.5rem;
-    background: var(--bg-body);
+    background: var(--bg-secondary);
 }
 
 .color-picker {
@@ -319,7 +319,7 @@
 }
 
 .action-btn-circle.success {
-    background-color: #f0fdf4;
+    background-color: rgba(16, 185, 129, 0.1);
     color: var(--success);
 }
 
@@ -328,7 +328,7 @@
 }
 
 .action-btn-circle.error {
-    background-color: #fef2f2;
+    background-color: rgba(239, 68, 68, 0.1);
     color: var(--error);
 }
 
@@ -383,7 +383,7 @@
     .action-btn {
         width: 32px;
         height: 32px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
     }
 }

@@ -3,53 +3,35 @@
 .gantt-container-outer {
     position: relative;
     width: 100%;
-    height: 100%;
+    display: block;
     background-image: var(--grid-pattern);
     background-size: 24px 24px;
 }
 
+
+
 .gantt-scroll-container {
     width: 100%;
-    height: 100%;
-    overflow: auto;
-}
-
-@media (max-width: 768px) {
-    .gantt-scroll-container {
-        overflow-x: auto !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch;
-        scroll-behavior: smooth;
-        scrollbar-width: none;
-        height: calc(100dvh - 200px);
-        min-height: 400px;
-        overscroll-behavior-x: none;
-    }
-
-    .gantt-scroll-container::-webkit-scrollbar {
-        display: none;
-    }
-}
-
-.gantt-wrapper svg rect,
-.gantt-wrapper svg text,
-.gantt-wrapper svg line,
-.gantt-wrapper svg path {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: auto;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
 }
 
 .gantt-wrapper {
     position: relative;
     background: transparent;
-    overflow: visible;
     display: flex;
+    min-width: fit-content;
+    overflow: visible;
 }
 
 /* List Column Styles */
 .gantt-wrapper ._3_y5_ {
     transition: width 0.3s ease, opacity 0.3s ease !important;
     border-right: 2px solid var(--border-color);
-    background-color: #ffffff;
+    background-color: var(--bg-primary);
 }
 
 .gantt-wrapper.list-collapsed ._3_y5_ {
@@ -242,4 +224,115 @@ div[class*="tooltipDefaultContainer"] {
 .gantt-empty p:first-child {
     font-weight: 700;
     font-size: 1.1rem;
+}
+
+/* === ESTILOS PARA TAREAS PADRE (CORCHETES DE PROYECTO) === */
+.projectWrapper .projectBackground {
+    fill: transparent !important;
+    stroke: var(--text-secondary) !important;
+    stroke-width: 2px !important;
+    rx: 2px !important;
+    ry: 2px !important;
+}
+
+.projectWrapper .projectTop {
+    fill: var(--text-secondary) !important;
+}
+
+/* Asegurar legibilidad del texto en el Gantt */
+.gantt-wrapper text.barLabel {
+    fill: var(--text-primary) !important;
+    font-family: var(--font-title) !important;
+    font-weight: 600 !important;
+    font-size: 11px !important;
+    /* Halo de legibilidad (borde del color de fondo para que resalte fuera de la barra) */
+    paint-order: stroke fill;
+    stroke: var(--bg-primary) !important;
+    stroke-width: 3.5px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* En modo oscuro, si el texto sigue pareciendo poco claro, forzar un brillo mayor */
+:root[data-theme="dark"] .gantt-wrapper text.barLabel {
+    fill: #ffffff !important;
+    stroke: #0f172a !important;
+    /* Color profundo para el halo en modo oscuro */
+}
+
+/* === MODOS OSCUROS PARA GANTT-TASK-REACT SVG === */
+:root[data-theme="dark"] .gantt-wrapper ._2dZTy {
+    fill: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .gantt-wrapper ._2dZTy:nth-child(even) {
+    fill: var(--bg-secondary) !important;
+}
+
+:root[data-theme="dark"] .gantt-wrapper ._3rUKi,
+:root[data-theme="dark"] .gantt-wrapper ._RuwuK,
+:root[data-theme="dark"] .gantt-wrapper ._1rLuZ {
+    stroke: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .gantt-wrapper ._9w8d5 {
+    fill: var(--text-primary) !important;
+}
+
+:root[data-theme="dark"] .gantt-wrapper ._2q1Kt {
+    fill: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .gantt-wrapper ._35nLX {
+    fill: var(--bg-primary) !important;
+    stroke: var(--border-color) !important;
+}
+
+/* Tooltip Card Overrides */
+:root[data-theme="dark"] .gantt-tooltip {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* === BRUTE FORCE SVG OVERRIDES FOR MISSING CLASSES === */
+:root[data-theme="dark"] .gantt-wrapper svg rect[fill="#ffffff"],
+:root[data-theme="dark"] .gantt-wrapper svg rect[fill="#fff"],
+:root[data-theme="dark"] .gantt-wrapper svg rect[fill="white"] {
+    fill: var(--bg-primary) !important;
+}
+
+:root[data-theme="dark"] .gantt-wrapper svg rect[fill="#f5f5f5"] {
+    fill: var(--bg-secondary) !important;
+}
+
+:root[data-theme="dark"] .gantt-wrapper svg line[stroke="#e6e4e4"],
+:root[data-theme="dark"] .gantt-wrapper svg line[stroke="#ebeff2"],
+:root[data-theme="dark"] .gantt-wrapper svg path[stroke="#e6e4e4"] {
+    stroke: var(--border-color) !important;
+}
+
+:root[data-theme="dark"] .gantt-wrapper svg text[fill="#555"],
+:root[data-theme="dark"] .gantt-wrapper svg text[fill="#555555"],
+:root[data-theme="dark"] .gantt-wrapper svg text[fill="#666"] {
+    fill: var(--text-secondary) !important;
+}
+
+:root[data-theme="dark"] .gantt-wrapper svg text[fill="#333"],
+:root[data-theme="dark"] .gantt-wrapper svg text[fill="#333333"] {
+    fill: var(--text-primary) !important;
+}
+
+/* === JS STICKY HEADERS OVERLAYS === */
+
+/* Sólo aplicar la solidez para que no se trasluza cuando el JS motor traslade Y localmente. Sin dañar overflow horizontal */
+.gantt-wrapper [class*="_3_ygE"],
+.gantt-wrapper [class*="_CZjuD"]>svg:first-child {
+    position: relative;
+    z-index: 40 !important;
+    background-color: var(--bg-primary) !important;
+}
+
+/* El panel lateral izquierdo encima de todo garantizado */
+.gantt-wrapper [class*="_3_ygE"] {
+    z-index: 50 !important;
 }

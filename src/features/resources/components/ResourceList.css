@@ -35,12 +35,11 @@
     align-items: center;
     justify-content: center;
     padding: var(--space-xl) var(--space-xl);
-    /* Reducido de 2xl para balance */
-    background: linear-gradient(to bottom, #ffffff, #f8fafc);
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-lg);
     text-align: center;
-    box-shadow: var(--shadow-sm), inset 0 0 40px rgba(241, 245, 249, 0.4);
+    box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
 }
@@ -65,7 +64,7 @@
 }
 
 .resources-empty .bg-slate-50 {
-    background: white !important;
+    background: var(--bg-card) !important;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-md);
     transition: transform var(--transition-normal);
@@ -256,27 +255,27 @@
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    color: #64748b;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
     transition: all var(--transition-fast);
 }
 
 .action-btn:hover {
-    background: white;
+    background: var(--bg-tertiary);
     transform: translateY(-1px);
 }
 
 .action-btn.edit:hover {
     color: var(--sidebar-active);
     border-color: var(--sidebar-active);
-    background: #eef2ff;
+    background: rgba(37, 99, 235, 0.04);
 }
 
 .action-btn.delete:hover {
     color: var(--error);
     border-color: var(--error);
-    background: #fef2f2;
+    background: rgba(239, 68, 68, 0.04);
 }
 
 .resources-loading {

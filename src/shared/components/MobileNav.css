@@ -73,3 +73,18 @@
         padding: 0;
     }
 }
+
+/* === DARK MODE === */
+:root[data-theme="dark"] .mobile-nav {
+    background-color: rgba(15, 23, 42, 0.95);
+    border-color: #1e293b;
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8);
+}
+
+:root[data-theme="dark"] .mobile-nav-item {
+    color: #475569;
+}
+
+:root[data-theme="dark"] .mobile-nav-item.active {
+    color: var(--sidebar-active);
+}

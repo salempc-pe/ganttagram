@@ -54,18 +54,21 @@ export const getWorkingDuration = (startDate, endDate, calendar) => {
 /**
  * Agrega días laborables a una fecha inicial
  */
-export const addWorkingDays = (startDate, days, calendar) => {
-    if (days <= 0) return startOfDay(new Date(startDate));
+export const addWorkingDays = (startDate, days, calendar, directionArg = null) => {
+    if (days === 0) return startOfDay(new Date(startDate));
+
+    const direction = directionArg !== null ? directionArg : (days < 0 ? -1 : 1);
+    const absDays = Math.abs(days);
 
     let current = startOfDay(new Date(startDate));
     // Asegurar que empezamos en un día laborable
     if (!isWorkingDay(current, calendar)) {
-        current = adjustToWorkingDay(current, calendar, 1);
+        current = adjustToWorkingDay(current, calendar, direction);
     }
 
     let added = 0;
-    while (added < days) {
-        current = addDays(current, 1);
+    while (added < absDays) {
+        current = addDays(current, direction);
         if (isWorkingDay(current, calendar)) {
             added++;
         }

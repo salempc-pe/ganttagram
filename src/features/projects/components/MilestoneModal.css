@@ -14,7 +14,7 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        background: white;
+        background: var(--bg-primary);
         margin: 0;
     }
 

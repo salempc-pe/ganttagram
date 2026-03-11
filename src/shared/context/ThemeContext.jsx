@@ -5,10 +5,10 @@ const ThemeContext = createContext();
 export const useTheme = () => useContext(ThemeContext);
 
 export const ThemeProvider = ({ children }) => {
-    // Inicializar estado revisando localStorage, por defecto 'dark' como sugiere "Industrial-Tech Premium"
+    // Inicializar estado revisando localStorage, por defecto 'light' como sugiere "Technical Blueprint"
     const [theme, setTheme] = useState(() => {
         const savedTheme = localStorage.getItem('ganttagram-theme');
-        return savedTheme || 'dark';
+        return savedTheme || 'light';
     });
 
     useEffect(() => {

@@ -30,6 +30,25 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Detectar si estamos en Tauri de forma más robusta (soportando Tauri v2)
+        const isTauri = 
+            !!window.__TAURI_INTERNALS__ || 
+            !!window.__TAURI__ || 
+            !!window.__TAURI_METADATA__ || 
+            window.location.hostname === 'tauri.localhost' || 
+            window.location.protocol === 'tauri:';
+
+        // Si estamos en Tauri, el redirect NUNCA funciona bien con Firebase web estándar
+        // ni tampoco persiste correctamente el sessionStorage como un navegador usual.
+        // Limpiamos cualquier bandera residual de redirect obligatoriamente.
+        if (isTauri) {
+            sessionStorage.removeItem('isAuthRedirecting');
+        } else if (!sessionStorage.getItem('web_auth_initialized')) {
+            // Si es web, limpiamos por si quedó basura de una sesión antigua bloqueada
+            sessionStorage.removeItem('isAuthRedirecting');
+            sessionStorage.setItem('web_auth_initialized', 'true');
+        }
+
         // Timeout de seguridad: si después de 12 segundos Firebase no responde, dejamos de cargar
         const timeout = setTimeout(() => {
             if (loading) {
@@ -43,7 +62,6 @@ export const AuthProvider = ({ children }) => {
             }
         }, 12000);
 
-        // Comprobar si volvemos de una redirección de Google
         const checkRedirect = async () => {
             try {
                 const result = await getRedirectResult(auth);
@@ -51,14 +69,17 @@ export const AuthProvider = ({ children }) => {
                     // Login exitoso, se limpia la bandera
                     sessionStorage.removeItem('isAuthRedirecting');
                 } else if (!result && sessionStorage.getItem('isAuthRedirecting')) {
-                    // Si regresamos pero no hay resultado, probablemente el navegador bloqueó las cookies (ITP en iOS/iPadOS)
+                    // Si regresamos pero no hay resultado...
                     sessionStorage.removeItem('isAuthRedirecting');
-                    console.warn("Auth Redirect falló silenciosamente (probablemente por 'Anti-Tracking' o cookies de terceros).");
-                    if (typeof window.showError === 'function') {
-                        window.showError(
-                            "Inicio de sesión bloqueado",
-                            "El navegador ha bloqueado la sesión por seguridad. Si usas iPad/iPhone, por favor ve a Configuración > Safari y desactiva 'Prevenir rastreo entre sitios'. También asegúrate de no estar en Modo Incógnito."
-                        );
+                    console.warn("Auth Redirect falló o fue cancelado.");
+
+                    // No mostramos el popup de error rojo nada más arrancar si estamos en Tauri
+                    // o si falló silenciosamente, es mejor simplemente abortar.
+                    const isTauriContext = !!window.__TAURI_INTERNALS__ || !!window.__TAURI__ || window.location.hostname === 'tauri.localhost' || window.location.protocol === 'tauri:';
+                    
+                    if (typeof window.showError === 'function' && !isTauriContext) {
+                        const mensajeError = "El navegador ha bloqueado la sesión por seguridad. Si usas iPad/iPhone, por favor ve a Configuración > Safari y desactiva 'Prevenir rastreo entre sitios'. También asegúrate de no estar en Modo Incógnito.";
+                        window.showError("Inicio de sesión bloqueado", mensajeError);
                     }
                 }
             } catch (error) {
@@ -74,6 +95,10 @@ export const AuthProvider = ({ children }) => {
         const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
             try {
                 if (authUser) {
+                    console.log("Auth: Hydrating user...", authUser?.uid, "DB exists:", !!db);
+                    if (!db) {
+                        throw new Error("Firestore (db) no está inicializado.");
+                    }
                     const userRef = doc(db, 'users', authUser.uid);
                     let userDoc = await getDoc(userRef);
                     let userData = userDoc.data();
@@ -214,11 +239,22 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error("Google Login error:", error);
 
-            // Si el error es estrictamente que se bloqueó el popup o se cerró sin terminar, probamos Redirect
+            // Si el error es estrictamente que se bloqueó el popup o se cerró sin terminar
             if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+                const isTauriEnv = !!window.__TAURI_INTERNALS__ || !!window.__TAURI__ || window.location.hostname === 'tauri.localhost' || window.location.protocol === 'tauri:';
+                
+                // En Tauri no podemos usar redirect fallback para Firebase Web, 
+                // ya que requiere interceptar URIs o plugin nativo de OAuth.
+                if (isTauriEnv) {
+                    return { 
+                        success: false, 
+                        error: "El inicio de sesión con Google requiere abrir una ventana que fue bloqueada o cerrada. Inténtalo de nuevo asegurándote de no cerrar la ventana." 
+                    };
+                }
+
+                // En web sí probamos Redirect como fallback
                 try {
                     const provider = new GoogleAuthProvider();
-                    // Colocamos bandera para detectar si la redirección falla silenciosamente a la vuelta
                     sessionStorage.setItem('isAuthRedirecting', 'true');
                     await signInWithRedirect(auth, provider);
                     return { success: true, redirecting: true };

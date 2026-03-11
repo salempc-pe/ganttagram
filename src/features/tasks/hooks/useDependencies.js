@@ -37,8 +37,28 @@ export const useDependencies = (projectId) => {
             );
             if (exists) return { success: false, error: 'Esta dependencia ya existe' };
 
-            // Evitar dependencia circular inmediata
-            if (fromTaskId === toTaskId) return { success: false, error: 'Una tarea no puede depender de sí misma' };
+            // Comprobador de ciclo completo (BFS/DFS)
+            const isCircular = (from, to) => {
+                const visited = new Set();
+                const stack = [to];
+                while(stack.length > 0) {
+                    const current = stack.pop();
+                    if(current === from) return true;
+                    if(!visited.has(current)) {
+                        visited.add(current);
+                        const children = dependencies
+                            .filter(d => d.fromTaskId === current)
+                            .map(d => d.toTaskId);
+                        stack.push(...children);
+                    }
+                }
+                return false;
+            };
+
+            // Evitar dependencia circular en el grafo
+            if (fromTaskId === toTaskId || isCircular(fromTaskId, toTaskId)) {
+                return { success: false, error: 'Esta dependencia crearía un ciclo' };
+            }
 
             await addDoc(collection(db, `projects/${projectId}/dependencies`), {
                 fromTaskId,

@@ -38,7 +38,7 @@
     height: 44px;
     border-radius: 12px;
     border: 1.5px solid var(--border-color);
-    background: white;
+    background: var(--bg-card);
     color: var(--text-secondary);
     cursor: pointer;
     font-weight: 800;
@@ -113,7 +113,7 @@
     align-items: center;
     gap: 10px;
     padding: 6px 14px;
-    background: white;
+    background: var(--bg-card);
     border: 1.5px solid var(--border-color);
     border-radius: 12px;
     font-size: 13px;

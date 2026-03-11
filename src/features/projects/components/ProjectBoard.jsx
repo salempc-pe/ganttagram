@@ -29,9 +29,9 @@ export const ProjectBoard = ({ tasks, dependencies = [], onTaskUpdate, canEdit }
     }, [tasks, dependencies]);
 
     const columns = {
-        todo: { id: 'todo', label: 'Por Hacer', color: 'var(--text-secondary)', bg: 'var(--bg-secondary)', icon: AlertCircle },
-        in_progress: { id: 'in_progress', label: 'En Progreso', color: 'var(--info)', bg: '#eff6ff', icon: Clock },
-        done: { id: 'done', label: 'Completado', color: 'var(--success)', bg: '#f0fdf4', icon: CheckCircle }
+        todo: { id: 'todo', label: 'Por Hacer', color: 'var(--text-secondary)', bg: 'var(--column-todo-bg)', icon: AlertCircle },
+        in_progress: { id: 'in_progress', label: 'En Progreso', color: 'var(--info)', bg: 'var(--column-in-progress-bg)', icon: Clock },
+        done: { id: 'done', label: 'Completado', color: 'var(--success)', bg: 'var(--column-done-bg)', icon: CheckCircle }
     };
 
     const groupedTasks = {

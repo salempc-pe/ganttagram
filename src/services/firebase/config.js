@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -32,6 +32,12 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize services
 export const auth = getAuth(app);
+
+// Forzar persistencia local explícita para evitar problemas en entornos nativos (Tauri)
+setPersistence(auth, browserLocalPersistence).catch(err => {
+  console.warn("Auth: No se pudo establecer persistencia local", err);
+});
+
 export const db = getFirestore(app);
 
 export default app;

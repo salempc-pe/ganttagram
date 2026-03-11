@@ -38,7 +38,7 @@
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
-    background: white;
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;

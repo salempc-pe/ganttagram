@@ -104,9 +104,11 @@ const CustomTaskListHeader = ({ headerHeight }) => {
                 borderBottom: '1px solid var(--border-color)',
                 background: 'var(--bg-primary)',
                 fontWeight: '800',
-                color: '#1e293b', // Dark Slate
+                color: 'var(--text-secondary)',
                 textTransform: 'uppercase',
-                letterSpacing: '0.05em'
+                letterSpacing: '0.05em',
+                position: 'relative',
+                zIndex: 60
             }}
         >
             <div className="gantt-header-item" style={{ flex: '1', paddingLeft: '16px' }}>Partida / Tarea</div>
@@ -246,13 +248,74 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
     // Estado para mostrar/ocultar la lista (en móvil empieza visible)
     const [isListVisible, setIsListVisible] = useState(true);
 
-    // Atualizar visibilidad si cambia el tamaño de ventana
+    // Actualizar visibilidad si cambia el tamaño de ventana
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth >= 768) setIsListVisible(true);
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Motor fluido de Sticky (Evita saltos visuales en tablas e indexaciones)
+    useEffect(() => {
+        const scroller = document.querySelector('.project-main');
+        if (!scroller) return;
+
+        let frameId;
+        const handleScroll = () => {
+            if (!ganttRef.current) return;
+
+            cancelAnimationFrame(frameId);
+            frameId = requestAnimationFrame(() => {
+                if (!ganttRef.current) return;
+
+                const ganttRect = ganttRef.current.getBoundingClientRect();
+                const scrollerRect = scroller.getBoundingClientRect();
+
+                let offset = scrollerRect.top - ganttRect.top;
+
+                if (offset < 0) offset = 0;
+                const maxOffset = Math.max(0, ganttRect.height - 50);
+                if (offset > maxOffset) offset = maxOffset;
+
+                const leftHeader = ganttRef.current.querySelector('.gantt-list-header-custom');
+                const rightHeader = ganttRef.current.querySelector('[class*="_CZjuD"] > svg:first-child');
+
+                if (leftHeader) {
+                    leftHeader.style.transform = `translateY(${Math.floor(offset)}px)`;
+                }
+
+                if (rightHeader) {
+                    // Sincronizar desplazamiento horizontal con vertical pegajoso
+                    rightHeader.style.transform = `translateY(${Math.floor(offset)}px)`;
+                }
+            });
+        };
+
+        const handleHorizontalScroll = () => {
+            if (!wrapperScrollRef.current || !ganttRef.current) return;
+
+            const scrollLeft = wrapperScrollRef.current.scrollLeft;
+            const rightHeader = ganttRef.current.querySelector('[class*="_CZjuD"] > svg:first-child');
+
+            if (rightHeader) {
+                // Mantener la posición X del header mientras se mueve verticalmente
+                // En algunas librerías esto corrige el desfasaje
+                rightHeader.style.marginLeft = `-${scrollLeft}px`;
+            }
+        };
+
+        scroller.addEventListener('scroll', handleScroll, { passive: true });
+        wrapperScrollRef.current?.addEventListener('scroll', handleHorizontalScroll, { passive: true });
+
+        handleScroll();
+
+        return () => {
+            scroller.removeEventListener('scroll', handleScroll);
+            wrapperScrollRef.current?.removeEventListener('scroll', handleHorizontalScroll);
+            cancelAnimationFrame(frameId);
+        };
     }, []);
 
     // Construir tasks con hideChildren aplicado + filtrar hijos ocultos

@@ -165,32 +165,42 @@ export const useTasks = (projectId) => {
             });
             await batch.commit();
 
-            // Recalcular padres para todas las tareas actualizadas
+            // Recalcular padres UNIFICADO para evitar redundancia
             const freshTasks = tasks.map(t =>
                 updatesMap[t.id] ? { ...t, ...updatesMap[t.id] } : t
             );
 
-            const parentUpdatesBatch = {};
-            for (const taskId of Object.keys(updatesMap)) {
+            // Obtener IDs de padres únicos afectados para recalcular solo una vez por rama
+            const affectedParentIds = new Set();
+            Object.keys(updatesMap).forEach(taskId => {
                 const task = freshTasks.find(t => t.id === taskId);
-                if (task?.parentId) {
-                    const ancestorUpdates = recalculateAncestors(taskId, freshTasks, calendar);
-                    Object.assign(parentUpdatesBatch, ancestorUpdates);
-                }
-            }
+                if (task?.parentId) affectedParentIds.add(task.parentId);
+            });
 
-            if (Object.keys(parentUpdatesBatch).length > 0) {
-                const parentBatch = writeBatch(db);
-                Object.entries(parentUpdatesBatch).forEach(([id, data]) => {
-                    const ref = doc(db, `projects/${projectId}/tasks`, id);
-                    parentBatch.update(ref, {
-                        startDate: data.startDate,
-                        endDate: data.endDate,
-                        progress: data.progress,
-                        updatedAt: serverTimestamp()
-                    });
+            if (affectedParentIds.size > 0) {
+                const parentUpdatesBatch = {};
+                // Recalcular desde los hijos hacia arriba una sola vez por rama
+                affectedParentIds.forEach(parentId => {
+                    const sampleChildId = freshTasks.find(t => t.parentId === parentId)?.id;
+                    if (sampleChildId) {
+                        const ancestorUpdates = recalculateAncestors(sampleChildId, freshTasks, calendar);
+                        Object.assign(parentUpdatesBatch, ancestorUpdates);
+                    }
                 });
-                await parentBatch.commit();
+
+                if (Object.keys(parentUpdatesBatch).length > 0) {
+                    const parentBatch = writeBatch(db);
+                    Object.entries(parentUpdatesBatch).forEach(([id, data]) => {
+                        const ref = doc(db, `projects/${projectId}/tasks`, id);
+                        parentBatch.update(ref, {
+                            startDate: data.startDate,
+                            endDate: data.endDate,
+                            progress: data.progress,
+                            updatedAt: serverTimestamp()
+                        });
+                    });
+                    await parentBatch.commit();
+                }
             }
 
             return { success: true };

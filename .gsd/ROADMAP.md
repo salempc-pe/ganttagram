@@ -10,10 +10,10 @@
 - [x] Clean up unused assets (`ejemplo.webp`).
 
 ### Phase 2: Industrial-Tech Premium Redesign
-**Status**: ⬜ Not Started
+**Status**: ✅ Completed
 **Objective**: Implement new premium visual hierarchy and Gantt interactions.
 
 **Tasks:**
 - [x] Implementar Toggle de Theme Claro/Oscuro en la cabecera general (`Dashboard` y `ProjectPage`).
-- [ ] Mover Título y Progreso Global del layout interno del Gantt a un Header superior tipo Dashboard Ejecutivo (stats de días, presupuesto, trabajadores).
-- [ ] Cambiar renderizado visual de "Tareas Padre" en el Gantt (líneas delgadas) vs "Tareas Hija" (barras normales).
+- [x] Mover Título y Progreso Global del layout interno del Gantt a un Header superior tipo Dashboard Ejecutivo (stats de días, presupuesto, trabajadores).
+- [x] Cambiar renderizado visual de "Tareas Padre" en el Gantt (líneas delgadas) vs "Tareas Hija" (barras normales).

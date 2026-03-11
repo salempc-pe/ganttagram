@@ -66,8 +66,13 @@ export const useProjects = () => {
             },
             (err) => {
                 console.warn("UID Query Error:", err);
-                if (err.code !== 'permission-denied') setError(err.message);
-                // Si falla uno, intentamos mostrar lo que podamos del otro o mantenemos estado
+                if (err.code === 'permission-denied') {
+                    setProjects([]);
+                    setError('No tienes permiso para ver estos proyectos.');
+                } else {
+                    setError(err.message);
+                }
+                setLoading(false);
             }
         );
 

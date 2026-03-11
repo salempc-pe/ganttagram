@@ -81,6 +81,11 @@
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Kanban Columns backgrounds */
+  --column-todo-bg: var(--bg-secondary);
+  --column-in-progress-bg: #eff6ff;
+  --column-done-bg: #f0fdf4;
 }
 
 /* === DARK MODE: DEEP SLATE PREMIUM === */
@@ -103,6 +108,10 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+
+  --column-todo-bg: var(--bg-secondary);
+  --column-in-progress-bg: rgba(14, 165, 233, 0.08); /* Sutil info color */
+  --column-done-bg: rgba(16, 185, 129, 0.08);    /* Sutil success color */
 }
 
 
@@ -616,7 +625,7 @@ a:hover {
 }
 
 .modal-content {
-  background: white;
+  background: var(--bg-card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
   max-width: 100%;
@@ -631,7 +640,7 @@ a:hover {
   align-items: center;
   gap: 0.75rem;
   padding: 0.625rem 1.25rem;
-  background: white;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   color: var(--text-secondary);
@@ -700,7 +709,7 @@ a:hover {
 }
 
 .pro-card {
-  background: white;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   transition: all var(--transition-normal);

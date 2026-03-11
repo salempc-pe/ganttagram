@@ -1,5 +1,5 @@
 .project-card {
-    background-color: white;
+    background-color: var(--bg-card);
     border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: var(--space-lg);

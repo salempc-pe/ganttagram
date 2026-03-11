@@ -84,7 +84,7 @@
 .milestone-icon-bg {
     width: 40px;
     height: 40px;
-    background-color: #fff7ed;
+    background-color: var(--bg-secondary);
     color: var(--warning);
     border-radius: 12px;
     display: flex;
@@ -206,7 +206,7 @@
 }
 
 .card-action-btn:hover {
-    background: white;
+    background: var(--bg-card);
     box-shadow: var(--shadow-sm);
 }
 
@@ -231,8 +231,12 @@
 
 /* --- PARENT/SUMMARY TASK VARIANT --- */
 .parent-task-card {
-    border-left: 4px solid #64748b;
-    background: linear-gradient(135deg, #f8fafc, #ffffff);
+    border-left: 4px solid var(--text-tertiary);
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+}
+
+:root[data-theme="dark"] .parent-task-card {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
 }
 
 .parent-task-card:hover {
@@ -252,10 +256,19 @@
     cursor: pointer;
 }
 
+:root[data-theme="dark"] .parent-expand-icon {
+    background: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
+}
+
 .parent-expand-icon:hover {
     background: rgba(100, 116, 139, 0.15);
     color: #334155;
     transform: scale(1.05);
+}
+
+:root[data-theme="dark"] .parent-expand-icon:hover {
+    color: #e2e8f0;
 }
 
 .subtask-count-pill {
@@ -271,12 +284,26 @@
     border: 1px solid #e2e8f0;
 }
 
+:root[data-theme="dark"] .subtask-count-pill {
+    color: #94a3b8;
+    background: #0f172a;
+    border-color: #334155;
+}
+
 .parent-title {
     font-size: 1rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.01em;
     color: #334155;
+}
+
+:root[data-theme="dark"] .parent-title {
+    color: #f8fafc;
+}
+
+:root[data-theme="dark"] .milestone-icon-bg {
+    background-color: rgba(251, 146, 60, 0.1);
 }
 
 /* --- MOBILE APP ADAPTATION --- */

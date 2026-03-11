@@ -7,6 +7,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../services/firebase/config';
 import { ProjectSidebar } from '../components/ProjectSidebar';
+import { ProjectHeader } from '../components/ProjectHeader';
 import { TaskModal } from '../components/TaskModal';
 import { MilestoneModal } from '../components/MilestoneModal';
 import { ResourceModal } from '../../resources/components/ResourceModal';
@@ -23,6 +24,8 @@ import { useDependencies } from '../../tasks/hooks/useDependencies';
 import { useProjectPermissions } from '../hooks/useProjectPermissions';
 import { ViewMode } from 'gantt-task-react';
 import { LoadingScreen } from '../../../shared/components/LoadingScreen';
+import { useTheme } from '../../../shared/context/ThemeContext';
+import { ConfirmModal } from '../../../shared/components/ConfirmModal';
 import './ProjectPage.css';
 
 // Lazy Loaded Components
@@ -35,6 +38,8 @@ const CategoryManager = lazy(() => import('../components/CategoryManager').then(
 const CalendarSettings = lazy(() => import('../components/CalendarSettings').then(module => ({ default: module.CalendarSettings })));
 
 export const ProjectPage = () => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const { projectId } = useParams();
     const navigate = useNavigate();
     const [project, setProject] = useState(null);
@@ -50,6 +55,7 @@ export const ProjectPage = () => {
     const [editingTask, setEditingTask] = useState(null);
     const [editingMilestone, setEditingMilestone] = useState(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isConfirmDeleteProjectOpen, setIsConfirmDeleteProjectOpen] = useState(false);
 
     const { tasks, addTask, updateTask, updateTasksBatch } = useTasks(projectId);
     const { updateProject, deleteProject } = useProjects();
@@ -326,11 +332,21 @@ export const ProjectPage = () => {
                 {/* Indicador de pestaña actual en móvil */}
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-1">
-                        <span className="text-[10px] font-bold uppercase text-secondary">
-                            Vista: {activeTab === 'recursos' ? 'Recursos' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                        <span
+                            className="text-[10px] font-bold uppercase transition-colors"
+                            style={{ color: isDark ? '#94a3b8' : '#64748b' }}
+                        >
+                            Vista: {activeTab === 'recursos' ? 'Recursos' : activeTab === 'board' ? 'Kanban' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
                         </span>
                     </div>
-                    <div className="flex items-center gap-2 px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-100">
+                    <div
+                        className="flex items-center gap-2 px-2 py-0.5 rounded-md border"
+                        style={{
+                            backgroundColor: isDark ? '#1e293b' : '#eff6ff', // blue-50 equivalent
+                            borderColor: isDark ? '#334155' : '#dbeafe',     // blue-100 equivalent
+                            color: isDark ? '#cbd5e1' : '#1d4ed8'            // blue-700 equivalent
+                        }}
+                    >
                         <Calendar size={12} />
                         <span className="text-[10px] font-bold">
                             {format(new Date(), "d 'de' MMMM", { locale: es })}
@@ -373,7 +389,7 @@ export const ProjectPage = () => {
                             </button>
 
                             <button className={`menu-item ${activeTab === 'board' ? 'active' : ''}`} onClick={() => { setActiveTab('board'); setIsMenuOpen(false); }}>
-                                <Layout size={20} className="rotate-90" /> <span>Tablero Kanban</span>
+                                <Layout size={20} className="rotate-90" /> <span>Kanban</span>
                             </button>
 
                             <button className={`menu-item ${activeTab === 'recursos' ? 'active' : ''}`} onClick={() => { setActiveTab('recursos'); setIsMenuOpen(false); }}>
@@ -405,124 +421,161 @@ export const ProjectPage = () => {
             </div>
 
             <main className="project-main">
-                <header className="project-header desktop-only px-6 py-4 justify-between items-center bg-white border-b border-slate-200 shadow-sm z-30 relative shrink-0">
-                    <div className="flex items-center gap-4">
-                        {/* Decorative Bar - Centered */}
-                        <div className="h-10 w-1.5 bg-blue-600 rounded-full shadow-sm shrink-0"></div>
-
-                        {/* Title & Description stack */}
-                        <div className="flex flex-col justify-center">
-                            <h1 className="text-xl font-black uppercase tracking-tight text-slate-900 leading-tight m-0 p-0">
-                                {project.name}
-                            </h1>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-8">
-                        {(activeTab === 'gantt' || activeTab === 'list' || activeTab === 'board') && (
-                            <>
-                                {activeTab === 'gantt' && (
-                                    <div className="flex items-center gap-6">
-                                        <div className="today-indicator">
-                                            <Calendar size={14} strokeWidth={2.5} />
-                                            <span className="whitespace-nowrap">
-                                                HOY: {format(new Date(), "dd.MM.yyyy", { locale: es })}
-                                            </span>
-                                        </div>
-                                        <div className="flex bg-slate-100 p-1 rounded border text-[10px] gap-1 font-bold">
-                                            <button
-                                                className={`view-selector-btn px-4 py-1.5 rounded ${viewMode === ViewMode.Day ? 'bg-white shadow-sm font-bold text-blue-700' : 'hover:bg-gray-200 text-gray-600'}`}
-                                                onClick={() => setViewMode(ViewMode.Day)}
-                                            >
-                                                Día
-                                            </button>
-                                            <button
-                                                className={`view-selector-btn px-4 py-1.5 rounded ${viewMode === ViewMode.Week ? 'bg-white shadow-sm font-bold text-blue-700' : 'hover:bg-gray-200 text-gray-600'}`}
-                                                onClick={() => setViewMode(ViewMode.Week)}
-                                            >
-                                                Semana
-                                            </button>
-                                            <button
-                                                className={`view-selector-btn px-4 py-1.5 rounded ${viewMode === ViewMode.Month ? 'bg-white shadow-sm font-bold text-blue-700' : 'hover:bg-gray-200 text-gray-600'}`}
-                                                onClick={() => setViewMode(ViewMode.Month)}
-                                            >
-                                                Mes
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {canEdit && (
-                                    <div className="flex gap-3 pl-6 border-l border-gray-200">
+                <ProjectHeader
+                    project={project}
+                    tasks={tasks}
+                    resources={resources}
+                    milestones={milestones}
+                >
+                    {activeTab === 'gantt' && (
+                        <>
+                            {/* Grupo izquierdo: View Selector */}
+                            <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    {[
+                                        { mode: ViewMode.Day, label: 'DÍA' },
+                                        { mode: ViewMode.Week, label: 'SEMANA' },
+                                        { mode: ViewMode.Month, label: 'MES' },
+                                    ].map(({ mode, label }) => (
                                         <button
-                                            className="btn-add-milestone"
-                                            onClick={() => { setEditingMilestone(null); setIsMilestoneModalOpen(true); }}
+                                            key={label}
+                                            style={{
+                                                padding: '8px 16px',
+                                                borderRadius: '8px',
+                                                fontSize: '0.8rem',
+                                                fontWeight: 700,
+                                                letterSpacing: '0.06em',
+                                                textTransform: 'uppercase',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.15s ease',
+                                                border: 'none',
+                                                fontFamily: 'var(--font-title)',
+                                                ...(viewMode === mode
+                                                    ? { backgroundColor: isDark ? '#1e293b' : '#e2e8f0', color: isDark ? '#e2e8f0' : '#0f172a' }
+                                                    : { backgroundColor: 'transparent', color: '#64748b' }
+                                                ),
+                                            }}
+                                            onClick={() => setViewMode(mode)}
                                         >
-                                            <Flag size={14} /> Hito
+                                            {label}
                                         </button>
-                                        <button
-                                            className="btn-add-task"
-                                            onClick={() => { setEditingTask(null); setIsTaskModalOpen(true); }}
-                                        >
-                                            <Plus size={14} /> Tarea
-                                        </button>
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </div>
-                </header>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Grupo derecho: Botones de acción */}
+                            {canEdit && (
+                                <div className="flex gap-3">
+                                    <button
+                                        className="btn-add-milestone whitespace-nowrap"
+                                        onClick={() => { setEditingMilestone(null); setIsMilestoneModalOpen(true); }}
+                                    >
+                                        <Flag size={14} /> <span>Hito</span>
+                                    </button>
+                                    <button
+                                        className="btn-add-task whitespace-nowrap"
+                                        onClick={() => { setEditingTask(null); setIsTaskModalOpen(true); }}
+                                    >
+                                        <Plus size={14} /> <span>Tarea</span>
+                                    </button>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </ProjectHeader>
 
                 <div className="project-content">
                     <Suspense fallback={<LoadingScreen />}>
                         {activeTab === 'gantt' && (
-                            <div className="flex flex-col h-full">
+                            <div className="flex flex-col flex-1 min-h-0">
                                 {/* Mobile View Controls */}
-                                <div className="mobile-only flex items-center justify-between p-2 bg-white border-b w-full overflow-x-auto shrink-0 mobile-view-controls">
-                                    <div className="flex items-center gap-2">
+                                <div
+                                    className="mobile-only flex items-center justify-between p-2 w-full overflow-x-auto shrink-0 mobile-view-controls"
+                                    style={{
+                                        background: 'var(--bg-primary)',
+                                        borderBottom: '1px solid var(--border-color)'
+                                    }}
+                                >
+                                    <div className="flex items-center gap-1 overflow-x-auto no-scrollbar flex-1">
                                         <button
-                                            className="mobile-back-btn px-2 py-1 flex items-center justify-center bg-transparent border-none text-slate-500 hover:text-slate-800 transition-colors mr-1"
+                                            className="mobile-back-btn px-2 py-1 flex items-center justify-center bg-transparent border-none transition-colors mr-1 shrink-0"
                                             onClick={() => navigate('/dashboard')}
+                                            style={{ color: 'var(--text-secondary)' }}
                                             aria-label="Volver"
                                         >
                                             <ChevronLeft size={20} />
                                         </button>
-                                        <button
-                                            className={`px-3 py-1 text-xs rounded-full whitespace-nowrap ${viewMode === ViewMode.Day ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
-                                            onClick={() => setViewMode(ViewMode.Day)}
-                                        >
-                                            Día
-                                        </button>
-                                        <button
-                                            className={`px-3 py-1 text-xs rounded-full whitespace-nowrap ${viewMode === ViewMode.Week ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
-                                            onClick={() => setViewMode(ViewMode.Week)}
-                                        >
-                                            Semana
-                                        </button>
-                                        <button
-                                            className={`px-3 py-1 text-xs rounded-full whitespace-nowrap ${viewMode === ViewMode.Month ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600'}`}
-                                            onClick={() => setViewMode(ViewMode.Month)}
-                                        >
-                                            Mes
-                                        </button>
+                                        {[
+                                            { mode: ViewMode.Day, label: 'DÍA' },
+                                            { mode: ViewMode.Week, label: 'SEMANA' },
+                                            { mode: ViewMode.Month, label: 'MES' },
+                                        ].map(({ mode, label }) => (
+                                            <button
+                                                key={label}
+                                                className="transition-colors whitespace-nowrap shrink-0"
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: 700,
+                                                    letterSpacing: '0.06em',
+                                                    textTransform: 'uppercase',
+                                                    cursor: 'pointer',
+                                                    border: 'none',
+                                                    fontFamily: 'var(--font-title)',
+                                                    backgroundColor: viewMode === mode ? 'var(--bg-tertiary)' : 'transparent',
+                                                    color: viewMode === mode ? 'var(--text-primary)' : 'var(--text-tertiary)'
+                                                }}
+                                                onClick={() => setViewMode(mode)}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
                                     </div>
 
                                     {canEdit && (
-                                        <div className="flex items-center gap-2 pl-2">
-                                            <div className="w-px h-6 bg-gray-300 mx-1"></div>
+                                        <div className="flex items-center gap-2 pl-2 shrink-0 ml-1">
                                             <button
-                                                className="btn-add-task"
+                                                className="flex items-center justify-center p-0"
                                                 onClick={() => { setEditingTask(null); setIsTaskModalOpen(true); }}
-                                                style={{ padding: '6px 12px', fontSize: '0.7rem' }}
+                                                style={{
+                                                    width: '40px',
+                                                    height: '40px',
+                                                    minWidth: '40px',
+                                                    aspectRatio: '1/1',
+                                                    borderRadius: '8px',
+                                                    flexShrink: 0,
+                                                    backgroundColor: '#334155',
+                                                    border: 'none',
+                                                    color: '#ffffff',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                                aria-label="Nueva Tarea"
                                             >
-                                                <Plus size={14} /> Tarea
+                                                <Plus size={24} style={{ color: '#ffffff', flexShrink: 0 }} />
                                             </button>
                                             <button
-                                                className="btn-add-milestone"
+                                                className="flex items-center justify-center p-0"
                                                 onClick={() => { setEditingMilestone(null); setIsMilestoneModalOpen(true); }}
-                                                style={{ padding: '6px 12px', fontSize: '0.7rem' }}
+                                                style={{
+                                                    width: '40px',
+                                                    height: '40px',
+                                                    minWidth: '40px',
+                                                    aspectRatio: '1/1',
+                                                    borderRadius: '8px',
+                                                    flexShrink: 0,
+                                                    backgroundColor: 'transparent',
+                                                    border: '2px solid var(--accent-color)',
+                                                    color: 'var(--accent-color)',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center'
+                                                }}
+                                                aria-label="Nuevo Hito"
                                             >
-                                                <Flag size={14} /> Hito
+                                                <Flag size={20} style={{ color: 'var(--accent-color)', flexShrink: 0 }} />
                                             </button>
                                         </div>
                                     )}
@@ -624,12 +677,7 @@ export const ProjectPage = () => {
                                                         variant="danger"
                                                         size="lg"
                                                         className="w-full md:w-auto font-black uppercase tracking-wider"
-                                                        onClick={async () => {
-                                                            if (window.confirm('¿ELIMINAR PROYECTO? Esta acción no se puede deshacer y se borrarán todas las tareas, hitos y recursos.')) {
-                                                                const res = await deleteProject(projectId);
-                                                                if (res.success) navigate('/dashboard');
-                                                            }
-                                                        }}
+                                                        onClick={() => setIsConfirmDeleteProjectOpen(true)}
                                                     >
                                                         Eliminar permanentemente
                                                     </Button>
@@ -665,6 +713,19 @@ export const ProjectPage = () => {
                     onClose={() => { setIsResourceModalOpen(false); setEditingResource(null); }}
                     onSubmit={handleResourceSubmit}
                     initialData={editingResource}
+                />
+
+                <ConfirmModal
+                    isOpen={isConfirmDeleteProjectOpen}
+                    onClose={() => setIsConfirmDeleteProjectOpen(false)}
+                    onConfirm={async () => {
+                        const res = await deleteProject(projectId);
+                        if (res.success) navigate('/dashboard');
+                    }}
+                    title="¿Eliminar Proyecto?"
+                    message="¿Estás completamente seguro? Esta acción es definitiva y borrará todas las tareas, hitos, recursos y el historial de cambios permanentemente."
+                    confirmText="Eliminar permanentemente"
+                    variant="danger"
                 />
             </main>
             <MobileNav activeTab={activeTab} onTabChange={setActiveTab} />

@@ -71,5 +71,17 @@ describe('Calendar Utils', () => {
             const result = addWorkingDays(start, 0, calendar);
             expect(result.getTime()).toBe(startOfDay(start).getTime());
         });
+
+        it('should subtract days when negative', () => {
+            const start = new Date('2026-01-05T10:00:00'); // Mon
+            const result = addWorkingDays(start, -1, calendar);
+            expect(result.toISOString().split('T')[0]).toBe('2026-01-02'); // Fri (skip weekend)
+        });
+
+        it('should subtract days when positive but direction is negative', () => {
+            const start = new Date('2026-01-05T10:00:00'); // Mon
+            const result = addWorkingDays(start, 1, calendar, -1);
+            expect(result.toISOString().split('T')[0]).toBe('2026-01-02'); // Fri
+        });
     });
 });
