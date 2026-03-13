@@ -40,6 +40,7 @@ export const calculateAutoSchedule = (tasks, dependencies, triggerId, updatedDat
         };
     });
 
+    const queue = [triggerId];
     // 0. APLICAR CAMBIO INICIAL AL TRIGGER
     if (itemMap[triggerId]) {
         const currentTrigger = itemMap[triggerId];
@@ -60,13 +61,21 @@ export const calculateAutoSchedule = (tasks, dependencies, triggerId, updatedDat
                 currentTrigger._start = startOfDay(addWorkingDays(currentTrigger._end, -(workingDuration - 1), calendar, -1));
             }
         }
+
+        // ¡IMPORTANTE! Actualizar la duración en el mapa para que snapToPredecessors no la sobreescriba con la vieja
+        const newDuration = getWorkingDuration(currentTrigger._start, currentTrigger._end, calendar);
+        currentTrigger.duration = newDuration.toString();
+
+        const deltaDays = Math.round((currentTrigger._start.getTime() - oldStart.getTime()) / (1000 * 60 * 60 * 24));
+        if (deltaDays !== 0) {
+            shiftDescendants(triggerId, deltaDays, itemMap, queue, tasks, calendar);
+        }
     }
 
     // 1. AJUSTAR EL TRIGGER BASADO EN SUS PREDECESORES
-    validatePredecessors(triggerId, itemMap, depsByTo[triggerId] || [], calendar);
+    snapToPredecessors(triggerId, itemMap, depsByTo[triggerId] || [], calendar);
 
     const updates = {};
-    const queue = [triggerId];
     const visited = new Set();
     let iterations = 0;
     const maxIterations = (tasks.length + milestones.length) * 10;
@@ -98,9 +107,14 @@ export const calculateAutoSchedule = (tasks, dependencies, triggerId, updatedDat
             const oldS = new Date(succ._start);
             const oldE = new Date(succ._end);
 
-            applyDependencyConstraint(dep, currentItem, succ, calendar);
+            snapToPredecessors(succ.id, itemMap, depsByTo[succ.id] || [], calendar);
 
             if (succ._start.getTime() !== oldS.getTime() || succ._end.getTime() !== oldE.getTime()) {
+                // Si el elemento movido tiene hijos, debemos desplazarlos el mismo delta
+                const deltaDays = Math.round((succ._start.getTime() - oldS.getTime()) / (1000 * 60 * 60 * 24));
+                if (deltaDays !== 0) {
+                    shiftDescendants(succ.id, deltaDays, itemMap, queue, tasks, calendar);
+                }
                 queue.push(dep.toTaskId);
             }
         }
@@ -109,7 +123,39 @@ export const calculateAutoSchedule = (tasks, dependencies, triggerId, updatedDat
     return updates;
 };
 
-function validatePredecessors(itemId, itemMap, itemDeps, calendar) {
+/**
+ * Desplaza recursivamente todos los hijos de una tarea por un delta de días.
+ * Los añade a la cola de procesamiento si tienen dependencias salientes.
+ */
+function shiftDescendants(parentId, deltaDays, itemMap, queue, tasks, calendar) {
+    const children = tasks.filter(t => t.parentId === parentId);
+    
+    children.forEach(child => {
+        const item = itemMap[child.id];
+        if (!item) return;
+
+        const oldS = new Date(item._start);
+        const oldE = new Date(item._end);
+
+        // Desplazar fechas respetando calendario (aproximado por días)
+        if (deltaDays > 0) {
+            item._start = addWorkingDays(item._start, deltaDays, calendar);
+            item._end = addWorkingDays(item._end, deltaDays, calendar);
+        } else {
+            item._start = addWorkingDays(item._start, deltaDays, calendar, -1);
+            item._end = addWorkingDays(item._end, deltaDays, calendar, -1);
+        }
+
+        if (item._start.getTime() !== oldS.getTime() || item._end.getTime() !== oldE.getTime()) {
+            // Añadir a la cola para que sus sucesores también se muevan
+            queue.push(child.id);
+            // Seguir bajando en el árbol
+            shiftDescendants(child.id, deltaDays, itemMap, queue, tasks, calendar);
+        }
+    });
+}
+
+function snapToPredecessors(itemId, itemMap, itemDeps, calendar) {
     const item = itemMap[itemId];
     if (!item || itemDeps.length === 0) return;
 
@@ -118,71 +164,50 @@ function validatePredecessors(itemId, itemMap, itemDeps, calendar) {
         ? storedDuration
         : getWorkingDuration(item._start, item._end, calendar);
 
-    let changed = false;
+    let maxStart = null;
 
     itemDeps.forEach(dep => {
         const pred = itemMap[dep.fromTaskId];
         if (!pred) return;
 
-        const oldS = new Date(item._start);
-        applyDependencyConstraint(dep, pred, item, calendar);
-        if (item._start.getTime() !== oldS.getTime()) changed = true;
+        const lag = parseInt(dep.lag || 0, 10);
+        let impliedStart = null;
+
+        switch (dep.type) {
+            case 'FS':
+                // FI: Empieza después de que termina el predecesor
+                // 1 día después del fin del predecesor + lag.
+                impliedStart = addWorkingDays(pred._end, 1 + lag, calendar);
+                break;
+            case 'SS':
+                // II: Empieza después de que empieza el predecesor
+                impliedStart = addWorkingDays(pred._start, lag, calendar);
+                break;
+            case 'FF': {
+                // FF: Termina después de que termina el predecesor
+                const targetEnd = addWorkingDays(pred._end, lag, calendar);
+                impliedStart = addWorkingDays(targetEnd, -(workingDuration - 1), calendar, -1);
+                break;
+            }
+            case 'SF': {
+                // IF: Termina después de que empieza el predecesor
+                const targetEnd = addWorkingDays(pred._start, lag, calendar);
+                impliedStart = addWorkingDays(targetEnd, -(workingDuration - 1), calendar, -1);
+                break;
+            }
+        }
+
+        if (impliedStart && (!maxStart || impliedStart.getTime() > maxStart.getTime())) {
+            maxStart = impliedStart;
+        }
     });
 
-    if (changed && item._type !== 'milestone') {
-        item._end = endOfDay(addWorkingDays(item._start, workingDuration - 1, calendar));
-    }
-}
-
-function applyDependencyConstraint(dep, from, to, calendar) {
-    const storedDuration = parseInt(to.duration, 10);
-    const duration = !isNaN(storedDuration) && storedDuration > 0
-        ? storedDuration
-        : getWorkingDuration(to._start, to._end, calendar);
-
-    const lag = parseInt(dep.lag || 0);
-    const effectiveLag = (dep.type === 'FS' || dep.type === 'SS') ? lag : -lag;
-
-    switch (dep.type) {
-        case 'FS': {
-            const minStartFS = adjustToWorkingDay(addDays(startOfDay(from._end), 1 + effectiveLag), calendar, 1);
-            if (to._start.getTime() < minStartFS.getTime()) {
-                to._start = minStartFS;
-                to._end = endOfDay(addWorkingDays(to._start, duration - 1, calendar));
-            }
-            break;
-        }
-
-        case 'SS': {
-            const minStartSS = adjustToWorkingDay(addDays(startOfDay(from._start), effectiveLag), calendar, 1);
-            if (to._start.getTime() < minStartSS.getTime()) {
-                to._start = minStartSS;
-                to._end = endOfDay(addWorkingDays(to._start, duration - 1, calendar));
-            }
-            break;
-        }
-
-        case 'FF': {
-            const minEndFF = endOfDay(addDays(from._end, effectiveLag));
-            if (to._end.getTime() < minEndFF.getTime()) {
-                to._end = minEndFF;
-                // Cálculo de inicio instantáneo sin bucles
-                to._start = startOfDay(addWorkingDays(to._end, -(duration - 1), calendar, -1));
-                // Asegurar que el fin sea exactamente el target (re-calc por si el inicio cayó en no laborable)
-                to._end = endOfDay(addWorkingDays(to._start, duration - 1, calendar));
-            }
-            break;
-        }
-
-        case 'SF': {
-            const minEndSF = endOfDay(addDays(from._start, effectiveLag));
-            if (to._end.getTime() < minEndSF.getTime()) {
-                to._end = minEndSF;
-                to._start = startOfDay(addWorkingDays(to._end, -(duration - 1), calendar, -1));
-                to._end = endOfDay(addWorkingDays(to._start, duration - 1, calendar));
-            }
-            break;
+    if (maxStart) {
+        item._start = maxStart;
+        if (item._type !== 'milestone') {
+            item._end = endOfDay(addWorkingDays(item._start, workingDuration - 1, calendar));
+        } else {
+            item._end = maxStart;
         }
     }
 }
-

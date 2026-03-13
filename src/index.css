@@ -140,6 +140,15 @@ body {
   background-image: var(--grid-pattern);
   background-size: 32px 32px;
   transition: background-color var(--transition-normal), color var(--transition-normal);
+  
+  /* Optimizaciones para Móviles */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* Prevenir selección accidental en elementos de UI */
+h1, h2, h3, .card-label, .btn-text {
+  user-select: none;
 }
 
 html.modal-open,
@@ -289,6 +298,32 @@ a:hover {
 
 .font-medium {
   font-weight: 500;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.text-error {
+  color: var(--error) !important;
+}
+
+.uppercase {
+  text-transform: uppercase !important;
+}
+
+.tracking-widest {
+  letter-spacing: 0.1em !important;
+}
+
+.tracking-tight {
+  letter-spacing: -0.02em !important;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .font-semibold {
@@ -682,6 +717,8 @@ a:hover {
   gap: var(--space-lg);
   margin-bottom: var(--space-lg);
   padding-bottom: var(--space-sm);
+  padding-left: 24px;
+  padding-right: 24px;
   border-bottom: 2px solid var(--border-color);
 }
 

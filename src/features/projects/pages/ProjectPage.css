@@ -72,6 +72,9 @@
 @media (max-width: 767px) and (orientation: portrait) {
     .project-layout {
         flex-direction: column;
+        height: auto !important;
+        min-height: 100dvh;
+        overflow: visible !important;
     }
 
     .project-header {
@@ -80,24 +83,23 @@
 
     .project-main {
         flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+        display: block;
+        height: auto !important;
+        overflow: visible !important;
+        position: relative;
     }
 
     .project-content {
         padding: 0;
         padding-bottom: 96px;
         /* Espacio para el MobileNav tradicional abajo */
-        overflow: hidden;
+        overflow: visible;
         display: flex;
         flex-direction: column;
     }
 
     .project-content>div:not(.flex) {
         padding: 1rem;
-        overflow-y: auto;
-        flex: 1;
     }
 }
 
@@ -208,10 +210,10 @@
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
+    background: var(--bg-card);
+    border: 1px solid var(--accent-color);
     border-radius: 4px;
-    color: #1e40af;
+    color: var(--accent-color);
     font-family: var(--font-tech);
     font-size: 0.75rem;
     font-weight: 600;

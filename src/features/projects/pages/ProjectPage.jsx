@@ -25,6 +25,7 @@ import { useProjectPermissions } from '../hooks/useProjectPermissions';
 import { ViewMode } from 'gantt-task-react';
 import { LoadingScreen } from '../../../shared/components/LoadingScreen';
 import { useTheme } from '../../../shared/context/ThemeContext';
+import { useAuth } from '../../auth/AuthContext';
 import { ConfirmModal } from '../../../shared/components/ConfirmModal';
 import './ProjectPage.css';
 
@@ -39,6 +40,7 @@ const CalendarSettings = lazy(() => import('../components/CalendarSettings').the
 
 export const ProjectPage = () => {
     const { theme } = useTheme();
+    const { user } = useAuth();
     const isDark = theme === 'dark';
     const { projectId } = useParams();
     const navigate = useNavigate();
@@ -89,58 +91,67 @@ export const ProjectPage = () => {
     }, [projectId]);
 
     const handleTaskSubmit = async (taskData) => {
-        if (editingTask) {
-            const updatesMap = calculateAutoSchedule(
-                tasks,
-                dependencies,
-                editingTask.id,
-                { startDate: taskData.startDate, endDate: taskData.endDate },
-                milestones,
-                project.calendar
-            );
+        try {
+            if (editingTask) {
+                const updatesMap = calculateAutoSchedule(
+                    tasks,
+                    dependencies,
+                    editingTask.id,
+                    { startDate: taskData.startDate, endDate: taskData.endDate },
+                    milestones,
+                    project.calendar
+                );
 
-            // FIX: Ensure scheduler updates (dependencies) take precedence over manual dates
-            // We combine taskData (name, etc) with updatesMap dates
-            const scheduledDates = updatesMap[editingTask.id] || {};
-            updatesMap[editingTask.id] = {
-                ...taskData,
-                ...scheduledDates,
-                // Ensure we prefer the scheduler dates if they exist
-                startDate: scheduledDates.startDate || taskData.startDate,
-                endDate: scheduledDates.endDate || taskData.endDate
-            };
+                // Si calculateAutoSchedule no modificó la tarea porque las fechas no alteraron la cadena de dependencias,
+                // AÚN NECESITAMOS guardar los datos (nombre, progreso, descripción, etc) de esta tarea.
+                const scheduledDates = updatesMap[editingTask.id] || {};
+                updatesMap[editingTask.id] = {
+                    ...taskData,
+                    ...scheduledDates,
+                    startDate: scheduledDates.startDate || taskData.startDate,
+                    endDate: scheduledDates.endDate || taskData.endDate
+                };
 
-            await applyBatchUpdates(updatesMap);
-        } else {
-            const result = await addTask(taskData);
+                await applyBatchUpdates(updatesMap);
+            } else {
+                const result = await addTask(taskData);
+                setIsTaskModalOpen(false);
+                setEditingTask(null);
+                return result;
+            }
             setIsTaskModalOpen(false);
             setEditingTask(null);
-            return result;
+        } catch (error) {
+            console.error("Error in handleTaskSubmit:", error);
+            alert("ProjectPage Submit Error: " + error.message);
         }
-        setIsTaskModalOpen(false);
-        setEditingTask(null);
     };
 
     const applyBatchUpdates = async (updatesMap) => {
-        const taskUpdates = {};
-        const milestoneUpdates = {};
+        try {
+            const taskUpdates = {};
+            const milestoneUpdates = {};
 
-        Object.entries(updatesMap).forEach(([id, data]) => {
-            const isMilestone = milestones.some(m => m.id === id);
-            if (isMilestone) {
-                milestoneUpdates[id] = data;
-            } else {
-                taskUpdates[id] = data;
+            Object.entries(updatesMap).forEach(([id, data]) => {
+                const isMilestone = (milestones || []).some(m => m.id === id);
+                if (isMilestone) {
+                    milestoneUpdates[id] = data;
+                } else {
+                    taskUpdates[id] = data;
+                }
+            });
+
+            if (Object.keys(taskUpdates).length > 0) {
+                await updateTasksBatch(taskUpdates, dependencies, milestones, project.calendar);
             }
-        });
 
-        if (Object.keys(taskUpdates).length > 0) {
-            await updateTasksBatch(taskUpdates);
-        }
-
-        // Si hay hitos afectados, los actualizamos uno a uno o añadimos batch a useMilestones
-        for (const [id, data] of Object.entries(milestoneUpdates)) {
-            await updateMilestone(id, data);
+            // Si hay hitos afectados, los actualizamos uno a uno o añadimos batch a useMilestones
+            for (const [id, data] of Object.entries(milestoneUpdates)) {
+                await updateMilestone(id, data);
+            }
+        } catch (error) {
+            console.error("Error in applyBatchUpdates:", error);
+            alert("Unexpected applyBatchUpdates Error: " + error.message);
         }
     };
 
@@ -199,95 +210,100 @@ export const ProjectPage = () => {
     };
 
     const handleGanttTaskChange = async (task) => {
-        // Bloquear el nodo raíz del proyecto y tareas padre (sus fechas son auto-calculadas)
-        if (task.id === projectId) return;
-        if (task._hasChildren) return;
+        try {
+            // Bloquear el nodo raíz del proyecto y tareas padre (sus fechas son auto-calculadas)
+            if (task.id === projectId) return;
+            if (task._hasChildren) return;
 
-        let rawStart = startOfDay(new Date(task.start));
-        let rawEnd = endOfDay(new Date(task.end));
-        let start = rawStart;
-        let end = rawEnd;
+            let rawStart = startOfDay(new Date(task.start));
+            let rawEnd = endOfDay(new Date(task.end));
+            let start = rawStart;
+            let end = rawEnd;
 
-        if (project.calendar) {
-            const original = tasks.find(t => t.id === task.id) || milestones.find(m => m.id === task.id);
-            if (original) {
-                // Fechas originales normalizadas
-                const origStart = startOfDay(original.startDate || original.date);
-                const origEnd = endOfDay(original.endDate || original.date);
+            if (project.calendar) {
+                const original = tasks.find(t => t.id === task.id) || milestones.find(m => m.id === task.id);
+                if (original) {
+                    // Fechas originales normalizadas
+                    const origStart = startOfDay(original.startDate || original.date);
+                    const origEnd = endOfDay(original.endDate || original.date);
 
-                // Buscar duración base (prioriza la escrita explicitamente por el usuario en el modal)
-                const storedDuration = parseInt(original.duration, 10);
-                let oldWorkingDuration = !isNaN(storedDuration) && storedDuration > 0
-                    ? storedDuration
-                    : getWorkingDuration(origStart, origEnd, project.calendar);
+                    // Buscar duración base (prioriza la escrita explicitamente por el usuario en el modal)
+                    const storedDuration = parseInt(original.duration, 10);
+                    let oldWorkingDuration = !isNaN(storedDuration) && storedDuration > 0
+                        ? storedDuration
+                        : getWorkingDuration(origStart, origEnd, project.calendar);
 
-                // Detectar si fue un movimiento evaluando si AMBAS esquinas cambiaron simultáneamente
-                // Si la librería aplasta o topa límites visuales, un resize es cuando solo un lado es manipulado
-                const startChanged = Math.abs(rawStart.getTime() - origStart.getTime()) > (1000 * 60 * 1); // tolerancia 1 min
-                const endChanged = Math.abs(rawEnd.getTime() - origEnd.getTime()) > (1000 * 60 * 1);
-                const isDragMove = startChanged && endChanged;
+                    // Detectar si fue un movimiento evaluando si AMBAS esquinas cambiaron simultáneamente
+                    // Si la librería aplasta o topa límites visuales, un resize es cuando solo un lado es manipulado
+                    const startChanged = Math.abs(rawStart.getTime() - origStart.getTime()) > (1000 * 60 * 1); // tolerancia 1 min
+                    const endChanged = Math.abs(rawEnd.getTime() - origEnd.getTime()) > (1000 * 60 * 1);
+                    const isDragMove = startChanged && endChanged;
 
-                // Ajustar inicio si cae en día no laborable SIEMPRE
-                if (!isWorkingDay(start, project.calendar)) {
-                    start = adjustToWorkingDay(start, project.calendar, 1);
-                }
-
-                if (isDragMove) {
-                    // Si es un Drag&Drop puro, preservamos STRICTAMENTE la cantidad de días
-                    end = endOfDay(addWorkingDays(start, oldWorkingDuration - 1, project.calendar));
-                } else {
-                    // El usuario redimensionó la barra manualmente
-                    // Restaurar borde no manipulado si existiese un pequeño desfase
-                    if (!endChanged) end = origEnd;
-                    if (!startChanged) start = origStart;
-
-                    if (!isWorkingDay(end, project.calendar)) {
-                        end = endOfDay(adjustToWorkingDay(end, project.calendar, -1));
-                    }
-                    if (end < start) {
-                        end = endOfDay(start);
+                    // Ajustar inicio si cae en día no laborable SIEMPRE
+                    if (!isWorkingDay(start, project.calendar)) {
+                        start = adjustToWorkingDay(start, project.calendar, 1);
                     }
 
-                    // Al redimensionar un proyecto, su nueva duración también cambia
-                    // Idealmente se propagaría hasta original.duration
+                    if (isDragMove) {
+                        // Si es un Drag&Drop puro, preservamos STRICTAMENTE la cantidad de días
+                        end = endOfDay(addWorkingDays(start, oldWorkingDuration - 1, project.calendar));
+                    } else {
+                        // El usuario redimensionó la barra manualmente
+                        // Restaurar borde no manipulado si existiese un pequeño desfase
+                        if (!endChanged) end = origEnd;
+                        if (!startChanged) start = origStart;
+
+                        if (!isWorkingDay(end, project.calendar)) {
+                            end = endOfDay(adjustToWorkingDay(end, project.calendar, -1));
+                        }
+                        if (end < start) {
+                            end = endOfDay(start);
+                        }
+
+                        // Al redimensionar un proyecto, su nueva duración también cambia
+                        // Idealmente se propagaría hasta original.duration
+                    }
                 }
             }
-        }
 
-        if (task.type === 'milestone') {
-            const updatesMap = calculateAutoSchedule(
-                tasks,
-                dependencies,
-                task.id,
-                { date: start },
-                milestones,
-                project.calendar
-            );
-            await applyBatchUpdates(updatesMap);
-        } else {
-            const updatesMap = calculateAutoSchedule(
-                tasks,
-                dependencies,
-                task.id,
-                { startDate: start, endDate: end },
-                milestones,
-                project.calendar
-            );
+            if (task.type === 'milestone') {
+                const updatesMap = calculateAutoSchedule(
+                    tasks,
+                    dependencies,
+                    task.id,
+                    { date: start },
+                    milestones,
+                    project.calendar
+                );
+                await applyBatchUpdates(updatesMap);
+            } else {
+                const updatesMap = calculateAutoSchedule(
+                    tasks,
+                    dependencies,
+                    task.id,
+                    { startDate: start, endDate: end },
+                    milestones,
+                    project.calendar
+                );
 
-            // Recomputar duración explícita para sobreescribir DB en caso de un Resize
-            if (updatesMap[task.id]) {
-                const updatedItem = updatesMap[task.id];
-                updatesMap[task.id].duration = getWorkingDuration(updatedItem.startDate, updatedItem.endDate, project.calendar).toString();
-            }
-
-            // Actualizar también tareas hijas o sucesoras arrastradas secundariamente
-            Object.keys(updatesMap).forEach(key => {
-                if (key !== task.id && updatesMap[key].startDate && updatesMap[key].endDate) {
-                    updatesMap[key].duration = getWorkingDuration(updatesMap[key].startDate, updatesMap[key].endDate, project.calendar).toString();
+                // Recomputar duración explícita para sobreescribir DB en caso de un Resize
+                if (updatesMap[task.id]) {
+                    const updatedItem = updatesMap[task.id];
+                    updatesMap[task.id].duration = getWorkingDuration(updatedItem.startDate, updatedItem.endDate, project.calendar).toString();
                 }
-            });
 
-            await applyBatchUpdates(updatesMap);
+                // Actualizar también tareas hijas o sucesoras arrastradas secundariamente
+                Object.keys(updatesMap).forEach(key => {
+                    if (key !== task.id && updatesMap[key].startDate && updatesMap[key].endDate) {
+                        updatesMap[key].duration = getWorkingDuration(updatesMap[key].startDate, updatesMap[key].endDate, project.calendar).toString();
+                    }
+                });
+
+                await applyBatchUpdates(updatesMap);
+            }
+        } catch (error) {
+            console.error("Error in handleGanttTaskChange:", error);
+            alert("Drag-and-Drop Gantt Error: " + error.message);
         }
     };
 
@@ -328,32 +344,7 @@ export const ProjectPage = () => {
                 projectName={project.name}
                 onMenuClick={() => setIsMenuOpen(!isMenuOpen)}
                 showBack={true}
-            >
-                {/* Indicador de pestaña actual en móvil */}
-                <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-1">
-                        <span
-                            className="text-[10px] font-bold uppercase transition-colors"
-                            style={{ color: isDark ? '#94a3b8' : '#64748b' }}
-                        >
-                            Vista: {activeTab === 'recursos' ? 'Recursos' : activeTab === 'board' ? 'Kanban' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-                        </span>
-                    </div>
-                    <div
-                        className="flex items-center gap-2 px-2 py-0.5 rounded-md border"
-                        style={{
-                            backgroundColor: isDark ? '#1e293b' : '#eff6ff', // blue-50 equivalent
-                            borderColor: isDark ? '#334155' : '#dbeafe',     // blue-100 equivalent
-                            color: isDark ? '#cbd5e1' : '#1d4ed8'            // blue-700 equivalent
-                        }}
-                    >
-                        <Calendar size={12} />
-                        <span className="text-[10px] font-bold">
-                            {format(new Date(), "d 'de' MMMM", { locale: es })}
-                        </span>
-                    </div>
-                </div>
-            </MobileHeader>
+            />
 
             {isMenuOpen && (
                 <div className="mobile-menu-overlay" onClick={() => setIsMenuOpen(false)}>
@@ -362,7 +353,7 @@ export const ProjectPage = () => {
                             <X size={20} />
                         </button>
 
-                        <div className="menu-header-pro" style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
+                        <div className="menu-header-pro" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
                             <span className="menu-label-tech">Control del Proyecto</span>
                             <div className="flex flex-col">
                                 <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight truncate">
@@ -376,7 +367,7 @@ export const ProjectPage = () => {
                         </div>
 
                         <div className="menu-items-grid flex-1">
-                            <div className="py-4" style={{ paddingLeft: '2rem' }}>
+                            <div className="py-4" style={{ paddingLeft: '1.5rem' }}>
                                 <span className="menu-label-tech">Herramientas</span>
                             </div>
 
@@ -408,7 +399,7 @@ export const ProjectPage = () => {
                         </div>
 
                         <div className="menu-footer-pro">
-                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest text-center">
+                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest text-center m-0">
                                 Ganttagram Engineer
                             </p>
                         </div>
@@ -416,7 +407,7 @@ export const ProjectPage = () => {
                 </div>
             )}
 
-            <div className="desktop-sidebar-container">
+            <div className="desktop-sidebar-container desktop-only">
                 <ProjectSidebar activeTab={activeTab} onTabChange={setActiveTab} />
             </div>
 
@@ -590,17 +581,22 @@ export const ProjectPage = () => {
                             </div>
                         )}
                         {activeTab === 'list' && (
-                            <div className="p-4"><TaskList
-                                projectId={projectId}
-                                onAddTask={() => { setEditingTask(null); setIsTaskModalOpen(true); }}
-                                onAddMilestone={() => { setEditingMilestone(null); setIsMilestoneModalOpen(true); }}
-                                onEditTask={handleEditTask}
-                                onEditMilestone={handleEditMilestone}
-                                canEdit={canEdit}
-                            /></div>
+                            <div style={{ padding: '1.5rem 1.5rem 4rem' }}>
+                                <TaskList
+                                    projectId={projectId}
+                                    onAddTask={() => { setEditingTask(null); setIsTaskModalOpen(true); }}
+                                    onAddMilestone={() => { setEditingMilestone(null); setIsMilestoneModalOpen(true); }}
+                                    onEditTask={handleEditTask}
+                                    onEditMilestone={handleEditMilestone}
+                                    dependencies={dependencies}
+                                    milestones={milestones}
+                                    projectCalendar={project.calendar}
+                                    canEdit={canEdit}
+                                />
+                            </div>
                         )}
                         {activeTab === 'recursos' && (
-                            <div className="animate-in flex flex-col gap-12 pb-12 p-4">
+                            <div className="animate-in flex flex-col gap-12 pb-12" style={{ padding: '1.5rem 1.5rem 4rem' }}>
                                 <ResourceList
                                     resources={resources}
                                     tasks={tasks}
@@ -624,17 +620,20 @@ export const ProjectPage = () => {
                             <ProjectBoard
                                 tasks={tasks}
                                 dependencies={dependencies}
-                                onTaskUpdate={async (taskId, updates) => {
-                                    await updateTask(taskId, updates);
+                                milestones={milestones}
+                                onTaskUpdate={async (taskId, updates, deps, mstones) => {
+                                    await updateTask(taskId, updates, deps, mstones, project.calendar);
                                 }}
                                 canEdit={canEdit}
                             />
                         )}
                         {activeTab === 'team' && (
-                            <div className="p-4"><ProjectMembers projectId={projectId} /></div>
+                            <div style={{ padding: '1.5rem 1.5rem 4rem' }}>
+                                <ProjectMembers projectId={projectId} />
+                            </div>
                         )}
                         {activeTab === 'settings' && (
-                            <div className="p-4 space-y-12">
+                            <div className="space-y-12" style={{ padding: '1.5rem 1.5rem 8rem' }}>
                                 <section>
                                     <CalendarSettings
                                         calendar={project.calendar}
@@ -643,45 +642,48 @@ export const ProjectPage = () => {
                                     />
                                 </section>
 
-                                <section className="mt-12 border-t border-slate-100" style={{ marginTop: '60px', paddingTop: '30px' }}>
-                                    <div className="text-center" style={{ padding: '20px 0', marginBottom: '20px' }}>
-                                        <h3 className="text-[11px] font-black uppercase tracking-[0.6em] text-slate-300" style={{ display: 'inline-block' }}>
+                                <section className="border-t border-slate-100 dark:border-slate-800" style={{ marginTop: '60px', paddingTop: '30px' }}>
+                                    <div className="text-center" style={{ padding: '20px 0', marginBottom: '10px' }}>
+                                        <h3 className="text-[11px] font-black uppercase tracking-[0.6em] text-slate-400" style={{ display: 'inline-block' }}>
                                             Zona de Control Crítico
                                         </h3>
                                     </div>
 
-                                    <div className="relative group">
-                                        {/* Fondo decorativo de advertencia */}
-                                        <div className="absolute -inset-1 bg-gradient-to-r from-red-500/10 to-orange-500/10 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-
-                                        <div className="relative p-8 bg-white border-2 border-red-100 rounded-3xl shadow-sm overflow-hidden">
-                                            {/* Patrón de franjas de advertencia sutil */}
-                                            <div className="absolute top-0 left-0 w-full h-1.5 bg-[repeating-linear-gradient(45deg,#fee2e2,#fee2e2_10px,#fff_10px,#fff_20px)]"></div>
-
+                                    <div className="relative" style={{ marginBottom: '2rem' }}>
+                                        <div className="p-4 md:p-6 overflow-hidden">
                                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                                                <div className="max-w-xl">
-                                                    <div className="flex items-center gap-3 mb-3">
-                                                        <div className="p-1.5 bg-red-100 rounded-lg text-red-600">
-                                                            <AlertTriangle size={20} strokeWidth={2.5} />
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <div className="text-red-500">
+                                                            <AlertTriangle size={18} strokeWidth={2.5} />
                                                         </div>
-                                                        <h4 className="text-xl font-black uppercase tracking-tight text-slate-800">Eliminar Proyecto</h4>
+                                                        <h4 className="text-sm font-black uppercase tracking-tight text-primary" style={{ color: 'var(--text-primary)' }}>Eliminar Proyecto</h4>
                                                     </div>
-                                                    <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                                                        Esta es una acción <span className="text-red-600 font-bold underline decoration-2">definitiva e irreversible</span>.
+                                                    <p className="text-xs text-secondary font-medium leading-relaxed" style={{ color: 'var(--text-secondary)', maxWidth: '600px' }}>
+                                                        Esta es una acción <span className="text-red-500 font-bold">definitiva e irreversible</span>.
                                                         Se eliminarán todos los diagramas de Gantt, tareas, hitos, recursos y el historial de cambios permanentemente.
                                                     </p>
                                                 </div>
 
-                                                {isOwner && (
+                                                <div className="shrink-0 w-full md:w-auto">
                                                     <Button
                                                         variant="danger"
                                                         size="lg"
                                                         className="w-full md:w-auto font-black uppercase tracking-wider"
                                                         onClick={() => setIsConfirmDeleteProjectOpen(true)}
+                                                        style={{ 
+                                                            padding: '12px 24px', 
+                                                            minWidth: '220px',
+                                                            backgroundColor: '#ef4444',
+                                                            color: 'white',
+                                                            fontSize: '0.75rem',
+                                                            border: 'none',
+                                                            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.15)'
+                                                        }}
                                                     >
-                                                        Eliminar permanentemente
+                                                        Eliminar Proyecto
                                                     </Button>
-                                                )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

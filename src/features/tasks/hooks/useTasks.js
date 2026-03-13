@@ -14,6 +14,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../../services/firebase/config';
 import { recalculateAncestors, getDescendantIds } from '../utils/hierarchy';
+import { calculateAutoSchedule } from '../utils/scheduler';
+import { getWorkingDuration } from '../../../shared/utils/calendar';
 
 export const useTasks = (projectId) => {
     const [tasks, setTasks] = useState([]);
@@ -41,24 +43,146 @@ export const useTasks = (projectId) => {
     }, [projectId]);
 
     /**
-     * Recalcula y persiste los ancestros de una tarea dada.
-     * Usa el estado actual `tasks` enriquecido con los cambios recientes.
+     * Recalcula y persiste los ancestros de una tarea dada y dispara cascada de dependencias.
      */
-    const propagateParentUpdates = async (taskId, freshTasks, calendar = null) => {
-        const ancestorUpdates = recalculateAncestors(taskId, freshTasks, calendar);
+    const propagateParentUpdates = async (taskId, freshTasks, dependencies = [], milestones = [], calendar = null) => {
+        const updatesMap = { [taskId]: freshTasks.find(t => t.id === taskId) };
+        await resolveAndCommitScheduling(updatesMap, dependencies, milestones, calendar);
+    };
 
-        if (Object.keys(ancestorUpdates).length > 0) {
-            const batch = writeBatch(db);
-            Object.entries(ancestorUpdates).forEach(([id, data]) => {
-                const ref = doc(db, `projects/${projectId}/tasks`, id);
-                batch.update(ref, {
-                    startDate: data.startDate,
-                    endDate: data.endDate,
-                    progress: data.progress,
-                    updatedAt: serverTimestamp()
-                });
+    /**
+     * Motor de resolución de cronograma que maneja jerarquía (Rollup) y dependencias (Cascada)
+     * e itera hasta que el sistema sea estable. Luego persiste en un único batch.
+     */
+    const resolveAndCommitScheduling = async (initialUpdates, dependencies = [], milestones = [], calendar = null) => {
+        try {
+            // Clonamos las tareas para el proceso de cálculo
+            let workingTasks = tasks.map(t => {
+                const updates = initialUpdates[t.id];
+                if (updates) return { ...t, ...updates };
+                return { ...t };
             });
-            await batch.commit();
+
+            const finalUpdates = { ...initialUpdates };
+            const processedTriggers = new Set();
+            let queue = Object.keys(initialUpdates);
+            let iterations = 0;
+
+            // Bucle de estabilidad jerarquía <-> dependencias
+            while (queue.length > 0 && iterations < 30) {
+                iterations++;
+                const currentTriggerId = queue.shift();
+                
+                // 1. Rollup: Si esta tarea cambió, sus ancestros podrían cambiar
+                const ancestorUpdates = recalculateAncestors(currentTriggerId, workingTasks, calendar);
+                Object.entries(ancestorUpdates).forEach(([id, data]) => {
+                    finalUpdates[id] = { ...finalUpdates[id], ...data };
+                    const tIdx = workingTasks.findIndex(t => t.id === id);
+                    if (tIdx !== -1) {
+                        workingTasks[tIdx] = { ...workingTasks[tIdx], ...data };
+                        if (!queue.includes(id)) queue.push(id); 
+                    }
+                });
+
+                // 2. Cascada: Si esta tarea o hito cambió, sus sucesores deben cambiar
+                const triggerData = workingTasks.find(t => t.id === currentTriggerId) || 
+                                   (milestones || []).find(m => m.id === currentTriggerId);
+                
+                if (triggerData) {
+                    const cascadingUpdates = calculateAutoSchedule(
+                        workingTasks,
+                        dependencies || [],
+                        currentTriggerId,
+                        { 
+                            startDate: triggerData.startDate || triggerData.date, 
+                            endDate: triggerData.endDate || triggerData.date 
+                        },
+                        milestones || [],
+                        calendar
+                    );
+
+                    Object.entries(cascadingUpdates).forEach(([id, data]) => {
+                        const existingIdx = workingTasks.findIndex(t => t.id === id);
+                        const milestoneIdx = (milestones || []).findIndex(m => m.id === id);
+
+                        if (existingIdx === -1 && milestoneIdx === -1) return;
+
+                        const item = existingIdx !== -1 ? workingTasks[existingIdx] : milestones[milestoneIdx];
+                        
+                        // Solo comparar si hay cambios de fechas en el update
+                        const newS = data.startDate || data.date;
+                        const newE = data.endDate || data.date;
+                        const oldS = item.startDate || item.date;
+                        const oldE = item.endDate || item.date;
+
+                        let hasChanged = false;
+                        if (newS && oldS && Math.abs(newS.getTime() - oldS.getTime()) > 60000) hasChanged = true;
+                        if (newE && oldE && Math.abs(newE.getTime() - oldE.getTime()) > 60000) hasChanged = true;
+
+                        if (hasChanged) {
+                            if (existingIdx !== -1) {
+                                workingTasks[existingIdx] = { ...workingTasks[existingIdx], ...data };
+                            } else {
+                                milestones[milestoneIdx] = { ...milestones[milestoneIdx], ...data };
+                            }
+
+                            finalUpdates[id] = { ...finalUpdates[id], ...data };
+                            if (!queue.includes(id)) queue.push(id);
+                        }
+                    });
+                }
+            }
+
+            // Persistencia directa para diagnóstico y robustez (bypass de batch global)
+            if (Object.keys(finalUpdates).length > 0) {
+                for (const [id, data] of Object.entries(finalUpdates)) {
+                    try {
+                        const isMilestone = (milestones || []).some(m => m.id === id);
+                        
+                        if (isMilestone) {
+                            const msRef = doc(db, `projects/${projectId}/milestones`, id);
+                            await updateDoc(msRef, {
+                                date: data.date || data.startDate,
+                                updatedAt: serverTimestamp()
+                            });
+                        } else {
+                            const taskRef = doc(db, `projects/${projectId}/tasks`, id);
+                            const originalTask = tasks.find(t => t.id === id);
+                            
+                            const updatePayload = {
+                                ...data,
+                                updatedAt: serverTimestamp()
+                            };
+
+                            if (data.startDate || data.endDate) {
+                                const s = data.startDate || originalTask?.startDate;
+                                const e = data.endDate || originalTask?.endDate;
+                                if (s && e) {
+                                    updatePayload.duration = getWorkingDuration(s, e, calendar).toString();
+                                }
+                            }
+                            
+                            // Limpieza extrema de propiedades inválidas para Firebase
+                            Object.keys(updatePayload).forEach(key => {
+                                const val = updatePayload[key];
+                                if (val === undefined || Number.isNaN(val) || val === '') {
+                                    delete updatePayload[key];
+                                }
+                            });
+
+                            await updateDoc(taskRef, updatePayload);
+                        }
+                    } catch (dbError) {
+                        console.error('Crash al actualizar documento ' + id + ':', dbError);
+                        alert(`❌ Falla en BD para el registro ${id}:\n` + dbError.message);
+                        throw dbError; // Detener flujo para no corromper estado restante
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error in resolveAndCommitScheduling:", error);
+            alert("Error al guardar cambios: " + error.message);
+            throw error;
         }
     };
 
@@ -80,7 +204,7 @@ export const useTasks = (projectId) => {
                     parentId: taskData.parentId
                 };
                 const freshTasks = [...tasks, newTask];
-                await propagateParentUpdates(docRef.id, freshTasks, calendar);
+                await propagateParentUpdates(docRef.id, freshTasks, [], [], calendar);
             }
 
             return { success: true, id: docRef.id };
@@ -90,122 +214,34 @@ export const useTasks = (projectId) => {
         }
     };
 
-    const updateTask = async (taskId, updates, calendar = null) => {
+    const updateTask = async (taskId, updates, dependencies = [], milestones = [], calendar = null) => {
         try {
-            const taskRef = doc(db, `projects/${projectId}/tasks`, taskId);
-            await updateDoc(taskRef, {
-                ...updates,
-                updatedAt: serverTimestamp()
-            });
-
-            // Recalcular padres — usar datos actualizados
             const currentTask = tasks.find(t => t.id === taskId);
-            const parentId = updates.parentId !== undefined ? updates.parentId : currentTask?.parentId;
-            const oldParentId = currentTask?.parentId;
+            
+            const initialUpdates = { 
+                [taskId]: { 
+                    ...updates,
+                    parentId: updates.parentId !== undefined ? updates.parentId : (currentTask?.parentId || null)
+                } 
+            };
 
-            if (parentId || oldParentId) {
-                const freshTasks = tasks.map(t =>
-                    t.id === taskId ? { ...t, ...updates } : t
-                );
-
-                // Recalcular la cadena del nuevo padre
-                if (parentId) {
-                    await propagateParentUpdates(taskId, freshTasks, calendar);
-                }
-
-                // Si cambió de padre, recalcular también el antiguo padre
-                if (oldParentId && oldParentId !== parentId) {
-                    await propagateParentUpdates(taskId, freshTasks, calendar);
-                    // Recalcular el viejo padre con la tarea ya removida
-                    const tasksWithoutOldParent = freshTasks.map(t =>
-                        t.id === taskId ? { ...t, parentId: parentId } : t
-                    );
-                    const oldAncestorUpdates = recalculateAncestors(
-                        // Necesitamos un hijo del viejo padre para disparar
-                        oldParentId,
-                        // Simulamos que somos hijo del viejo padre temporalmente
-                        [...tasksWithoutOldParent, { id: '__temp__', parentId: oldParentId, startDate: new Date(), endDate: new Date(), progress: 0 }],
-                        calendar
-                    );
-
-                    // Pero esto es innecesario si simplemente recalculamos usando el viejo padre
-                    // Simplificamos: recalculamos el viejo padre directamente
-                    if (Object.keys(oldAncestorUpdates).length > 0) {
-                        const batch = writeBatch(db);
-                        Object.entries(oldAncestorUpdates).forEach(([id, data]) => {
-                            const ref = doc(db, `projects/${projectId}/tasks`, id);
-                            batch.update(ref, {
-                                startDate: data.startDate,
-                                endDate: data.endDate,
-                                progress: data.progress,
-                                updatedAt: serverTimestamp()
-                            });
-                        });
-                        await batch.commit();
-                    }
-                }
-            }
+            await resolveAndCommitScheduling(initialUpdates, dependencies, milestones, calendar);
 
             return { success: true };
         } catch (error) {
             console.error("Error updating task:", error);
+            alert("Error saving task: " + error.message);
             return { success: false, error: error.message };
         }
     };
 
-    const updateTasksBatch = async (updatesMap, calendar = null) => {
+    const updateTasksBatch = async (updatesMap, dependencies = [], milestones = [], calendar = null) => {
         try {
-            const batch = writeBatch(db);
-            Object.entries(updatesMap).forEach(([taskId, updates]) => {
-                const taskRef = doc(db, `projects/${projectId}/tasks`, taskId);
-                batch.update(taskRef, {
-                    ...updates,
-                    updatedAt: serverTimestamp()
-                });
-            });
-            await batch.commit();
-
-            // Recalcular padres UNIFICADO para evitar redundancia
-            const freshTasks = tasks.map(t =>
-                updatesMap[t.id] ? { ...t, ...updatesMap[t.id] } : t
-            );
-
-            // Obtener IDs de padres únicos afectados para recalcular solo una vez por rama
-            const affectedParentIds = new Set();
-            Object.keys(updatesMap).forEach(taskId => {
-                const task = freshTasks.find(t => t.id === taskId);
-                if (task?.parentId) affectedParentIds.add(task.parentId);
-            });
-
-            if (affectedParentIds.size > 0) {
-                const parentUpdatesBatch = {};
-                // Recalcular desde los hijos hacia arriba una sola vez por rama
-                affectedParentIds.forEach(parentId => {
-                    const sampleChildId = freshTasks.find(t => t.parentId === parentId)?.id;
-                    if (sampleChildId) {
-                        const ancestorUpdates = recalculateAncestors(sampleChildId, freshTasks, calendar);
-                        Object.assign(parentUpdatesBatch, ancestorUpdates);
-                    }
-                });
-
-                if (Object.keys(parentUpdatesBatch).length > 0) {
-                    const parentBatch = writeBatch(db);
-                    Object.entries(parentUpdatesBatch).forEach(([id, data]) => {
-                        const ref = doc(db, `projects/${projectId}/tasks`, id);
-                        parentBatch.update(ref, {
-                            startDate: data.startDate,
-                            endDate: data.endDate,
-                            progress: data.progress,
-                            updatedAt: serverTimestamp()
-                        });
-                    });
-                    await parentBatch.commit();
-                }
-            }
-
+            await resolveAndCommitScheduling(updatesMap, dependencies, milestones, calendar);
             return { success: true };
         } catch (error) {
             console.error("Error updating tasks batch:", error);
+            alert("Error batch saving tasks: " + error.message);
             return { success: false, error: error.message };
         }
     };

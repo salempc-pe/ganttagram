@@ -3,79 +3,105 @@
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border-color);
-    padding: var(--space-sm) var(--space-md);
     position: sticky;
     top: 0;
     z-index: 1000;
-    display: flex;
-    flex-direction: column;
+    width: 100%;
     box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.03);
 }
 
-.mobile-header-top {
-    height: 48px;
+.mobile-header-main {
+    height: 60px;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
-    gap: var(--space-md);
+    padding: 0 8px;
+    position: relative;
 }
 
-.mobile-header-extra {
+.header-left, .header-right {
     display: flex;
-    justify-content: center;
-    padding: var(--space-xs) 0;
-    border-top: 1px solid var(--bg-tertiary);
+    align-items: center;
+    min-width: 44px; /* Espacio mínimo para botones */
+    height: 100%;
+    z-index: 10;
 }
 
-.mobile-back {
-    color: var(--text-primary);
+.header-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    max-width: 60%;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    background: var(--bg-secondary);
+    z-index: 5;
+    pointer-events: none; /* Dejar pasar clicks a botones si se solapan ligeramente */
+}
+
+.header-center > * {
+    pointer-events: auto;
 }
 
 .mobile-title {
-    flex: 1;
     font-family: var(--font-title);
     font-size: 1.125rem;
     font-weight: 800;
     color: var(--text-primary);
     letter-spacing: -0.02em;
+    text-transform: uppercase;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     margin: 0;
+    text-align: center;
+    line-height: 1;
+    border: none !important;
+    padding: 0 !important;
+    max-width: 100%;
 }
 
-
-.mobile-menu-btn {
-    color: var(--text-primary);
+.mobile-back, .mobile-menu-btn, .theme-toggle-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-xs);
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0;
+    transition: opacity 0.2s;
 }
 
-/* === DARK MODE OVERRIDES REMOVED: Using CSS Variables === */
+.mobile-back:active, .mobile-menu-btn:active, .theme-toggle-btn:active {
+    opacity: 0.6;
+}
 
+.mobile-header-extra {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 32px;
+    border-top: 1px solid var(--bg-tertiary);
+}
+
+/* === RESPONSIVE === */
 @media (min-width: 768px) {
     .mobile-header {
         display: none;
     }
 }
 
-/* Ocultar Cabecera Frontal MÓVIL completamente en Landscape Mode para dar todo el ancho a las vistas */
 @media (max-width: 767px) and (orientation: landscape) {
     .mobile-header {
         display: none !important;
     }
 }
 
-/* === MOBILE MENU PRO MAX === */
+/* === MOBILE MENU OVERLAY (Restored) === */
 .mobile-menu-overlay {
     position: fixed;
     inset: 0;
@@ -83,7 +109,7 @@
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     z-index: 5000;
-    animation: fadeIn 0.25s ease-out;
+    animation: fadeIn 0.15s ease-out;
     display: flex;
     justify-content: flex-end;
 }
@@ -96,22 +122,23 @@
     box-shadow: -20px 0 50px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     border-left: 1px solid var(--border-color);
+    position: relative;
 }
 
 @keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-    }
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
 
-    to {
-        transform: translateX(0);
-    }
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .menu-header-pro {
-    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    padding: 2.5rem 1.5rem 1.5rem 1.5rem;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
 }
@@ -124,7 +151,6 @@
     letter-spacing: 0.15em;
     color: var(--text-tertiary);
     margin-bottom: 1rem;
-    font-family: var(--font-tech);
 }
 
 .menu-items-grid {
@@ -134,7 +160,6 @@
     overflow-y: auto;
 }
 
-.mobile-menu-item,
 .menu-item {
     display: flex;
     align-items: center;
@@ -145,64 +170,41 @@
     font-size: 0.938rem;
     font-weight: 600;
     color: var(--text-secondary);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s;
     border: none;
     background: transparent;
-    border-left: 3px solid transparent;
 }
 
-.mobile-menu-item:active,
-.menu-item:active {
-    background: var(--bg-secondary);
-}
-
-.mobile-menu-item svg,
-.menu-item svg {
-    color: var(--text-tertiary);
-    transition: color 0.2s;
-}
-
-.mobile-menu-item:hover,
-.menu-item:hover {
-    color: var(--primary-color);
-    background: rgba(37, 99, 235, 0.04);
-}
-
-.mobile-menu-item:hover svg,
-.menu-item:hover svg {
-    color: var(--primary-color);
-}
-
-.mobile-menu-item.active,
 .menu-item.active {
     color: var(--primary-color);
     background: rgba(37, 99, 235, 0.08);
-    border-left-color: var(--primary-color);
-}
-
-.mobile-menu-item.active svg,
-.menu-item.active svg {
-    color: var(--primary-color);
-}
-
-.menu-footer-pro {
-    margin-top: auto;
-    padding: 1.5rem;
-    border-top: 1px solid var(--border-color);
-    background: var(--bg-secondary);
+    border-left: 3px solid var(--primary-color);
 }
 
 .btn-close-menu {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     background: var(--bg-secondary);
     color: var(--text-secondary);
-    z-index: 10;
+}
+
+.menu-footer-pro {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-card);
+}
+
+.text-error {
+    color: var(--error) !important;
+}
+
+.menu-item.text-error:hover {
+    background: rgba(239, 68, 68, 0.05);
 }

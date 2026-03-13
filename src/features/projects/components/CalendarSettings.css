@@ -58,10 +58,10 @@
 }
 
 .day-btn.active {
-    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    background: var(--accent-color);
     color: white;
-    border-color: #4f46e5;
-    box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.4);
+    border-color: var(--accent-hover);
+    box-shadow: 0 8px 20px -4px rgba(249, 115, 22, 0.4);
 }
 
 .day-btn:active:not(:disabled) {
@@ -85,17 +85,33 @@
 }
 
 .date-input {
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
+    height: 42px;
+    padding: 0 16px;
+    border: 1.5px solid var(--border-color);
     border-radius: var(--radius-md);
-    background: var(--bg-primary);
+    background: var(--bg-card);
     color: var(--text-primary);
     font-size: var(--font-sm);
+    font-weight: 500;
     outline: none;
+    transition: all 0.2s;
 }
 
 .date-input:focus {
-    border-color: var(--sidebar-active);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.1);
+}
+
+.holiday-input-row .btn-secondary {
+    height: 42px;
+    padding: 0 20px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .holidays-list {
@@ -124,9 +140,9 @@
 }
 
 .holiday-tag:hover {
-    border-color: rgba(79, 70, 229, 0.3);
+    border-color: var(--accent-color);
     transform: scale(1.02);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 6px rgba(249, 115, 22, 0.1);
 }
 
 .remove-btn {

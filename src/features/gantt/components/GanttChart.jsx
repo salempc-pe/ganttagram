@@ -259,7 +259,7 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
 
     // Motor fluido de Sticky (Evita saltos visuales en tablas e indexaciones)
     useEffect(() => {
-        const scroller = document.querySelector('.project-main');
+        const scroller = document.querySelector('.project-main') || window;
         if (!scroller) return;
 
         let frameId;
@@ -271,9 +271,12 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                 if (!ganttRef.current) return;
 
                 const ganttRect = ganttRef.current.getBoundingClientRect();
-                const scrollerRect = scroller.getBoundingClientRect();
+                
+                // Si el scroller es window, usamos scrollY, si no, scrollTop del elemento
+                const scrollTop = scroller === window ? window.scrollY : scroller.scrollTop;
+                const scrollerTop = scroller === window ? 0 : scroller.getBoundingClientRect().top;
 
-                let offset = scrollerRect.top - ganttRect.top;
+                let offset = scrollerTop - ganttRect.top;
 
                 if (offset < 0) offset = 0;
                 const maxOffset = Math.max(0, ganttRect.height - 50);
@@ -287,33 +290,18 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                 }
 
                 if (rightHeader) {
-                    // Sincronizar desplazamiento horizontal con vertical pegajoso
                     rightHeader.style.transform = `translateY(${Math.floor(offset)}px)`;
                 }
             });
         };
 
-        const handleHorizontalScroll = () => {
-            if (!wrapperScrollRef.current || !ganttRef.current) return;
-
-            const scrollLeft = wrapperScrollRef.current.scrollLeft;
-            const rightHeader = ganttRef.current.querySelector('[class*="_CZjuD"] > svg:first-child');
-
-            if (rightHeader) {
-                // Mantener la posición X del header mientras se mueve verticalmente
-                // En algunas librerías esto corrige el desfasaje
-                rightHeader.style.marginLeft = `-${scrollLeft}px`;
-            }
-        };
-
-        scroller.addEventListener('scroll', handleScroll, { passive: true });
-        wrapperScrollRef.current?.addEventListener('scroll', handleHorizontalScroll, { passive: true });
+        const target = scroller === window ? window : scroller;
+        target.addEventListener('scroll', handleScroll, { passive: true });
 
         handleScroll();
 
         return () => {
-            scroller.removeEventListener('scroll', handleScroll);
-            wrapperScrollRef.current?.removeEventListener('scroll', handleHorizontalScroll);
+            target.removeEventListener('scroll', handleScroll);
             cancelAnimationFrame(frameId);
         };
     }, []);
@@ -418,6 +406,7 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                         arrowIndent={20}
                         todayColor="rgba(99, 102, 241, 0.08)"
                         preStepsCount={1}
+                        postStepsCount={5}
                     />
                 </div>
             </div>

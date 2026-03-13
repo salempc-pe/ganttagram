@@ -1,15 +1,11 @@
 .project-members-container {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: var(--space-xl);
-    max-width: 900px;
-    margin: 0 auto;
+    width: 100%;
 }
 
 /* --- Header --- */
 .members-header {
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-lg);
+    padding: var(--space-lg) 0 0;
 }
 
 .members-header h2 {
@@ -64,10 +60,10 @@
 .invite-form {
     display: flex;
     gap: var(--space-md);
-    background: var(--bg-body);
+    background: var(--bg-card);
     padding: var(--space-md);
-    border-radius: var(--radius-md);
-    margin-bottom: var(--space-2xl);
+    border-radius: var(--radius-lg);
+    margin: 0 0 var(--space-xl);
     border: 1px solid var(--border-color);
     align-items: center;
 }
@@ -100,7 +96,7 @@
 
 .invite-input-group input:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.1);
 }
 
 .invite-input-group input:disabled {
@@ -144,18 +140,19 @@
 .members-list {
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-md);
+    padding: 0 0 var(--space-xl);
 }
 
 .member-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-md);
+    padding: 16px 20px;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    border-radius: var(--radius-lg);
+    transition: all 0.2s ease;
 }
 
 .member-item:hover {
@@ -163,7 +160,7 @@
 }
 
 .member-item.is-self {
-    border-color: rgba(59, 130, 246, 0.3);
+    border-color: rgba(249, 115, 22, 0.3);
 }
 
 .member-item.pending {
@@ -198,13 +195,13 @@
 }
 
 .member-avatar.editor {
-    background: rgba(59, 130, 246, 0.15);
-    color: #1d4ed8;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
 }
 
 .member-avatar.viewer {
-    background: rgba(107, 114, 128, 0.15);
-    color: #374151;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
 }
 
 .member-avatar.pending {
@@ -269,13 +266,13 @@
 }
 
 .role-badge.editor {
-    background: rgba(59, 130, 246, 0.1);
-    color: #1d4ed8;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
 }
 
 .role-badge.viewer {
-    background: rgba(107, 114, 128, 0.1);
-    color: #374151;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
 }
 
 .role-select-sm {

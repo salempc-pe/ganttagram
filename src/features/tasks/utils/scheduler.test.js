@@ -156,4 +156,25 @@ describe('Scheduler Logic', () => {
 
         expect(format(updates['m-1'].date, 'yyyy-MM-dd')).toBe('2026-02-04'); // T1 acaba Mar(3), M1 empieza T1.end+1 = Mie(4)
     });
+
+    it('should resolve conflicts by honoring the maximum implied start from multiple dependencies', () => {
+        const tasks = [
+            { id: 'task-1', startDate: createDate(0), endDate: createDate(0) }, // Lunes
+            { id: 'task-2', startDate: createDate(1), endDate: createDate(2) }, // Martes-Miercoles
+            { id: 'task-3', startDate: createDate(0), endDate: createDate(0) }  // target
+        ];
+        
+        // FS de task-1 obliga a empezar Mártes (0 + 1)
+        // SS de task-2 con lag 2 obliga a empezar el Jueves (1 + 2)
+        const dependencies = [
+            { fromTaskId: 'task-1', toTaskId: 'task-3', type: 'FS', lag: 0 },
+            { fromTaskId: 'task-2', toTaskId: 'task-3', type: 'SS', lag: 2 }
+        ];
+
+        const updates = calculateAutoSchedule(tasks, dependencies, 'task-2', { startDate: createDate(1), endDate: createDate(2) }, [], defaultCalendar);
+
+        // La dependencia más restrictiva exige el Jueves.
+        expect(format(updates['task-3'].startDate, 'yyyy-MM-dd')).toBe('2026-02-05'); // Jueves
+    });
+
 });

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Users, Calendar, TrendingUp, Sun, Moon } from 'lucide-react';
+import { ListTodo, Calendar, TrendingUp, Sun, Moon } from 'lucide-react';
 import { differenceInDays } from 'date-fns';
 import { useTheme } from '../../../shared/context/ThemeContext';
 
@@ -20,13 +20,16 @@ export const ProjectHeader = ({ project, tasks = [], resources = [], milestones 
             }
         }
 
+        const parentIds = new Set(tasks.map(t => t.parentId).filter(id => id));
+        const pendingTasks = tasks.filter(t => !parentIds.has(t.id) && (parseInt(t.progress) || 0) < 100).length;
         const activeWorkers = resources.length;
-
+        
         return {
             progress: avgProgress,
             daysLeft: daysLeft > 0 ? daysLeft : 0,
             dueDate,
-            activeWorkers
+            activeWorkers,
+            pendingTasks
         };
     }, [tasks, resources]);
 
@@ -59,7 +62,7 @@ export const ProjectHeader = ({ project, tasks = [], resources = [], milestones 
                     <h1 style={{
                         fontSize: '1.75rem', fontWeight: 900, textTransform: 'uppercase',
                         letterSpacing: '-0.02em', lineHeight: 1, margin: 0, padding: 0, border: 'none',
-                        color: isDark ? '#f1f5f9' : '#0f172a'
+                        color: isDark ? '#f1f5f9' : '#0f172a', textAlign: 'center'
                     }}>
                         {project.name}
                     </h1>
@@ -76,12 +79,12 @@ export const ProjectHeader = ({ project, tasks = [], resources = [], milestones 
                         </div>
                     </div>
 
-                    {/* Tarjeta: Recursos */}
+                    {/* Tarjeta: Tareas */}
                     <div style={cardStyle}>
-                        <Users size={32} style={{ color: '#3b82f6', flexShrink: 0 }} />
+                        <ListTodo size={32} style={{ color: '#3b82f6', flexShrink: 0 }} />
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isDark ? '#64748b' : '#94a3b8' }}>Recursos</span>
-                            <span style={{ fontSize: '28px', fontWeight: 900, lineHeight: 1, color: isDark ? '#f1f5f9' : '#0f172a' }}>{stats.activeWorkers}</span>
+                            <span style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: isDark ? '#64748b' : '#94a3b8' }}>Tareas</span>
+                            <span style={{ fontSize: '28px', fontWeight: 900, lineHeight: 1, color: isDark ? '#f1f5f9' : '#0f172a' }}>{stats.pendingTasks}</span>
                         </div>
                     </div>
 

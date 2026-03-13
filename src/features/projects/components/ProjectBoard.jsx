@@ -4,7 +4,7 @@ import { es } from 'date-fns/locale';
 import { Clock, CheckCircle, AlertCircle, Calendar, Link2 } from 'lucide-react';
 import './ProjectBoard.css';
 
-export const ProjectBoard = ({ tasks, dependencies = [], onTaskUpdate, canEdit }) => {
+export const ProjectBoard = ({ tasks, dependencies = [], milestones = [], onTaskUpdate, canEdit }) => {
     // Agrupar tareas por estado aproximado basado en progreso
     const getStatus = (progress) => {
         if (progress === 100) return 'done';
@@ -58,7 +58,7 @@ export const ProjectBoard = ({ tasks, dependencies = [], onTaskUpdate, canEdit }
         if (status === 'in_progress') newProgress = 50;
         if (status === 'done') newProgress = 100;
 
-        await onTaskUpdate(taskId, { progress: newProgress });
+        await onTaskUpdate(taskId, { progress: newProgress }, dependencies, milestones);
     };
 
     return (

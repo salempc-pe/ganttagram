@@ -4,7 +4,7 @@ import { ProjectList } from '../projects/components/ProjectList';
 import { useProjects } from '../projects/hooks/useProjects';
 import { Button } from '../../shared/components/Button';
 import { useGlobalSummary } from './hooks/useGlobalSummary';
-import { LogOut, Calendar, AlertTriangle, ChevronRight } from 'lucide-react';
+import { LogOut, Calendar, AlertTriangle, ChevronRight, X } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -47,10 +47,10 @@ export const DashboardPage = () => {
                 <div className="mobile-menu-overlay" onClick={() => setIsMenuOpen(false)}>
                     <div className="mobile-menu-content" onClick={e => e.stopPropagation()}>
                         <button className="btn-close-menu" onClick={() => setIsMenuOpen(false)}>
-                            <LogOut size={20} className="rotate-180" />
+                            <X size={20} />
                         </button>
 
-                        <div className="menu-header-pro" style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
+                        <div className="menu-header-pro" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
                             <span className="menu-label-tech">Perfil de Usuario</span>
                             <div className="flex items-center gap-4">
                                 <div
@@ -60,18 +60,18 @@ export const DashboardPage = () => {
                                     {user?.displayName?.charAt(0) || 'U'}
                                 </div>
                                 <div className="flex flex-col overflow-hidden">
-                                    <p className="font-bold leading-tight truncate" style={{ color: 'var(--text-primary)' }}>{user?.displayName}</p>
-                                    <p className="text-[11px] truncate mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{user?.email}</p>
+                                    <p className="font-bold leading-tight truncate m-0" style={{ color: 'var(--text-primary)' }}>{user?.displayName}</p>
+                                    <p className="text-[11px] truncate mt-1 m-0" style={{ color: 'var(--text-tertiary)' }}>{user?.email}</p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="menu-items-grid flex-1">
-                            <div className="py-4" style={{ paddingLeft: '2rem' }}>
+                            <div className="py-4" style={{ paddingLeft: '1.5rem' }}>
                                 <span className="menu-label-tech">Acciones</span>
                             </div>
-                            <div className="px-2">
-                                <button className="mobile-menu-item text-error mt-auto mb-4" onClick={handleLogout} style={{ paddingLeft: '1.5rem' }}>
+                            <div className="mt-auto mb-2">
+                                <button className="menu-item text-error" onClick={handleLogout}>
                                     <LogOut size={18} />
                                     <span>Cerrar Sesión</span>
                                 </button>
@@ -79,7 +79,7 @@ export const DashboardPage = () => {
                         </div>
 
                         <div className="menu-footer-pro">
-                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest text-center">
+                            <p className="text-[10px] text-slate-400 font-medium uppercase tracking-widest text-center m-0">
                                 Ganttagram v2.5.0
                             </p>
                         </div>

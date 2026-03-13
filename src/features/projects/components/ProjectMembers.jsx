@@ -96,11 +96,13 @@ export const ProjectMembers = ({ projectId }) => {
     return (
         <div className="project-members-container">
             {/* Header */}
-            <div className="members-header">
-                <h2>Equipo del Proyecto</h2>
-                <p className="members-subtitle">
-                    {members.length} {members.length === 1 ? 'miembro' : 'miembros'}
-                </p>
+            <div className="section-header-pro">
+                <div className="section-title-group">
+                    <h3 className="section-title-pro">Equipo del Proyecto</h3>
+                    <p className="section-subtitle-pro">
+                        {members.length} {members.length === 1 ? 'miembro' : 'miembros'} gestionando la obra.
+                    </p>
+                </div>
             </div>
 
             {/* Feedback toast */}

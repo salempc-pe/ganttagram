@@ -90,6 +90,7 @@ export const CalendarSettings = ({ calendar, onUpdate, canEdit }) => {
                         <Button
                             variant="secondary"
                             size="sm"
+                            className="btn-secondary"
                             onClick={addHoliday}
                             disabled={!newHoliday}
                         >

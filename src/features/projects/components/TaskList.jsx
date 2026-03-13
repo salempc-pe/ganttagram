@@ -7,9 +7,9 @@ import { useCategories } from '../hooks/useCategories';
 import { buildFlatTree, isParentTask } from '../../tasks/utils/hierarchy';
 import './TaskList.css';
 
-export const TaskList = ({ projectId, onEditTask, onEditMilestone, canEdit = true }) => {
+export const TaskList = ({ projectId, onEditTask, onEditMilestone, dependencies = [], milestones = [], projectCalendar = null, canEdit = true }) => {
     const { tasks, loading: tasksLoading, updateTask, deleteTask } = useTasks(projectId);
-    const { milestones, loading: milestonesLoading, deleteMilestone } = useMilestones(projectId);
+    const { loading: milestonesLoading, deleteMilestone } = useMilestones(projectId);
     const { categories } = useCategories(projectId);
 
     // Estado de expansión de tareas padre
@@ -85,12 +85,6 @@ export const TaskList = ({ projectId, onEditTask, onEditMilestone, canEdit = tru
 
     return (
         <div className="task-list-container">
-            <div className="task-list-header">
-                <div>
-                    <h3 className="text-lg font-bold uppercase tracking-wider text-slate-800">Listado de Actividades</h3>
-                    <p className="text-secondary text-xs">Gestión técnica de cronograma y cumplimiento de hitos.</p>
-                </div>
-            </div>
 
             <div className="tasks-scroll">
                 {allItems.length === 0 ? (
@@ -130,7 +124,7 @@ export const TaskList = ({ projectId, onEditTask, onEditMilestone, canEdit = tru
                                                     return;
                                                 }
                                                 if (!canEdit) return;
-                                                if (isTask) updateTask(item.id, { progress: item.progress === 100 ? 0 : 100 });
+                                                if (isTask) updateTask(item.id, { progress: item.progress === 100 ? 0 : 100 }, dependencies, milestones, projectCalendar);
                                             }}
                                             style={{ cursor: (canEdit && isTask) || hasChildren ? 'pointer' : 'default' }}
                                         >
