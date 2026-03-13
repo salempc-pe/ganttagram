@@ -128,6 +128,7 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
 }
 
 body {
@@ -140,10 +141,13 @@ body {
   background-image: var(--grid-pattern);
   background-size: 32px 32px;
   transition: background-color var(--transition-normal), color var(--transition-normal);
+  overscroll-behavior: none;
   
-  /* Optimizaciones para Móviles */
-  -webkit-tap-highlight-color: transparent;
+  /* Desactivar selección para prevenir 'Tap to Search' en móviles */
+  user-select: none;
+  -webkit-user-select: none;
   -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Prevenir selección accidental en elementos de UI */
@@ -211,6 +215,12 @@ button {
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
+}
+
+/* Habilitar selección solo en campos de texto */
+input, textarea {
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 button,
