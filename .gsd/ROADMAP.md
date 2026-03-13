@@ -19,7 +19,7 @@
 - [x] Cambiar renderizado visual de "Tareas Padre" en el Gantt (líneas delgadas) vs "Tareas Hija" (barras normales).
 
 ### Phase 3: Robustez del Sistema de Dependencias
-**Status**: ⬜ Not Started
+**Status**: ✅ Completed
 **Objective**: Resolver inconsistencias en el cálculo de fechas, implementar detección de ciclos y optimizar el motor de estabilidad.
 
 **Tasks**:
