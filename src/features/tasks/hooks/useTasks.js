@@ -67,9 +67,10 @@ export const useTasks = (projectId) => {
             const processedTriggers = new Set();
             let queue = Object.keys(initialUpdates);
             let iterations = 0;
+            const maxIterations = Math.max(50, tasks.length * 2);
 
             // Bucle de estabilidad jerarquía <-> dependencias
-            while (queue.length > 0 && iterations < 30) {
+            while (queue.length > 0 && iterations < maxIterations) {
                 iterations++;
                 const currentTriggerId = queue.shift();
                 
@@ -123,7 +124,7 @@ export const useTasks = (projectId) => {
                             if (existingIdx !== -1) {
                                 workingTasks[existingIdx] = { ...workingTasks[existingIdx], ...data };
                             } else {
-                                milestones[milestoneIdx] = { ...milestones[milestoneIdx], ...data };
+                                milestoneIdx !== -1 && (milestones[milestoneIdx] = { ...milestones[milestoneIdx], ...data });
                             }
 
                             finalUpdates[id] = { ...finalUpdates[id], ...data };
@@ -133,51 +134,54 @@ export const useTasks = (projectId) => {
                 }
             }
 
-            // Persistencia directa para diagnóstico y robustez (bypass de batch global)
+            if (iterations >= maxIterations) {
+                console.error("El cronograma no logró estabilizarse después de " + iterations + " iteraciones.");
+                throw new Error("El sistema de dependencias es demasiado complejo o contiene un bucle no detectado. Los cambios no se guardaron.");
+            }
+
+            // 3. Persistencia Atómica (Fase 3: writeBatch)
             if (Object.keys(finalUpdates).length > 0) {
+                const batch = writeBatch(db);
+                
                 for (const [id, data] of Object.entries(finalUpdates)) {
-                    try {
-                        const isMilestone = (milestones || []).some(m => m.id === id);
+                    const isMilestone = (milestones || []).some(m => m.id === id);
+                    
+                    if (isMilestone) {
+                        const msRef = doc(db, `projects/${projectId}/milestones`, id);
+                        batch.update(msRef, {
+                            date: data.date || data.startDate,
+                            updatedAt: serverTimestamp()
+                        });
+                    } else {
+                        const taskRef = doc(db, `projects/${projectId}/tasks`, id);
+                        const originalTask = tasks.find(t => t.id === id);
                         
-                        if (isMilestone) {
-                            const msRef = doc(db, `projects/${projectId}/milestones`, id);
-                            await updateDoc(msRef, {
-                                date: data.date || data.startDate,
-                                updatedAt: serverTimestamp()
-                            });
-                        } else {
-                            const taskRef = doc(db, `projects/${projectId}/tasks`, id);
-                            const originalTask = tasks.find(t => t.id === id);
-                            
-                            const updatePayload = {
-                                ...data,
-                                updatedAt: serverTimestamp()
-                            };
+                        const updatePayload = {
+                            ...data,
+                            updatedAt: serverTimestamp()
+                        };
 
-                            if (data.startDate || data.endDate) {
-                                const s = data.startDate || originalTask?.startDate;
-                                const e = data.endDate || originalTask?.endDate;
-                                if (s && e) {
-                                    updatePayload.duration = getWorkingDuration(s, e, calendar).toString();
-                                }
+                        if (data.startDate || data.endDate) {
+                            const s = data.startDate || originalTask?.startDate;
+                            const e = data.endDate || originalTask?.endDate;
+                            if (s && e) {
+                                updatePayload.duration = getWorkingDuration(s, e, calendar).toString();
                             }
-                            
-                            // Limpieza extrema de propiedades inválidas para Firebase
-                            Object.keys(updatePayload).forEach(key => {
-                                const val = updatePayload[key];
-                                if (val === undefined || Number.isNaN(val) || val === '') {
-                                    delete updatePayload[key];
-                                }
-                            });
-
-                            await updateDoc(taskRef, updatePayload);
                         }
-                    } catch (dbError) {
-                        console.error('Crash al actualizar documento ' + id + ':', dbError);
-                        alert(`❌ Falla en BD para el registro ${id}:\n` + dbError.message);
-                        throw dbError; // Detener flujo para no corromper estado restante
+                        
+                        // Limpieza de propiedades inválidas para Firebase
+                        Object.keys(updatePayload).forEach(key => {
+                            const val = updatePayload[key];
+                            if (val === undefined || (typeof val === 'number' && Number.isNaN(val)) || val === '') {
+                                delete updatePayload[key];
+                            }
+                        });
+
+                        batch.update(taskRef, updatePayload);
                     }
                 }
+                
+                await batch.commit();
             }
         } catch (error) {
             console.error("Error in resolveAndCommitScheduling:", error);
