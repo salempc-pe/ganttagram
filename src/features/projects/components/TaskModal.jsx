@@ -7,7 +7,7 @@ import { useResources } from '../../resources/hooks/useResources';
 import { useDependencies } from '../../tasks/hooks/useDependencies';
 import { useMilestones } from '../../projects/hooks/useMilestones';
 import { useTasks } from '../../tasks/hooks/useTasks';
-import { calculateAutoSchedule } from '../../tasks/utils/scheduler';
+import { calculateAutoSchedule, snapToPredecessors } from '../../tasks/utils/scheduler';
 import { getDescendantIds, isParentTask } from '../../tasks/utils/hierarchy';
 import { format, addDays, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -289,53 +289,34 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
             const updatedPending = [...pendingDeps, { ...newDep, id: Date.now() }];
             setPendingDeps(updatedPending);
 
-            // Lógica de cálculo de restricción para la NUEVA tarea
-            const predStart = predecessor.startDate || predecessor.date;
-            const predEnd = predecessor.endDate || predecessor.date;
-
-            const lag = parseInt(newDep.lag || 0);
-            const effectiveLag = (newDep.type === 'FS' || newDep.type === 'SS') ? lag : -lag;
-
-            let suggestedStart = new Date(formData.startDate + 'T00:00:00');
-
-            switch (newDep.type) {
-                case 'FS':
-                    suggestedStart = addDays(startOfDay(predEnd), 1 + effectiveLag);
-                    break;
-                case 'SS':
-                    suggestedStart = addDays(startOfDay(predStart), effectiveLag);
-                    break;
-                case 'FF':
-                case 'SF': {
-                    // Para FF y SF, el fin de la tarea depende del predecesor
-                    // Necesitamos calcular el inicio que haga que el fin sea >= restricción
-                    const targetBase = newDep.type === 'FF' ? predEnd : predStart;
-                    const targetEnd = addDays(targetBase, effectiveLag);
-
-                    // Empezamos asumiendo que el fin es targetEnd y buscamos el inicio
-                    let tempStart = adjustToWorkingDay(addDays(targetEnd, -(currentDuration * 2)), calendar, 1);
-                    let checkEnd = addWorkingDays(tempStart, currentDuration - 1, calendar);
-                    while (checkEnd < targetEnd) {
-                        tempStart = addDays(tempStart, 1);
-                        checkEnd = addWorkingDays(tempStart, currentDuration - 1, calendar);
-                    }
-                    suggestedStart = tempStart;
-                    break;
+            // Lógica de cálculo de restricción para la NUEVA tarea (Fase 3: Motor Unificado)
+            const tempTaskId = 'NEW_TASK_TEMP_ID';
+            const itemMap = {
+                [tempTaskId]: {
+                    id: tempTaskId,
+                    _start: new Date(formData.startDate + 'T00:00:00'),
+                    _end: new Date(formData.endDate + 'T00:00:00'),
+                    duration: formData.duration.toString(),
+                    _type: 'task'
+                },
+                [predecessor.id]: {
+                    id: predecessor.id,
+                    _start: new Date(predecessor.startDate || predecessor.date),
+                    _end: new Date(predecessor.endDate || predecessor.date),
+                    _type: (predecessor.startDate || predecessor.endDate) ? 'task' : 'milestone'
                 }
-            }
+            };
 
-            // Aplicar el ajuste solo si empuja la tarea hacia adelante (restricción)
-            const currentStart = new Date(formData.startDate + 'T00:00:00');
-            if (suggestedStart > currentStart) {
-                const workingStart = adjustToWorkingDay(suggestedStart, calendar, 1);
-                const workingEnd = addWorkingDays(workingStart, currentDuration - 1, calendar);
+            const latestDep = { fromTaskId: newDep.fromTaskId, toTaskId: tempTaskId, type: newDep.type, lag: Number(newDep.lag || 0) };
 
-                setFormData(prev => ({
-                    ...prev,
-                    startDate: format(workingStart, 'yyyy-MM-dd'),
-                    endDate: format(workingEnd, 'yyyy-MM-dd')
-                }));
-            }
+            snapToPredecessors(tempTaskId, itemMap, [latestDep], calendar);
+
+            const adjustedItem = itemMap[tempTaskId];
+            setFormData(prev => ({
+                ...prev,
+                startDate: format(adjustedItem._start, 'yyyy-MM-dd'),
+                endDate: format(adjustedItem._end, 'yyyy-MM-dd')
+            }));
         }
 
         setNewDep({ fromTaskId: '', type: 'FS', lag: 0 });

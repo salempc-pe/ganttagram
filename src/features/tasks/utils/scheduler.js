@@ -155,7 +155,7 @@ function shiftDescendants(parentId, deltaDays, itemMap, queue, tasks, calendar) 
     });
 }
 
-function snapToPredecessors(itemId, itemMap, itemDeps, calendar) {
+export function snapToPredecessors(itemId, itemMap, itemDeps, calendar) {
     const item = itemMap[itemId];
     if (!item || itemDeps.length === 0) return;
 
