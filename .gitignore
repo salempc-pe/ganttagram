@@ -1,4 +1,22 @@
-# Logs
+# Dependencias
+node_modules/
+.pnp
+.pnp.js
+
+# Construcción y Salida
+dist/
+dist-ssr/
+*.local
+
+# Variables de Entorno (Contienen secretos)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Archivos de Registro (Logs)
 logs
 *.log
 npm-debug.log*
@@ -7,18 +25,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# Directorios y Archivos de Editores/IDE
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+Thumbs.db
+
+# Archivos Temporales y Reportes (No críticos para la App)
+tmp/
+.gsd/
+.agent/
+dump.html
+lint-report*.txt
+next-prompt.md
+
+# Sistema Operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
