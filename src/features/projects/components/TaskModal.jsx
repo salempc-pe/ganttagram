@@ -12,6 +12,7 @@ import { getDescendantIds, isParentTask } from '../../tasks/utils/hierarchy';
 import { format, addDays, startOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { adjustToWorkingDay, getWorkingDuration, addWorkingDays } from '../../../shared/utils/calendar';
+import { hasCycle } from '../../tasks/utils/cycles';
 import { MessageSquare, Send } from 'lucide-react';
 import { useComments } from '../../tasks/hooks/useComments';
 import './TaskModal.css';
@@ -219,6 +220,23 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
             milestones.find(m => m.id === newDep.fromTaskId);
 
         if (!predecessor) return;
+
+        // Validar Ciclos (Fase 3)
+        if (initialData) {
+            if (hasCycle(initialData.id, newDep.fromTaskId, dependencies)) {
+                alert("⚠️ Error: Se ha detectado una dependencia circular. No se puede vincular esta tarea.");
+                return;
+            }
+        } else {
+             // En modo creación, usamos las dependencias existentes + las que ya están en la cola 'pendingDeps'
+            const currentDepsAndPending = [...dependencies, ...pendingDeps];
+            // ID temporal para la tarea que aún no existe
+            const tempId = 'NEW_TASK_TEMP_ID';
+            if (hasCycle(tempId, newDep.fromTaskId, currentDepsAndPending)) {
+                alert("⚠️ Error: Se ha detectado una dependencia circular con las tareas seleccionadas.");
+                return;
+            }
+        }
 
         const currentDuration = getWorkingDuration(
             new Date(formData.startDate + 'T00:00:00'),
