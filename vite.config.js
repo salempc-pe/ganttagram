@@ -32,18 +32,19 @@ export default defineConfig({
       }
     })
   ],
+  resolve: {
+    dedupe: ['react', 'react-dom', 'firebase']
+  },
   build: {
     cssCodeSplit: false, // Desactivar división de CSS para evitar errores de precarga en móviles/redes lentas
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/analytics'],
-          ui: ['lucide-react', 'gantt-task-react', 'date-fns', 'clsx']
-        }
       }
     },
     chunkSizeWarningLimit: 1000
+  },
+  optimizeDeps: {
+    include: ['firebase/app', 'firebase/auth', 'firebase/firestore']
   },
   server: {
     host: true, // Escuchar en todas las interfaces de red

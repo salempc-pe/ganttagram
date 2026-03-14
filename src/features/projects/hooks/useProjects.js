@@ -1,18 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-    collection,
-    query,
-    where,
-    onSnapshot,
-    addDoc,
-    deleteDoc,
-    doc,
-    getDoc,
-    getDocs,
-    serverTimestamp,
-    updateDoc
-} from 'firebase/firestore';
-import { db } from '../../../services/firebase/config';
+import { db, collection, query, where, onSnapshot, addDoc, deleteDoc, doc, getDoc, getDocs, serverTimestamp, updateDoc } from '../../../services/firebase/config';
 import { useAuth } from '../../auth/AuthContext';
 
 export const useProjects = () => {

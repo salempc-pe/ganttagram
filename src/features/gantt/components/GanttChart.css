@@ -3,19 +3,26 @@
 .gantt-container-outer {
     position: relative;
     width: 100%;
-    display: block;
+    flex: 1; /* Ocupa el espacio disponible en project-content */
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
     background-image: var(--grid-pattern);
     background-size: 24px 24px;
+    overflow: hidden;
 }
 
 
 
 .gantt-scroll-container {
     width: 100%;
-    height: auto;
+    flex: 1;
+    min-height: 0; /* Crucial */
     overflow-x: auto !important;
-    overflow-y: visible !important;
+    overflow-y: auto !important;
     position: relative;
+    display: flex; /* Cambiado a flex para contener el wrapper */
+    flex-direction: column;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -23,6 +30,8 @@
     position: relative;
     background: transparent;
     display: flex;
+    flex: 1;
+    min-height: 0;
     min-width: fit-content;
     overflow: visible;
 }
@@ -241,23 +250,23 @@ div[class*="tooltipDefaultContainer"] {
 
 /* Asegurar legibilidad del texto en el Gantt */
 .gantt-wrapper text.barLabel {
-    fill: var(--text-primary) !important;
+    fill: var(--text-primary); /* Fallback */
     font-family: var(--font-title) !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     font-size: 11px !important;
-    /* Halo de legibilidad (borde del color de fondo para que resalte fuera de la barra) */
+    /* Halo de legibilidad dinámico (estos valores son pisados por JS si es necesario) */
     paint-order: stroke fill;
-    stroke: var(--bg-primary) !important;
-    stroke-width: 3.5px;
+    stroke: var(--bg-primary);
+    stroke-width: 3px;
     stroke-linecap: round;
     stroke-linejoin: round;
+    transition: fill 0.2s ease, stroke 0.2s ease;
 }
 
-/* En modo oscuro, si el texto sigue pareciendo poco claro, forzar un brillo mayor */
+/* En modo oscuro, fallback por si el JS tarda en cargar */
 :root[data-theme="dark"] .gantt-wrapper text.barLabel {
-    fill: #ffffff !important;
-    stroke: #0f172a !important;
-    /* Color profundo para el halo en modo oscuro */
+    fill: #ffffff;
+    stroke: #0f172a;
 }
 
 /* === MODOS OSCUROS PARA GANTT-TASK-REACT SVG === */

@@ -259,7 +259,7 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
 
     // Motor fluido de Sticky (Evita saltos visuales en tablas e indexaciones)
     useEffect(() => {
-        const scroller = document.querySelector('.project-main') || window;
+        const scroller = wrapperScrollRef.current;
         if (!scroller) return;
 
         let frameId;
@@ -268,17 +268,14 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
 
             cancelAnimationFrame(frameId);
             frameId = requestAnimationFrame(() => {
-                if (!ganttRef.current) return;
+                if (!ganttRef.current || !scroller) return;
 
                 const ganttRect = ganttRef.current.getBoundingClientRect();
-                
-                // Si el scroller es window, usamos scrollY, si no, scrollTop del elemento
-                const scrollTop = scroller === window ? window.scrollY : scroller.scrollTop;
-                const scrollerTop = scroller === window ? 0 : scroller.getBoundingClientRect().top;
+                const scrollerRect = scroller.getBoundingClientRect();
 
-                let offset = scrollerTop - ganttRect.top;
+                // El offset es simplemente cuánto se ha desplazado el scroller interno
+                let offset = scroller.scrollTop;
 
-                if (offset < 0) offset = 0;
                 const maxOffset = Math.max(0, ganttRect.height - 50);
                 if (offset > maxOffset) offset = maxOffset;
 
@@ -295,13 +292,11 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
             });
         };
 
-        const target = scroller === window ? window : scroller;
-        target.addEventListener('scroll', handleScroll, { passive: true });
-
+        scroller.addEventListener('scroll', handleScroll, { passive: true });
         handleScroll();
 
         return () => {
-            target.removeEventListener('scroll', handleScroll);
+            scroller.removeEventListener('scroll', handleScroll);
             cancelAnimationFrame(frameId);
         };
     }, []);
@@ -348,6 +343,102 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
         return visibleTasks;
     }, [data, collapsedIds]);
 
+    // Sistema de Contraste Dinámico para etiquetas sobre barras
+    useEffect(() => {
+        if (!ganttRef.current) return;
+
+        const getLuminance = (color) => {
+            if (!color) return 0.5;
+            let r, g, b;
+            if (color.startsWith('#')) {
+                const hex = color.replace('#', '');
+                if (hex.length === 3) {
+                    r = parseInt(hex[0] + hex[0], 16);
+                    g = parseInt(hex[1] + hex[1], 16);
+                    b = parseInt(hex[2] + hex[2], 16);
+                } else {
+                    r = parseInt(hex.substring(0, 2), 16);
+                    g = parseInt(hex.substring(2, 4), 16);
+                    b = parseInt(hex.substring(4, 6), 16);
+                }
+            } else if (color.startsWith('rgb')) {
+                const rgb = color.match(/\d+/g);
+                if (!rgb) return 0.5;
+                r = parseInt(rgb[0]);
+                g = parseInt(rgb[1]);
+                b = parseInt(rgb[2]);
+            } else {
+                return 0.5;
+            }
+            return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+        };
+
+        const adjustLabelColors = () => {
+            if (!ganttRef.current) return;
+            const labels = ganttRef.current.querySelectorAll('text.barLabel');
+            
+            labels.forEach(label => {
+                const parentGroup = label.closest('g');
+                // Buscamos el rectángulo que representa el fondo de la barra o proyecto
+                const barRect = parentGroup?.querySelector('rect[class*="Background"], rect[class*="barBackground"], rect[class*="projectBackground"]');
+
+                if (barRect) {
+                    // Usamos getComputedStyle para obtener el color real final
+                    const style = window.getComputedStyle(barRect);
+                    const bgColor = style.fill;
+                    
+                    if (bgColor && bgColor !== 'none' && bgColor !== 'transparent') {
+                        const luminance = getLuminance(bgColor);
+                        
+                        // Si la luminancia es alta (barra clara), texto oscuro. Si es baja (barra oscura), texto claro.
+                        // Umbral ajustado a 0.6 para mejor equilibrio
+                        const isLight = luminance > 0.6;
+                        const textColor = isLight ? '#0f172a' : '#ffffff';
+                        const strokeColor = isLight ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.2)';
+
+                        if (label.getAttribute('fill') !== textColor) {
+                            label.style.setProperty('fill', textColor, 'important');
+                            label.style.setProperty('stroke', strokeColor, 'important');
+                            label.style.setProperty('stroke-width', '0.5px', 'important');
+                            label.style.setProperty('paint-order', 'stroke fill', 'important');
+                        }
+                    } else {
+                        // Fallback si no hay color detectable (ej: barras transparentes de proyecto en algunos temas)
+                        // En modo oscuro forzamos blanco, en claro oscuro.
+                        const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+                        label.style.setProperty('fill', isDarkTheme ? '#ffffff' : '#0f172a', 'important');
+                    }
+                }
+            });
+        };
+
+        // Observar cambios en el SVG para re-aplicar cuando se mueva o cambie el Gantt
+        const observer = new MutationObserver((mutations) => {
+            adjustLabelColors();
+        });
+
+        observer.observe(ganttRef.current, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['fill', 'x', 'width', 'style', 'class']
+        });
+
+        // Ejecución inmediata y con pequeños delays para asegurar que el render de la librería ha terminado
+        adjustLabelColors();
+        const timers = [
+            setTimeout(adjustLabelColors, 100),
+            setTimeout(adjustLabelColors, 500),
+            setTimeout(adjustLabelColors, 1000)
+        ];
+
+        return () => {
+            observer.disconnect();
+            timers.forEach(clearTimeout);
+        };
+    }, [displayTasks]);
+
+
     // Handler para expandir/colapsar memoizado para evitar re-renders
     const handleExpanderClick = useCallback((task) => {
         setCollapsedIds(prev => {
@@ -373,10 +464,11 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
     );
 
     return (
-        <div className="gantt-container-outer">
+        <div className="gantt-container-outer" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div
                 ref={wrapperScrollRef}
                 className="gantt-scroll-container"
+                style={{ flex: 1, minHeight: 0, overflow: 'auto', position: 'relative' }}
             >
                 <div
                     ref={ganttRef}

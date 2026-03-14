@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, where, onSnapshot, addDoc, deleteDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -28,6 +28,7 @@ if (!firebaseConfig.apiKey) {
 }
 
 // Initialize Firebase
+console.log('Firebase: Initializing app with initializeApp function:', typeof initializeApp);
 const app = initializeApp(firebaseConfig);
 
 // Initialize services
@@ -39,5 +40,8 @@ setPersistence(auth, browserLocalPersistence).catch(err => {
 });
 
 export const db = getFirestore(app);
+
+// Exportar utilidades de Firestore desde el mismo archivo que db para evitar conflictos de instancia
+export { doc, setDoc, getDoc, getDocs, collection, query, where, onSnapshot, addDoc, deleteDoc, serverTimestamp, updateDoc };
 
 export default app;

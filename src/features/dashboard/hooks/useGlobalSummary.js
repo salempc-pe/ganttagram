@@ -1,11 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-    collection,
-    query,
-    where,
-    onSnapshot
-} from 'firebase/firestore';
-import { db } from '../../../services/firebase/config';
+import { db, collection, query, where, onSnapshot } from '../../../services/firebase/config';
 import { useAuth } from '../../auth/AuthContext';
 
 /**

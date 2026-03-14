@@ -11,8 +11,7 @@ import {
     signOut,
     updateProfile
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../../services/firebase/config';
+import { auth, db, doc, setDoc, getDoc } from '../../services/firebase/config';
 
 const AuthContext = createContext({});
 
@@ -95,10 +94,6 @@ export const AuthProvider = ({ children }) => {
         const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
             try {
                 if (authUser) {
-                    console.log("Auth: Hydrating user...", authUser?.uid, "DB exists:", !!db);
-                    if (!db) {
-                        throw new Error("Firestore (db) no está inicializado.");
-                    }
                     const userRef = doc(db, 'users', authUser.uid);
                     let userDoc = await getDoc(userRef);
                     let userData = userDoc.data();

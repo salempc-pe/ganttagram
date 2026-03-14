@@ -431,6 +431,18 @@ a:hover {
   flex-direction: column !important;
 }
 
+.flex-1 {
+  flex: 1 !important;
+}
+
+.min-h-0 {
+  min-height: 0 !important;
+}
+
+.relative {
+  position: relative !important;
+}
+
 .items-center {
   align-items: center !important;
 }

@@ -475,10 +475,10 @@ export const ProjectPage = () => {
                     )}
                 </ProjectHeader>
 
-                <div className="project-content">
+                <div className="project-content" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                     <Suspense fallback={<LoadingScreen />}>
                         {activeTab === 'gantt' && (
-                            <div className="flex flex-col flex-1 min-h-0">
+                            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
                                 {/* Mobile View Controls */}
                                 <div
                                     className="mobile-only flex items-center justify-between p-2 w-full overflow-x-auto shrink-0 mobile-view-controls"
@@ -581,7 +581,7 @@ export const ProjectPage = () => {
                             </div>
                         )}
                         {activeTab === 'list' && (
-                            <div style={{ padding: '1.5rem 1.5rem 4rem' }}>
+                            <div className="tab-container-scroll" style={{ padding: '1.5rem 1.5rem 4rem', display: 'flex', flexDirection: 'column' }}>
                                 <TaskList
                                     projectId={projectId}
                                     onAddTask={() => { setEditingTask(null); setIsTaskModalOpen(true); }}
@@ -596,7 +596,7 @@ export const ProjectPage = () => {
                             </div>
                         )}
                         {activeTab === 'recursos' && (
-                            <div className="animate-in flex flex-col gap-12 pb-12" style={{ padding: '1.5rem 1.5rem 4rem' }}>
+                            <div className="animate-in flex flex-col gap-12 pb-12 tab-container-scroll" style={{ padding: '1.5rem 1.5rem 4rem' }}>
                                 <ResourceList
                                     resources={resources}
                                     tasks={tasks}
@@ -628,12 +628,12 @@ export const ProjectPage = () => {
                             />
                         )}
                         {activeTab === 'team' && (
-                            <div style={{ padding: '1.5rem 1.5rem 4rem' }}>
+                            <div className="tab-container-scroll" style={{ padding: '1.5rem 1.5rem 4rem', display: 'flex', flexDirection: 'column' }}>
                                 <ProjectMembers projectId={projectId} />
                             </div>
                         )}
                         {activeTab === 'settings' && (
-                            <div className="space-y-12" style={{ padding: '1.5rem 1.5rem 8rem' }}>
+                            <div className="space-y-12 tab-container-scroll" style={{ padding: '1.5rem 1.5rem 8rem', display: 'flex', flexDirection: 'column' }}>
                                 <section>
                                     <CalendarSettings
                                         calendar={project.calendar}
