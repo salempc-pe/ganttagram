@@ -15,6 +15,14 @@ export const ThemeProvider = ({ children }) => {
         // Guardar theme e inyectarlo en el documento
         localStorage.setItem('ganttagram-theme', theme);
         document.documentElement.setAttribute('data-theme', theme);
+
+        // Actualizar color de barra de estado móvil (theme-color) de forma dinámica
+        const themeColors = document.querySelectorAll('meta[name="theme-color"]');
+        const color = theme === 'dark' ? '#0f172a' : '#f8fafc';
+        
+        themeColors.forEach(meta => {
+            meta.setAttribute('content', color);
+        });
     }, [theme]);
 
     const toggleTheme = () => {
