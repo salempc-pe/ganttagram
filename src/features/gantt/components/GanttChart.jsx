@@ -376,6 +376,7 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
         const adjustLabelColors = () => {
             if (!ganttRef.current) return;
             const labels = ganttRef.current.querySelectorAll('text.barLabel');
+            const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
             
             labels.forEach(label => {
                 const parentGroup = label.closest('g');
@@ -383,31 +384,44 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                 const barRect = parentGroup?.querySelector('rect[class*="Background"], rect[class*="barBackground"], rect[class*="projectBackground"]');
 
                 if (barRect) {
-                    // Usamos getComputedStyle para obtener el color real final
-                    const style = window.getComputedStyle(barRect);
-                    const bgColor = style.fill;
-                    
-                    if (bgColor && bgColor !== 'none' && bgColor !== 'transparent') {
-                        const luminance = getLuminance(bgColor);
-                        
-                        // Si la luminancia es alta (barra clara), texto oscuro. Si es baja (barra oscura), texto claro.
-                        // Umbral ajustado a 0.6 para mejor equilibrio
-                        const isLight = luminance > 0.6;
-                        const textColor = isLight ? '#0f172a' : '#ffffff';
-                        const strokeColor = isLight ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.2)';
+                    const labelX = parseFloat(label.getAttribute('x') || 0);
+                    const barX = parseFloat(barRect.getAttribute('x') || 0);
+                    const barW = parseFloat(barRect.getAttribute('width') || 0);
 
-                        if (label.getAttribute('fill') !== textColor) {
+                    // Determinamos si la etiqueta está dentro de la barra (con un pequeño margen de 2px)
+                    const isInside = labelX >= barX - 2 && labelX <= (barX + barW + 2);
+
+                    if (isInside) {
+                        // Lógica basada en el color de la barra
+                        const style = window.getComputedStyle(barRect);
+                        const bgColor = style.fill;
+                        
+                        if (bgColor && bgColor !== 'none' && bgColor !== 'transparent') {
+                            const luminance = getLuminance(bgColor);
+                            const isLightBar = luminance > 0.6;
+                            const textColor = isLightBar ? '#0f172a' : '#ffffff';
+                            const strokeColor = isLightBar ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.2)';
+
                             label.style.setProperty('fill', textColor, 'important');
                             label.style.setProperty('stroke', strokeColor, 'important');
                             label.style.setProperty('stroke-width', '0.5px', 'important');
-                            label.style.setProperty('paint-order', 'stroke fill', 'important');
+                        } else {
+                            // Fallback para barras transparentes (ej: proyectos)
+                            label.style.setProperty('fill', isDarkTheme ? '#ffffff' : '#0f172a', 'important');
+                            label.style.setProperty('stroke', isDarkTheme ? '#0f172a' : '#ffffff', 'important');
+                            label.style.setProperty('stroke-width', '2px', 'important');
                         }
                     } else {
-                        // Fallback si no hay color detectable (ej: barras transparentes de proyecto en algunos temas)
-                        // En modo oscuro forzamos blanco, en claro oscuro.
-                        const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
-                        label.style.setProperty('fill', isDarkTheme ? '#ffffff' : '#0f172a', 'important');
+                        // Lógica fuera de la barra: basada en el tema global
+                        const textColor = isDarkTheme ? '#ffffff' : '#0f172a';
+                        const strokeColor = isDarkTheme ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)';
+                        
+                        label.style.setProperty('fill', textColor, 'important');
+                        label.style.setProperty('stroke', strokeColor, 'important');
+                        label.style.setProperty('stroke-width', '2px', 'important');
                     }
+                    
+                    label.style.setProperty('paint-order', 'stroke fill', 'important');
                 }
             });
         };

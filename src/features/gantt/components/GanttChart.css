@@ -254,19 +254,20 @@ div[class*="tooltipDefaultContainer"] {
     font-family: var(--font-title) !important;
     font-weight: 700 !important;
     font-size: 11px !important;
-    /* Halo de legibilidad dinámico (estos valores son pisados por JS si es necesario) */
+    /* Halo de legibilidad base */
     paint-order: stroke fill;
     stroke: var(--bg-primary);
-    stroke-width: 3px;
+    stroke-width: 1px;
     stroke-linecap: round;
     stroke-linejoin: round;
-    transition: fill 0.2s ease, stroke 0.2s ease;
+    transition: fill 0.3s ease, stroke 0.3s ease;
+    pointer-events: none;
 }
 
-/* En modo oscuro, fallback por si el JS tarda en cargar */
+/* Fallback inicial para modo oscuro */
 :root[data-theme="dark"] .gantt-wrapper text.barLabel {
     fill: #ffffff;
-    stroke: #0f172a;
+    stroke: rgba(15, 23, 42, 0.5);
 }
 
 /* === MODOS OSCUROS PARA GANTT-TASK-REACT SVG === */
