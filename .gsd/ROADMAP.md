@@ -32,16 +32,17 @@
 - Verificación manual de consistencia de fechas en proyectos con >4 niveles de profundidad.
 
 ### Phase 4: Refinamiento de Accesibilidad y UI del Gantt
-**Status**: 🚀 In Progress
+**Status**: ✅ Complete
 **Objective**: Optimizar la legibilidad de las etiquetas en el Gantt mediante contraste dinámico contextual.
 
 **Tasks**:
-- [ ] Implementar detección de posición (dentro/fuera de barra) para etiquetas de tareas.
-- [ ] Ajustar colores de texto según luminancia de barra (dentro) o tema global (fuera).
-- [ ] Refinar halo de legibilidad (`stroke`) para coherencia visual en todos los estados.
+- [x] Implementar detección de posición (dentro/fuera de barra) para etiquetas de tareas.
+- [x] Ajustar colores de texto según luminancia de barra (dentro) o tema global (fuera).
+- [x] Refinar halo de legibilidad (`stroke`) para coherencia visual en todos los estados.
 
 **Verification**:
 - Etiquetas legibles en barras claras y oscuras.
 - Etiquetas legibles fuera de barras en modo claro y oscuro.
 - No hay parpadeos ni retrasos notables al desplazar el Gantt.
+
 

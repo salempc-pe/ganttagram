@@ -253,7 +253,7 @@ div[class*="tooltipDefaultContainer"] {
     fill: var(--text-primary); /* Fallback */
     font-family: var(--font-title) !important;
     font-weight: 700 !important;
-    font-size: 11px !important;
+    font-size: 12px !important;
     /* Halo de legibilidad base */
     paint-order: stroke fill;
     stroke: var(--bg-primary);

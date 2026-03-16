@@ -184,8 +184,6 @@ h6 {
 
 h1 {
   font-size: var(--font-2xl);
-  border-left: 4px solid var(--primary-color);
-  padding-left: var(--space-md);
   margin-bottom: var(--space-lg);
 }
 

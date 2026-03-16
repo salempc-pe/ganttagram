@@ -100,7 +100,7 @@ export const DashboardPage = () => {
                     <header className="hidden md:flex justify-between items-center mb-8">
                         <div>
                             <h1>Centro de Mando</h1>
-                            <p className="text-secondary">Bienvenido al sistema de gestión de obras, {user?.displayName}</p>
+                            <p className="text-secondary">Bienvenido al sistema de gestión de proyectos, {user?.displayName}</p>
                         </div>
                         <div className="flex items-center gap-6">
                             <ThemeToggle />

@@ -343,90 +343,118 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
         return visibleTasks;
     }, [data, collapsedIds]);
 
-    // Sistema de Contraste Dinámico para etiquetas sobre barras
+    // Sistema de Contraste Dinámico y Accesibilidad para Texto del Gantt
     useEffect(() => {
         if (!ganttRef.current) return;
 
-        const getLuminance = (color) => {
-            if (!color) return 0.5;
-            let r, g, b;
+        // Fórmula YIQ que se ajusta perfectamente a la percepción del color real (Cyan, Magenta, etc.)
+        const isColorLight = (color) => {
+            if (!color || color === 'none' || color === 'transparent') return false; // Por defecto fallback a tema
+            let r = 0, g = 0, b = 0;
             if (color.startsWith('#')) {
                 const hex = color.replace('#', '');
                 if (hex.length === 3) {
                     r = parseInt(hex[0] + hex[0], 16);
                     g = parseInt(hex[1] + hex[1], 16);
                     b = parseInt(hex[2] + hex[2], 16);
-                } else {
+                } else if (hex.length >= 6) {
                     r = parseInt(hex.substring(0, 2), 16);
                     g = parseInt(hex.substring(2, 4), 16);
                     b = parseInt(hex.substring(4, 6), 16);
                 }
             } else if (color.startsWith('rgb')) {
                 const rgb = color.match(/\d+/g);
-                if (!rgb) return 0.5;
-                r = parseInt(rgb[0]);
-                g = parseInt(rgb[1]);
-                b = parseInt(rgb[2]);
+                if (!rgb || rgb.length < 3) return false;
+                r = parseInt(rgb[0], 10);
+                g = parseInt(rgb[1], 10);
+                b = parseInt(rgb[2], 10);
             } else {
-                return 0.5;
+                return false;
             }
-            return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            // Umbral estandar 128 YIQ perceptual (W3C recommended)
+            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            return yiq >= 128; // Si es verdadero, el color es claro (requiere texto OCSURO). Si es falso, requiere texto BLANCO.
         };
 
         const adjustLabelColors = () => {
             if (!ganttRef.current) return;
-            const labels = ganttRef.current.querySelectorAll('text.barLabel');
             const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
             
-            labels.forEach(label => {
-                const parentGroup = label.closest('g');
-                // Buscamos el rectángulo que representa el fondo de la barra o proyecto
-                const barRect = parentGroup?.querySelector('rect[class*="Background"], rect[class*="barBackground"], rect[class*="projectBackground"]');
+            // Selector Universal (agrupa todos los text dentro de groups, para evadir css modules hashing)
+            const allTexts = ganttRef.current.querySelectorAll('svg text');
 
+            allTexts.forEach(label => {
+                const parentGroup = label.closest('g');
+                if (!parentGroup) return;
+
+                // Las barras del Gantt (tasks, projects, milestones) usualmente renderizan un rect o polygon.
+                const barRect = parentGroup.querySelector('rect, polygon, path');
+                
                 if (barRect) {
                     const labelX = parseFloat(label.getAttribute('x') || 0);
                     const barX = parseFloat(barRect.getAttribute('x') || 0);
                     const barW = parseFloat(barRect.getAttribute('width') || 0);
 
-                    // Determinamos si la etiqueta está dentro de la barra (con un pequeño margen de 2px)
-                    const isInside = labelX >= barX - 2 && labelX <= (barX + barW + 2);
+                    // Sólo procesar textos que parezcan ser etiquetas asociadas al rect (en X y un umbral mínimo)
+                    const labelYStr = label.getAttribute('y');
+                    const labelStyleY = label.style.transform?.match(/translateY\(([\d.]+)px\)/)?.[1];
+                    const labelY = parseFloat(labelYStr || labelStyleY || 0);
+
+                    // Pequeña corrección para evitar teñir cabeceras mensuales
+                    if (labelY < 40 && labelY !== 0 && !label.style.transform) return;
+
+                    // isInside: Detectamos si el texto realmente está contenido en la barra
+                    // Si el inicio del texto (labelX) empieza después de que termine la barra (barX + barW), está FUERA.
+                    const isInside = labelX < (barX + barW - 2); 
 
                     if (isInside) {
-                        // Lógica basada en el color de la barra
-                        const style = window.getComputedStyle(barRect);
-                        const bgColor = style.fill;
-                        
+                        let bgColor = barRect.getAttribute('fill');
+                        if (!bgColor || bgColor === 'none' || bgColor === 'transparent') {
+                            const style = window.getComputedStyle(barRect);
+                            bgColor = style.fill;
+                        }
+
                         if (bgColor && bgColor !== 'none' && bgColor !== 'transparent') {
-                            const luminance = getLuminance(bgColor);
-                            const isLightBar = luminance > 0.6;
-                            const textColor = isLightBar ? '#0f172a' : '#ffffff';
-                            const strokeColor = isLightBar ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.2)';
+                            const isLightBar = isColorLight(bgColor);
+                            const textColor = isLightBar ? '#0f172a' : '#ffffff'; 
+                            const strokeColor = isLightBar ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
 
                             label.style.setProperty('fill', textColor, 'important');
                             label.style.setProperty('stroke', strokeColor, 'important');
-                            label.style.setProperty('stroke-width', '0.5px', 'important');
+                            label.style.setProperty('stroke-width', '0.4px', 'important');
                         } else {
-                            // Fallback para barras transparentes (ej: proyectos)
+                            // Elementos sin fondo sólido (proyectos/padres)
                             label.style.setProperty('fill', isDarkTheme ? '#ffffff' : '#0f172a', 'important');
-                            label.style.setProperty('stroke', isDarkTheme ? '#0f172a' : '#ffffff', 'important');
-                            label.style.setProperty('stroke-width', '2px', 'important');
+                            label.style.setProperty('stroke', 'none', 'important');
                         }
                     } else {
-                        // Lógica fuera de la barra: basada en el tema global
-                        const textColor = isDarkTheme ? '#ffffff' : '#0f172a';
-                        const strokeColor = isDarkTheme ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)';
+                        // === TEXTO FUERA DE LA BARRA (Sobre el fondo del gráfico) ===
+                        // Aplicamos el estándar sugerido: Claro en Oscuro, Oscuro en Claro.
+                        const finalTextColor = isDarkTheme ? '#ffffff' : '#0f172a';
                         
-                        label.style.setProperty('fill', textColor, 'important');
-                        label.style.setProperty('stroke', strokeColor, 'important');
-                        label.style.setProperty('stroke-width', '2px', 'important');
+                        label.style.setProperty('fill', finalTextColor, 'important');
+                        label.style.setProperty('stroke', 'none', 'important');
+                        label.style.setProperty('stroke-width', '0', 'important');
+                        label.style.setProperty('opacity', '1', 'important');
                     }
                     
+                    // === ALINEACIÓN MAESTRA (VERTICAL) ===
+                    label.style.setProperty('dominant-baseline', 'central', 'important');
+                    label.style.setProperty('alignment-baseline', 'central', 'important');
                     label.style.setProperty('paint-order', 'stroke fill', 'important');
+                    
+                    // === ESTILOS UNIVERSALES (UNIFORMIZACIÓN) ===
+                    label.style.setProperty('font-weight', '700', 'important');
+                    label.style.setProperty('font-family', 'var(--font-title)', 'important');
+                    label.style.setProperty('font-size', '12px', 'important');
+                } else {
+                    // Fallback para textos sin contenedor claro (ej. fechas en cabecera si el observer es muy agresivo)
+                    label.style.setProperty('font-weight', '700', 'important');
+                    label.style.setProperty('font-family', 'var(--font-title)', 'important');
                 }
             });
         };
 
-        // Observar cambios en el SVG para re-aplicar cuando se mueva o cambie el Gantt
         const observer = new MutationObserver((mutations) => {
             adjustLabelColors();
         });
@@ -435,19 +463,32 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
             childList: true,
             subtree: true,
             attributes: true,
-            attributeFilter: ['fill', 'x', 'width', 'style', 'class']
+            attributeFilter: ['fill', 'x', 'width', 'style', 'class', 'transform']
         });
 
-        // Ejecución inmediata y con pequeños delays para asegurar que el render de la librería ha terminado
+        const themeObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'data-theme') {
+                    adjustLabelColors();
+                }
+            });
+        });
+        
+        themeObserver.observe(document.documentElement, { 
+            attributes: true, 
+            attributeFilter: ['data-theme'] 
+        });
+
         adjustLabelColors();
         const timers = [
             setTimeout(adjustLabelColors, 100),
-            setTimeout(adjustLabelColors, 500),
+            setTimeout(adjustLabelColors, 400),
             setTimeout(adjustLabelColors, 1000)
         ];
 
         return () => {
             observer.disconnect();
+            themeObserver.disconnect();
             timers.forEach(clearTimeout);
         };
     }, [displayTasks]);
