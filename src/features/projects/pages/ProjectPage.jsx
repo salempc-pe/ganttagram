@@ -708,6 +708,7 @@ export const ProjectPage = () => {
                     onSubmit={handleMilestoneSubmit}
                     projectId={projectId}
                     initialData={editingMilestone}
+                    calendar={project.calendar}
                 />
 
                 <ResourceModal

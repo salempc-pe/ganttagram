@@ -6,11 +6,11 @@ import { useTasks } from '../../tasks/hooks/useTasks';
 import { useMilestones } from '../../projects/hooks/useMilestones';
 import { useDependencies } from '../../tasks/hooks/useDependencies';
 import { useCategories } from '../../projects/hooks/useCategories';
-import { calculateAutoSchedule } from '../../tasks/utils/scheduler';
+import { calculateAutoSchedule, snapToPredecessors } from '../../tasks/utils/scheduler';
 import { format } from 'date-fns';
 import './MilestoneModal.css';
 
-export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialData = null }) => {
+export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialData = null, calendar = null }) => {
     const { tasks, updateTasksBatch } = useTasks(projectId);
     const { milestones, updateMilestone, deleteMilestone } = useMilestones(projectId);
     const { dependencies, addDependency, deleteDependency } = useDependencies(projectId);
@@ -141,28 +141,37 @@ export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialDa
             const predecessor = tasks.find(t => t.id === newDep.fromTaskId) ||
                 milestones.find(m => m.id === newDep.fromTaskId);
 
+            if (!predecessor) return;
+
             const updatedPending = [...pendingDeps, { ...newDep, id: Date.now() }];
             setPendingDeps(updatedPending);
 
-            if (predecessor) {
-                const predEnd = predecessor.endDate || predecessor.date;
-                const predStart = predecessor.startDate || predecessor.date;
-                let suggestedDate = new Date(formData.date + 'T00:00:00');
-
-                if (newDep.type === 'FS') {
-                    suggestedDate = new Date(predEnd);
-                } else if (newDep.type === 'SS') {
-                    suggestedDate = new Date(predStart);
+            const tempMilestoneId = 'NEW_MILESTONE_TEMP_ID';
+            const itemMap = {
+                [tempMilestoneId]: {
+                    id: tempMilestoneId,
+                    _start: new Date(formData.date + 'T00:00:00'),
+                    _end: new Date(formData.date + 'T00:00:00'),
+                    duration: '0',
+                    _type: 'milestone'
+                },
+                [predecessor.id]: {
+                    id: predecessor.id,
+                    _start: new Date(predecessor.startDate || predecessor.date),
+                    _end: new Date(predecessor.endDate || predecessor.date),
+                    _type: (predecessor.startDate || predecessor.endDate) ? 'task' : 'milestone'
                 }
+            };
 
-                const currentStart = new Date(formData.date + 'T00:00:00');
-                if (suggestedDate > currentStart) {
-                    setFormData(prev => ({
-                        ...prev,
-                        date: format(suggestedDate, 'yyyy-MM-dd')
-                    }));
-                }
-            }
+            const latestDep = { fromTaskId: newDep.fromTaskId, toTaskId: tempMilestoneId, type: newDep.type, lag: Number(newDep.lag || 0) };
+
+            snapToPredecessors(tempMilestoneId, itemMap, [latestDep], calendar);
+
+            const adjustedItem = itemMap[tempMilestoneId];
+            setFormData(prev => ({
+                ...prev,
+                date: format(adjustedItem._start, 'yyyy-MM-dd')
+            }));
         }
 
         setNewDep({ fromTaskId: '', type: 'FS', lag: 0 });
@@ -256,7 +265,7 @@ export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialDa
 
     return (
         <div className="modal-overlay task-modal-overlay">
-            <div className="modal-content task-modal milestone-modal-sizing">
+            <div className="modal-content task-modal milestone-modal">
                 <div className="modal-header">
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-0">
@@ -295,17 +304,17 @@ export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialDa
 
                         <div className="form-row mt-4">
                             <div className="form-col-flex">
-                                <div className="flex justify-between items-center mb-1">
-                                    <label className="input-label-with-icon">
+                                <div className="flex justify-between items-center mb-2">
+                                    <label className="input-label-with-icon" style={{ marginBottom: 0 }}>
                                         <Tag size={14} /> CATEGORÍA
                                     </label>
                                     {!isNewCategoryMode && (
                                         <button
                                             type="button"
-                                            className="text-[10px] font-bold uppercase text-indigo-600 hover:text-indigo-800 transition-colors"
+                                            className="btn-tiny btn-tiny-primary"
                                             onClick={() => setIsNewCategoryMode(true)}
                                         >
-                                            + Nueva
+                                            + NUEVA
                                         </button>
                                     )}
                                 </div>

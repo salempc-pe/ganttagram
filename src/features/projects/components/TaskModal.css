@@ -78,9 +78,6 @@
     min-height: 0;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
 }
 
 .form-section {
@@ -348,9 +345,6 @@
     background: var(--bg-primary);
     border-top: 1px solid var(--border-color);
     flex-shrink: 0;
-    max-width: 800px;
-    width: 100%;
-    margin: 0 auto;
 }
 
 .btn-cancel-mini {
@@ -539,34 +533,60 @@
         .form-row-dates {
             display: flex !important;
             flex-direction: row !important;
-            flex-wrap: wrap;
-            background: #f1f5f9;
-            padding: 2px;
-            gap: 2px;
+            flex-wrap: nowrap;
+            background: var(--bg-secondary);
+            padding: 4px;
+            gap: 4px;
+            border-radius: var(--radius-md);
         }
 
         .dep-input-row {
-            background: transparent;
-            padding: 0;
-            border: none;
+            display: grid !important;
+            grid-template-columns: 1fr 1fr 48px;
+            grid-template-areas: 
+                "task task task"
+                "type lag btn";
+            gap: 0.5rem !important;
+            background: var(--bg-secondary);
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
         }
 
-        .dep-input-type,
-        .dep-input-lag,
-        .dep-add-btn,
-        .form-col-date,
-        .form-col-duration {
+        .dep-input-task {
+            grid-area: task;
+            width: 100% !important;
+        }
+
+        .dep-input-type {
+            grid-area: type;
+            width: 100% !important;
+        }
+
+        .dep-input-lag {
+            grid-area: lag;
             width: 100% !important;
         }
 
         .dep-add-btn {
-            height: 48px;
+            grid-area: btn;
+            width: 48px !important;
+            height: 42px !important;
         }
 
-        .form-col-date,
-        .form-col-duration {
+        .form-col-date {
+            flex: 1;
+            width: auto !important;
+            padding: 0.5rem;
+            min-width: 0;
             border: none;
-            padding: 0.75rem;
+        }
+
+        .form-col-duration {
+            width: 80px !important;
+            flex: 0 0 auto;
+            border: none;
+            padding: 0.5rem;
         }
     }
 }

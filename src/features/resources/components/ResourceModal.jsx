@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Package, User, PenTool } from 'lucide-react';
+import { X, User, PenTool } from 'lucide-react';
 import { Button } from '../../../shared/components/Button';
 import { Input } from '../../../shared/components/Input';
 import './ResourceModal.css';
@@ -7,7 +7,7 @@ import './ResourceModal.css';
 export const ResourceModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
     const [formData, setFormData] = useState({
         name: '',
-        type: 'person', // person, equipment, material
+        type: 'person', // person, equipment
         role: '',
         color: '#3b82f6',
         quantity: '',
@@ -67,7 +67,6 @@ export const ResourceModal = ({ isOpen, onClose, onSubmit, initialData = null })
     const typeOptions = [
         { id: 'person', label: 'Personal', icon: User },
         { id: 'equipment', label: 'Maquinaria', icon: PenTool },
-        { id: 'material', label: 'Material', icon: Package },
     ];
 
     return (
@@ -107,39 +106,7 @@ export const ResourceModal = ({ isOpen, onClose, onSubmit, initialData = null })
                         required
                     />
 
-                    {/* Campos de cantidad y unidad - Solo para materiales */}
-                    {formData.type === 'material' && (
-                        <div className="quantity-unit-row">
-                            <div className="input-wrapper" style={{ flex: 1 }}>
-                                <label className="input-label">Cantidad</label>
-                                <input
-                                    type="number"
-                                    className="input-field"
-                                    value={formData.quantity}
-                                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                                    placeholder="0.00"
-                                    min="0"
-                                    step="0.01"
-                                />
-                            </div>
-                            <div className="input-wrapper" style={{ width: '130px' }}>
-                                <label className="input-label">Unidad</label>
-                                <select
-                                    className="input-field"
-                                    value={formData.unit}
-                                    onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
-                                >
-                                    <option value="u">u (unidades)</option>
-                                    <option value="kg">kg</option>
-                                    <option value="tn">tn (toneladas)</option>
-                                    <option value="m">m (metros)</option>
-                                    <option value="m2">m² (metros²)</option>
-                                    <option value="m3">m³ (metros³)</option>
-                                    <option value="caj">caj (cajas)</option>
-                                </select>
-                            </div>
-                        </div>
-                    )}
+
 
                     <Input
                         label={formData.type === 'person' ? "Rol / Especialidad" : "Descripción adicional"}

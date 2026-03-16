@@ -771,3 +771,38 @@ a:hover {
   border-radius: var(--radius-lg);
   transition: all var(--transition-normal);
 }
+
+/* === BOTONES EXTRA PEQUEÑOS === */
+.btn-tiny {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+.btn-tiny-primary { 
+  color: #4f46e5; 
+  background: #eef2ff; 
+  border-color: #e0e7ff; 
+}
+.btn-tiny-primary:hover { 
+  background: #e0e7ff; 
+  border-color: #c7d2fe; 
+}
+.btn-tiny-secondary { 
+  color: #64748b; 
+  background: #f8fafc; 
+  border-color: #e2e8f0; 
+}
+.btn-tiny-secondary:hover { 
+  background: #f1f5f9; 
+  color: #334155; 
+}

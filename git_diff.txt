@@ -1,0 +1,863 @@
+diff --git a/src/features/gantt/components/GanttChart.css b/src/features/gantt/components/GanttChart.css
+index 7f1bf96..308057e 100644
+--- a/src/features/gantt/components/GanttChart.css
++++ b/src/features/gantt/components/GanttChart.css
+@@ -3,23 +3,23 @@
+ .gantt-container-outer {
+     position: relative;
+     width: 100%;
+-    flex: 1; /* Ocupa el espacio disponible en project-content */
+-    min-height: 0;
++    flex: none; /* Let it stretch */
++    height: auto;
+     display: flex;
+     flex-direction: column;
+     background-image: var(--grid-pattern);
+     background-size: 24px 24px;
+-    overflow: hidden;
++    overflow: visible;
+ }
+ 
+ 
+ 
+ .gantt-scroll-container {
+     width: 100%;
+-    flex: 1;
+-    min-height: 0; /* Crucial */
++    flex: none;
++    height: auto; 
+     overflow-x: auto !important;
+-    overflow-y: auto !important;
++    overflow-y: hidden !important; /* Critical to disable inner Y scroll */
+     position: relative;
+     display: flex; /* Cambiado a flex para contener el wrapper */
+     flex-direction: column;
+@@ -336,7 +336,8 @@ div[class*="tooltipDefaultContainer"] {
+ 
+ /* Sólo aplicar la solidez para que no se trasluza cuando el JS motor traslade Y localmente. Sin dañar overflow horizontal */
+ .gantt-wrapper [class*="_3_ygE"],
+-.gantt-wrapper [class*="_CZjuD"]>svg:first-child {
++.gantt-wrapper [class*="_CZjuD"] > svg:first-child,
++.gantt-wrapper > div:last-child > svg:first-child {
+     position: relative;
+     z-index: 40 !important;
+     background-color: var(--bg-primary) !important;
+@@ -345,4 +346,11 @@ div[class*="tooltipDefaultContainer"] {
+ /* El panel lateral izquierdo encima de todo garantizado */
+ .gantt-wrapper [class*="_3_ygE"] {
+     z-index: 50 !important;
++}
++
++/* Fuerza el z-index de la cabecera personalizada izquierda */
++.gantt-list-header-custom {
++    position: relative;
++    z-index: 60 !important;
++    background-color: var(--bg-primary) !important;
+ }
+\ No newline at end of file
+diff --git a/src/features/gantt/components/GanttChart.jsx b/src/features/gantt/components/GanttChart.jsx
+index fee40e6..4d06dc6 100644
+--- a/src/features/gantt/components/GanttChart.jsx
++++ b/src/features/gantt/components/GanttChart.jsx
+@@ -257,50 +257,67 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick,
+         return () => window.removeEventListener('resize', handleResize);
+     }, []);
+ 
+-    // Motor fluido de Sticky (Evita saltos visuales en tablas e indexaciones)
++    // Sistema Sticky avanzado basado en la ventana o contenedor padre (según dispositivo)
+     useEffect(() => {
+-        const scroller = wrapperScrollRef.current;
+-        if (!scroller) return;
+-
+         let frameId;
++        
+         const handleScroll = () => {
+-            if (!ganttRef.current) return;
+-
+-            cancelAnimationFrame(frameId);
+             frameId = requestAnimationFrame(() => {
+-                if (!ganttRef.current || !scroller) return;
++                if (!ganttRef.current) return;
++                
++                const isMobile = window.innerWidth < 768;
++                // En móvil, dejamos que el CSS nativo lidie con la adherencia pues la estructura lo permite.
++                // En escritorio, usamos JS porque SVG dentro de overflow-x no se adhiere naturalmente en el eje Y.
++                // Sin embargo, si hemos sacado el overflow Y nativo arriba, este código es vital en desktop y aplicable a ambos.
+ 
+-                const ganttRect = ganttRef.current.getBoundingClientRect();
+-                const scrollerRect = scroller.getBoundingClientRect();
++                const rect = ganttRef.current.getBoundingClientRect();
++                
++                // Definir cuál es el "top" ideal según la altura de otros elementos sticky que le pasen por encima
++                let stickOffset = 0;
++                
++                // En desktop, ProjectHeader se desplaza, entonces sticky = 0 es el límite del viewport.
++                // En mobile, MobileHeader está pegado y ocupa 60px (+ 1px border).
++                if (isMobile) {
++                    stickOffset = 61; 
++                }
+ 
+-                // El offset es simplemente cuánto se ha desplazado el scroller interno
+-                let offset = scroller.scrollTop;
++                let offsetPos = stickOffset - rect.top;
+ 
+-                const maxOffset = Math.max(0, ganttRect.height - 50);
+-                if (offset > maxOffset) offset = maxOffset;
++                // Restringir el desplazamiento entre 0 y el tamaño máximo del gráfico para que no se salga por abajo
++                const maxOffset = Math.max(0, rect.height - 50);
++                if (offsetPos > maxOffset) offsetPos = maxOffset;
++                if (offsetPos < 0) offsetPos = 0;
+ 
+                 const leftHeader = ganttRef.current.querySelector('.gantt-list-header-custom');
+                 const rightHeader = ganttRef.current.querySelector('[class*="_CZjuD"] > svg:first-child');
+ 
+                 if (leftHeader) {
+-                    leftHeader.style.transform = `translateY(${Math.floor(offset)}px)`;
++                    leftHeader.style.transform = `translateY(${Math.floor(offsetPos)}px)`;
+                 }
+ 
+                 if (rightHeader) {
+-                    rightHeader.style.transform = `translateY(${Math.floor(offset)}px)`;
++                    rightHeader.style.transform = `translateY(${Math.floor(offsetPos)}px)`;
+                 }
+             });
+         };
+ 
+-        scroller.addEventListener('scroll', handleScroll, { passive: true });
+-        handleScroll();
++        // Escuchar scrollers potenciales
++        const scrollers = [
++            document.querySelector('.project-main'), 
++            window 
++        ].filter(Boolean);
++
++        scrollers.forEach(s => s.addEventListener('scroll', handleScroll, { passive: true }));
++        window.addEventListener('resize', handleScroll, { passive: true });
++
++        handleScroll(); // Inicializar
+ 
+         return () => {
+-            scroller.removeEventListener('scroll', handleScroll);
++            scrollers.forEach(s => s.removeEventListener('scroll', handleScroll));
++            window.removeEventListener('resize', handleScroll);
+             cancelAnimationFrame(frameId);
+         };
+     }, []);
+-
+     // Construir tasks con hideChildren aplicado + filtrar hijos ocultos
+     const displayTasks = useMemo(() => {
+         if (!data || data.length === 0) return [];
+@@ -519,11 +536,11 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick,
+     );
+ 
+     return (
+-        <div className="gantt-container-outer" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
++        <div className="gantt-container-outer" style={{ flex: 'none', height: 'auto', display: 'flex', flexDirection: 'column' }}>
+             <div
+                 ref={wrapperScrollRef}
+                 className="gantt-scroll-container"
+-                style={{ flex: 1, minHeight: 0, overflow: 'auto', position: 'relative' }}
++                style={{ flex: 'none', height: 'auto', overflowX: 'auto', overflowY: 'hidden', position: 'relative' }}
+             >
+                 <div
+                     ref={ganttRef}
+diff --git a/src/features/projects/components/MilestoneModal.css b/src/features/projects/components/MilestoneModal.css
+index 7f9d909..0e047d5 100644
+--- a/src/features/projects/components/MilestoneModal.css
++++ b/src/features/projects/components/MilestoneModal.css
+@@ -25,10 +25,37 @@
+         -webkit-overflow-scrolling: touch;
+     }
+ 
+-    .dependency-add-row {
++    .dep-input-row {
+         display: grid !important;
+-        grid-template-columns: 1fr 1fr auto !important;
+-        gap: 8px !important;
+-        align-items: end !important;
++        grid-template-columns: 1fr 1fr 48px;
++        grid-template-areas: 
++            "task task task"
++            "type lag btn";
++        gap: 0.5rem !important;
++        background: var(--bg-secondary);
++        padding: 0.75rem;
++        border-radius: var(--radius-md);
++        border: 1px solid var(--border-color);
++    }
++
++    .dep-input-task {
++        grid-area: task;
++        width: 100% !important;
++    }
++
++    .dep-input-type {
++        grid-area: type;
++        width: 100% !important;
++    }
++
++    .dep-input-lag {
++        grid-area: lag;
++        width: 100% !important;
++    }
++
++    .dep-add-btn {
++        grid-area: btn;
++        width: 48px !important;
++        height: 42px !important;
+     }
+ }
+\ No newline at end of file
+diff --git a/src/features/projects/components/MilestoneModal.jsx b/src/features/projects/components/MilestoneModal.jsx
+index 09aed60..e2ff9f3 100644
+--- a/src/features/projects/components/MilestoneModal.jsx
++++ b/src/features/projects/components/MilestoneModal.jsx
+@@ -6,11 +6,11 @@ import { useTasks } from '../../tasks/hooks/useTasks';
+ import { useMilestones } from '../../projects/hooks/useMilestones';
+ import { useDependencies } from '../../tasks/hooks/useDependencies';
+ import { useCategories } from '../../projects/hooks/useCategories';
+-import { calculateAutoSchedule } from '../../tasks/utils/scheduler';
++import { calculateAutoSchedule, snapToPredecessors } from '../../tasks/utils/scheduler';
+ import { format } from 'date-fns';
+ import './MilestoneModal.css';
+ 
+-export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialData = null }) => {
++export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialData = null, calendar = null }) => {
+     const { tasks, updateTasksBatch } = useTasks(projectId);
+     const { milestones, updateMilestone, deleteMilestone } = useMilestones(projectId);
+     const { dependencies, addDependency, deleteDependency } = useDependencies(projectId);
+@@ -141,28 +141,37 @@ export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialDa
+             const predecessor = tasks.find(t => t.id === newDep.fromTaskId) ||
+                 milestones.find(m => m.id === newDep.fromTaskId);
+ 
++            if (!predecessor) return;
++
+             const updatedPending = [...pendingDeps, { ...newDep, id: Date.now() }];
+             setPendingDeps(updatedPending);
+ 
+-            if (predecessor) {
+-                const predEnd = predecessor.endDate || predecessor.date;
+-                const predStart = predecessor.startDate || predecessor.date;
+-                let suggestedDate = new Date(formData.date + 'T00:00:00');
+-
+-                if (newDep.type === 'FS') {
+-                    suggestedDate = new Date(predEnd);
+-                } else if (newDep.type === 'SS') {
+-                    suggestedDate = new Date(predStart);
++            const tempMilestoneId = 'NEW_MILESTONE_TEMP_ID';
++            const itemMap = {
++                [tempMilestoneId]: {
++                    id: tempMilestoneId,
++                    _start: new Date(formData.date + 'T00:00:00'),
++                    _end: new Date(formData.date + 'T00:00:00'),
++                    duration: '0',
++                    _type: 'milestone'
++                },
++                [predecessor.id]: {
++                    id: predecessor.id,
++                    _start: new Date(predecessor.startDate || predecessor.date),
++                    _end: new Date(predecessor.endDate || predecessor.date),
++                    _type: (predecessor.startDate || predecessor.endDate) ? 'task' : 'milestone'
+                 }
++            };
+ 
+-                const currentStart = new Date(formData.date + 'T00:00:00');
+-                if (suggestedDate > currentStart) {
+-                    setFormData(prev => ({
+-                        ...prev,
+-                        date: format(suggestedDate, 'yyyy-MM-dd')
+-                    }));
+-                }
+-            }
++            const latestDep = { fromTaskId: newDep.fromTaskId, toTaskId: tempMilestoneId, type: newDep.type, lag: Number(newDep.lag || 0) };
++
++            snapToPredecessors(tempMilestoneId, itemMap, [latestDep], calendar);
++
++            const adjustedItem = itemMap[tempMilestoneId];
++            setFormData(prev => ({
++                ...prev,
++                date: format(adjustedItem._start, 'yyyy-MM-dd')
++            }));
+         }
+ 
+         setNewDep({ fromTaskId: '', type: 'FS', lag: 0 });
+@@ -257,8 +266,8 @@ export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialDa
+     return (
+         <div className="modal-overlay task-modal-overlay">
+             <div className="modal-content task-modal milestone-modal-sizing">
+-                <div className="modal-header">
+-                    <div className="flex-1">
++                <div className="modal-header" style={{ padding: 0, justifyContent: 'center' }}>
++                    <div className="flex-1 w-full" style={{ padding: 'var(--space-lg) var(--space-xl)', margin: '0 auto', maxWidth: '800px' }}>
+                         <div className="flex items-center gap-3 mb-0">
+                             <Flag className="text-slate-900" size={28} strokeWidth={2.5} />
+                             <h2 className="m-0 leading-none">{initialData ? 'Editar Hito' : 'Nuevo Hito'}</h2>
+@@ -295,17 +304,17 @@ export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialDa
+ 
+                         <div className="form-row mt-4">
+                             <div className="form-col-flex">
+-                                <div className="flex justify-between items-center mb-1">
+-                                    <label className="input-label-with-icon">
++                                <div className="flex justify-between items-center mb-2">
++                                    <label className="input-label-with-icon" style={{ marginBottom: 0 }}>
+                                         <Tag size={14} /> CATEGORÍA
+                                     </label>
+                                     {!isNewCategoryMode && (
+                                         <button
+                                             type="button"
+-                                            className="text-[10px] font-bold uppercase text-indigo-600 hover:text-indigo-800 transition-colors"
++                                            className="btn-tiny btn-tiny-primary"
+                                             onClick={() => setIsNewCategoryMode(true)}
+                                         >
+-                                            + Nueva
++                                            + NUEVA
+                                         </button>
+                                     )}
+                                 </div>
+diff --git a/src/features/projects/components/TaskModal.css b/src/features/projects/components/TaskModal.css
+index 23492a8..95b16ca 100644
+--- a/src/features/projects/components/TaskModal.css
++++ b/src/features/projects/components/TaskModal.css
+@@ -69,18 +69,23 @@
+ }
+ 
+ .modal-form {
+-    padding: var(--space-xl) var(--space-xl) var(--space-sm) var(--space-xl);
+-    display: flex;
+-    flex-direction: column;
+-    gap: 1.25rem;
++    padding: var(--space-xl) 0 var(--space-sm) 0;
+     overflow-y: auto;
+     flex: 1;
+     min-height: 0;
+     -webkit-overflow-scrolling: touch;
+     scroll-behavior: smooth;
++    width: 100%;
++}
++
++.modal-form-content {
++    display: flex;
++    flex-direction: column;
++    gap: 1.25rem;
+     max-width: 800px;
+     width: 100%;
+     margin: 0 auto;
++    padding: 0 var(--space-xl);
+ }
+ 
+ .form-section {
+@@ -343,14 +348,10 @@
+ .modal-actions-compact {
+     display: flex;
+     align-items: center;
+-    gap: 0.75rem;
+-    padding: 0.75rem 1.25rem;
+     background: var(--bg-primary);
+     border-top: 1px solid var(--border-color);
+     flex-shrink: 0;
+-    max-width: 800px;
+     width: 100%;
+-    margin: 0 auto;
+ }
+ 
+ .btn-cancel-mini {
+@@ -389,8 +390,6 @@
+ 
+ .comments-list {
+     flex: 1;
+-    overflow-y: auto;
+-    padding-right: var(--space-sm);
+ }
+ 
+ /* Scrollbar styling for comments */
+@@ -479,13 +478,15 @@
+         left: 0;
+         right: 0;
+         width: 100%;
+-        padding: 0.75rem 1rem;
+         background: var(--bg-primary);
+         border-top: 1px solid var(--border-color);
+         z-index: 1000;
+         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+-        display: flex;
+-        gap: 0.75rem;
++    }
++
++    .modal-actions-compact > div {
++        padding: 0.75rem 1rem !important;
++        gap: 0.5rem !important;
+     }
+ 
+     .btn-save-large {
+@@ -518,14 +519,17 @@
+     }
+ 
+     .modal-form {
+-        padding: 1.25rem;
+-        padding-bottom: 6.5rem;
+-        gap: 1.5rem;
++        padding: 1.25rem 0 6.5rem 0;
+         flex: 1;
+         overflow-y: auto;
+         -webkit-overflow-scrolling: touch;
+     }
+ 
++    .modal-form-content {
++        padding: 0 1.25rem;
++        gap: 1.5rem;
++    }
++
+     /* Solo en teléfonos verticales se apilan; en horizontales aguantan flex */
+     @media (orientation: portrait) {
+ 
+@@ -539,34 +543,60 @@
+         .form-row-dates {
+             display: flex !important;
+             flex-direction: row !important;
+-            flex-wrap: wrap;
+-            background: #f1f5f9;
+-            padding: 2px;
+-            gap: 2px;
++            flex-wrap: nowrap;
++            background: var(--bg-secondary);
++            padding: 4px;
++            gap: 4px;
++            border-radius: var(--radius-md);
+         }
+ 
+         .dep-input-row {
+-            background: transparent;
+-            padding: 0;
+-            border: none;
++            display: grid !important;
++            grid-template-columns: 1fr 1fr 48px;
++            grid-template-areas: 
++                "task task task"
++                "type lag btn";
++            gap: 0.5rem !important;
++            background: var(--bg-secondary);
++            padding: 0.75rem;
++            border-radius: var(--radius-md);
++            border: 1px solid var(--border-color);
+         }
+ 
+-        .dep-input-type,
+-        .dep-input-lag,
+-        .dep-add-btn,
+-        .form-col-date,
+-        .form-col-duration {
++        .dep-input-task {
++            grid-area: task;
++            width: 100% !important;
++        }
++
++        .dep-input-type {
++            grid-area: type;
++            width: 100% !important;
++        }
++
++        .dep-input-lag {
++            grid-area: lag;
+             width: 100% !important;
+         }
+ 
+         .dep-add-btn {
+-            height: 48px;
++            grid-area: btn;
++            width: 48px !important;
++            height: 42px !important;
++        }
++
++        .form-col-date {
++            flex: 1;
++            width: auto !important;
++            padding: 0.5rem;
++            min-width: 0;
++            border: none;
+         }
+ 
+-        .form-col-date,
+         .form-col-duration {
++            width: 80px !important;
++            flex: 0 0 auto;
+             border: none;
+-            padding: 0.75rem;
++            padding: 0.5rem;
+         }
+     }
+ }
+\ No newline at end of file
+diff --git a/src/features/projects/components/TaskModal.jsx b/src/features/projects/components/TaskModal.jsx
+index 2017b53..e5d4208 100644
+--- a/src/features/projects/components/TaskModal.jsx
++++ b/src/features/projects/components/TaskModal.jsx
+@@ -473,8 +473,8 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData =
+     return (
+         <div className="modal-overlay task-modal-overlay">
+             <div className="modal-content task-modal">
+-                <div className="modal-header">
+-                    <div className="flex-1">
++                <div className="modal-header" style={{ padding: 0, justifyContent: 'center' }}>
++                    <div className="flex-1 w-full" style={{ padding: 'var(--space-lg) var(--space-xl)', margin: '0 auto', maxWidth: '800px' }}>
+                         <div className="flex items-center gap-3 mb-0">
+                             <Clock style={{ color: 'var(--text-primary)' }} size={28} strokeWidth={2.5} />
+                             <h2 className="m-0 leading-none">{initialData ? 'Editar Tarea' : 'Nueva Tarea'}</h2>
+@@ -501,7 +501,8 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData =
+                 {activeTab === 'details' ? (
+                     <>
+                         <form onSubmit={handleSubmit} className="modal-form">
+-                            <Input
++                            <div className="modal-form-content">
++                                <Input
+                                 label={
+                                     <span className="input-label-with-icon">
+                                         <AlignLeft size={14} /> TAREA
+@@ -540,17 +541,17 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData =
+ 
+                             <div className="form-row">
+                                 <div className="form-col-flex">
+-                                    <div className="flex justify-between items-center mb-1">
+-                                        <label className="input-label-with-icon">
++                                    <div className="flex justify-between items-center mb-2">
++                                        <label className="input-label-with-icon" style={{ marginBottom: 0 }}>
+                                             <Tag size={14} /> CATEGORÍA
+                                         </label>
+                                         {!isNewCategoryMode && (
+                                             <button
+                                                 type="button"
+-                                                className="text-[10px] font-bold uppercase text-indigo-600 hover:text-indigo-800 transition-colors"
++                                                className="btn-tiny btn-tiny-primary"
+                                                 onClick={() => setIsNewCategoryMode(true)}
+                                             >
+-                                                + Nueva
++                                                + NUEVA
+                                             </button>
+                                         )}
+                                     </div>
+@@ -667,19 +668,19 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData =
+                             </div>
+ 
+                             <div className="input-wrapper mb-0">
+-                                <div className="flex justify-between items-end mb-1">
+-                                    <label className="input-label-with-icon mb-0">
++                                <div className="flex justify-between items-end mb-2">
++                                    <label className="input-label-with-icon" style={{ marginBottom: 0 }}>
+                                         <Users size={14} /> RECURSOS
+                                     </label>
+                                     <button
+                                         type="button"
+-                                        className="text-[10px] font-bold uppercase text-indigo-600 hover:text-indigo-800 transition-colors"
++                                        className={`btn-tiny ${isNewResourceMode ? 'btn-tiny-secondary' : 'btn-tiny-primary'}`}
+                                         onClick={() => setIsNewResourceMode(!isNewResourceMode)}
+                                     >
+-                                        {isNewResourceMode ? 'Cancelar' : '+ Nuevo Recurso'}
++                                        {isNewResourceMode ? 'CANCELAR' : '+ NUEVO RECURSO'}
+                                     </button>
+                                 </div>
+-                                <div className="resources-selector">
++                                <div className="resources-selector" style={{ marginTop: 0 }}>
+                                     {isNewResourceMode && (
+                                         <div className="bg-indigo-50/50 p-4 rounded-lg flex flex-col gap-3 border border-indigo-100 mb-4 animate-in">
+                                             <div className="flex justify-between items-center mb-1">
+@@ -700,7 +701,6 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData =
+                                                 >
+                                                     <option value="person">Persona</option>
+                                                     <option value="equipment">Maquinaria</option>
+-                                                    <option value="material">Material</option>
+                                                 </select>
+                                             </div>
+                                             <div className="flex gap-3 items-center">
+@@ -757,7 +757,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData =
+                                 <label className="input-label-with-icon">
+                                     <LinkIcon size={14} /> DEPENDENCIAS
+                                 </label>
+-                                <div className="dependencies-manager">
++                                <div className="dependencies-manager" style={{ marginTop: 0 }}>
+                                     {(initialData ? myPredecessors : pendingDeps).length > 0 && (
+                                         <div className="dependencies-list mb-4 space-y-1">
+                                             {(initialData ? myPredecessors : pendingDeps).map(dep => (
+@@ -849,9 +849,11 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData =
+                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                 />
+                             </div>
++                        </div>
+                         </form>
+-                        <div className="modal-actions-compact">
+-                            <button
++                        <div className="modal-actions-compact" style={{ padding: 0, justifyContent: 'center' }}>
++                            <div className="flex-1 w-full gap-3" style={{ padding: '0.75rem 1.25rem', margin: '0 auto', maxWidth: '800px', display: 'flex', alignItems: 'center' }}>
++                                <button
+                                 type="button"
+                                 onClick={onClose}
+                                 className="btn-cancel-mini"
+@@ -880,12 +882,14 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData =
+                             >
+                                 {initialData ? 'GUARDAR' : 'CREAR TAREA'}
+                             </Button>
++                            </div>
+                         </div>
+                     </>
+                 ) : (
+-                    <div className="comments-section p-6 flex flex-col h-[550px] bg-slate-50/50">
+-                        <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2 comments-list">
+-                            {commentsLoading ? (
++                    <div className="comments-section flex flex-col flex-1 bg-slate-50/50 w-full">
++                        <div className="flex-1 overflow-y-auto w-full">
++                            <div className="space-y-4 mb-4 pr-2 pt-6 comments-list" style={{ maxWidth: '800px', margin: '0 auto', width: '100%', padding: '1.5rem 1.5rem 0 1.5rem' }}>
++                                {commentsLoading ? (
+                                 <p className="text-center text-secondary py-4">Cargando comentarios...</p>
+                             ) : comments.length === 0 ? (
+                                 <div className="text-center py-16 text-slate-300">
+@@ -912,29 +916,32 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData =
+                                 ))
+                             )}
+                         </div>
++                        </div>
+ 
+-                        <div className="comment-input-area flex gap-3 pt-6 border-t border-slate-200 bg-transparent">
+-                            <textarea
+-                                className="input flex-1 resize-none py-3 px-4 bg-white border-slate-200 rounded-xl shadow-inner focus:shadow-none"
+-                                placeholder="Escribe una observación o actualización..."
+-                                rows={2}
+-                                value={commentText}
+-                                onChange={(e) => setCommentText(e.target.value)}
+-                                onKeyDown={(e) => {
+-                                    if (e.key === 'Enter' && !e.shiftKey) {
+-                                        e.preventDefault();
+-                                        handleAddComment();
+-                                    }
+-                                }}
+-                            />
+-                            <Button
+-                                variant="primary"
+-                                className="h-auto px-6 rounded-xl shadow-lg shadow-indigo-100"
+-                                onClick={handleAddComment}
+-                                disabled={!commentText.trim()}
+-                            >
+-                                <Send size={20} />
+-                            </Button>
++                        <div className="w-full border-t border-slate-200 bg-transparent flex justify-center">
++                            <div className="comment-input-area flex gap-3 pt-6 pb-6 w-full" style={{ maxWidth: '800px', padding: '1.5rem 1.5rem 1.5rem 1.5rem', margin: '0 auto' }}>
++                                <textarea
++                                    className="input flex-1 resize-none py-3 px-4 bg-white border-slate-200 rounded-xl shadow-inner focus:shadow-none"
++                                    placeholder="Escribe una observación o actualización..."
++                                    rows={2}
++                                    value={commentText}
++                                    onChange={(e) => setCommentText(e.target.value)}
++                                    onKeyDown={(e) => {
++                                        if (e.key === 'Enter' && !e.shiftKey) {
++                                            e.preventDefault();
++                                            handleAddComment();
++                                        }
++                                    }}
++                                />
++                                <Button
++                                    variant="primary"
++                                    className="h-auto px-6 rounded-xl shadow-lg shadow-indigo-100"
++                                    onClick={handleAddComment}
++                                    disabled={!commentText.trim()}
++                                >
++                                    <Send size={20} />
++                                </Button>
++                            </div>
+                         </div>
+                     </div>
+                 )}
+diff --git a/src/features/projects/pages/ProjectPage.css b/src/features/projects/pages/ProjectPage.css
+index 5c34709..384369a 100644
+--- a/src/features/projects/pages/ProjectPage.css
++++ b/src/features/projects/pages/ProjectPage.css
+@@ -10,10 +10,11 @@
+     display: flex;
+     flex-direction: column;
+     min-width: 0;
+-    min-height: 0; /* Crucial para flexbox */
+-    height: 100%; /* Ocupa el 100% de .project-layout */
++    min-height: 0; 
++    height: 100%; 
+     background-color: var(--bg-primary);
+-    overflow: hidden; 
++    overflow-y: auto; 
++    overflow-x: hidden;
+ }
+ 
+ /* Header padding se maneja localmente en el componente mediante inline styles */
+@@ -37,13 +38,13 @@
+ }
+ 
+ .project-content {
+-    flex: 1;
+-    min-height: 0;
++    flex: none;
++    height: auto;
+     padding: 0;
+     display: flex;
+     flex-direction: column;
+     position: relative;
+-    overflow: hidden; 
++    overflow: visible; 
+ }
+ 
+ /* Forzar a cualquier hijo directo (como el de Suspense o Tabs) a llenar el espacio */
+diff --git a/src/features/projects/pages/ProjectPage.jsx b/src/features/projects/pages/ProjectPage.jsx
+index 8633963..78f292d 100644
+--- a/src/features/projects/pages/ProjectPage.jsx
++++ b/src/features/projects/pages/ProjectPage.jsx
+@@ -475,10 +475,10 @@ export const ProjectPage = () => {
+                     )}
+                 </ProjectHeader>
+ 
+-                <div className="project-content" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
++                <div className="project-content">
+                     <Suspense fallback={<LoadingScreen />}>
+                         {activeTab === 'gantt' && (
+-                            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
++                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                 {/* Mobile View Controls */}
+                                 <div
+                                     className="mobile-only flex items-center justify-between p-2 w-full overflow-x-auto shrink-0 mobile-view-controls"
+@@ -708,6 +708,7 @@ export const ProjectPage = () => {
+                     onSubmit={handleMilestoneSubmit}
+                     projectId={projectId}
+                     initialData={editingMilestone}
++                    calendar={project.calendar}
+                 />
+ 
+                 <ResourceModal
+diff --git a/src/features/resources/components/ResourceModal.jsx b/src/features/resources/components/ResourceModal.jsx
+index 619c83b..300202e 100644
+--- a/src/features/resources/components/ResourceModal.jsx
++++ b/src/features/resources/components/ResourceModal.jsx
+@@ -1,5 +1,5 @@
+ import { useState, useEffect } from 'react';
+-import { X, Package, User, PenTool } from 'lucide-react';
++import { X, User, PenTool } from 'lucide-react';
+ import { Button } from '../../../shared/components/Button';
+ import { Input } from '../../../shared/components/Input';
+ import './ResourceModal.css';
+@@ -7,7 +7,7 @@ import './ResourceModal.css';
+ export const ResourceModal = ({ isOpen, onClose, onSubmit, initialData = null }) => {
+     const [formData, setFormData] = useState({
+         name: '',
+-        type: 'person', // person, equipment, material
++        type: 'person', // person, equipment
+         role: '',
+         color: '#3b82f6',
+         quantity: '',
+@@ -67,7 +67,6 @@ export const ResourceModal = ({ isOpen, onClose, onSubmit, initialData = null })
+     const typeOptions = [
+         { id: 'person', label: 'Personal', icon: User },
+         { id: 'equipment', label: 'Maquinaria', icon: PenTool },
+-        { id: 'material', label: 'Material', icon: Package },
+     ];
+ 
+     return (
+@@ -107,39 +106,7 @@ export const ResourceModal = ({ isOpen, onClose, onSubmit, initialData = null })
+                         required
+                     />
+ 
+-                    {/* Campos de cantidad y unidad - Solo para materiales */}
+-                    {formData.type === 'material' && (
+-                        <div className="quantity-unit-row">
+-                            <div className="input-wrapper" style={{ flex: 1 }}>
+-                                <label className="input-label">Cantidad</label>
+-                                <input
+-                                    type="number"
+-                                    className="input-field"
+-                                    value={formData.quantity}
+-                                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+-                                    placeholder="0.00"
+-                                    min="0"
+-                                    step="0.01"
+-                                />
+-                            </div>
+-                            <div className="input-wrapper" style={{ width: '130px' }}>
+-                                <label className="input-label">Unidad</label>
+-                                <select
+-                                    className="input-field"
+-                                    value={formData.unit}
+-                                    onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+-                                >
+-                                    <option value="u">u (unidades)</option>
+-                                    <option value="kg">kg</option>
+-                                    <option value="tn">tn (toneladas)</option>
+-                                    <option value="m">m (metros)</option>
+-                                    <option value="m2">m² (metros²)</option>
+-                                    <option value="m3">m³ (metros³)</option>
+-                                    <option value="caj">caj (cajas)</option>
+-                                </select>
+-                            </div>
+-                        </div>
+-                    )}
++
+ 
+                     <Input
+                         label={formData.type === 'person' ? "Rol / Especialidad" : "Descripción adicional"}
+diff --git a/src/index.css b/src/index.css
+index 0739206..1900046 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -770,4 +770,39 @@ a:hover {
+   border: 1px solid var(--border-color);
+   border-radius: var(--radius-lg);
+   transition: all var(--transition-normal);
++}
++
++/* === BOTONES EXTRA PEQUEÑOS === */
++.btn-tiny {
++  font-size: 10px;
++  font-weight: 800;
++  text-transform: uppercase;
++  padding: 4px 10px;
++  border-radius: var(--radius-md);
++  display: inline-flex;
++  align-items: center;
++  justify-content: center;
++  height: 26px;
++  transition: all var(--transition-fast);
++  border: 1px solid transparent;
++  cursor: pointer;
++  letter-spacing: 0.05em;
++}
++.btn-tiny-primary { 
++  color: #4f46e5; 
++  background: #eef2ff; 
++  border-color: #e0e7ff; 
++}
++.btn-tiny-primary:hover { 
++  background: #e0e7ff; 
++  border-color: #c7d2fe; 
++}
++.btn-tiny-secondary { 
++  color: #64748b; 
++  background: #f8fafc; 
++  border-color: #e2e8f0; 
++}
++.btn-tiny-secondary:hover { 
++  background: #f1f5f9; 
++  color: #334155; 
+ }
+\ No newline at end of file
+diff --git a/vite.config.js b/vite.config.js
+index 811fb42..cb8dd7f 100644
+--- a/vite.config.js
++++ b/vite.config.js
+@@ -1,6 +1,7 @@
+ import { defineConfig } from 'vite'
+ import react from '@vitejs/plugin-react'
+ import { VitePWA } from 'vite-plugin-pwa'
++import path from 'path'
+ 
+ // https://vite.dev/config/
+ export default defineConfig({
+@@ -33,6 +34,10 @@ export default defineConfig({
+     })
+   ],
+   resolve: {
++    alias: {
++      react: path.resolve(__dirname, 'node_modules/react'),
++      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
++    },
+     dedupe: ['react', 'react-dom', 'firebase']
+   },
+   build: {

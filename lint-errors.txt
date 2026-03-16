@@ -1,0 +1,180 @@
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\scripts\clean-netlify-false-positives.js
+  14:31  error  'process' is not defined  no-undef
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\0035701d322e9b38aa559844367b0463cd38f8352f497c032f50a86aee8d60fd.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\025159fa5d9fb3661298fddf11d08d909b678ee802b9e973dbe9db42ef82507f.js
+  1:2  error  Parsing error: Unexpected character '´┐¢'
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\0ead5376a722d74b07e405bcb18ec5dac27a40bf9dd121a3da6a9e3939bcc0f3.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\199b0e294440c822e9047acef98d8d80ff5a7e6d79e8962de72a19cdba70cabc.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\1bc43f4721bf06e56776aa1a8663293f8c69c1f4831a8bddc5151a86f4a6ae87.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\2b9b7bfb14a89f6666542805682359004612aa2f1f433675e6e94e3638eb0f44.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\500bfabcf9ccc7ddbdcd41981a48cd8e33bdd5c285b6d82ad6f095bfcad5c874.js
+  1:6  error  Parsing error: Unexpected character '´┐¢'
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\5351407d3eb5c325a58318fef09efdf637dc717eeec0fe899f9109876031b402.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\5a6bf337fcc803448352f77a0110085e9c68092c317cc81740ca217d1d7350b4.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\6fccf5162d3e08b9dfcc769bf8b2dff16356bfd8b1d8d69d1a8d778be0b2f4be.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\70cb6652ad723d2c5e8ffe5ab9f809d1fd992c81ac4a0c0335e5575931792a35.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\70e00a7191fc00081a72796a69714d3f2767e0b757bd41a9392dff9d89d6fab3.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\7d887ed0713ca3a486f3f8a3e2c12ed251b46b3eba7adb44758aaa082bb59acb.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\80124076114e24f2ce767ac8edd03b0990f6dd83b31ae11f9fd5011e2e604c8c.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\94378ea98097f934717e5a07b519c5925c880c85176213992fc30052f0ceb2e6.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\97da71b557f0ed372b9ce2446d045358533589afde8260aa987ed4eb4982688d.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\9b17f44ce53193ed288fa1ceb067c5bbba3634a49efd76c2d35c36430d14f89a.js
+  1:3  error  Parsing error: Unexpected character '´┐¢'
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\a17a1800cda81c756707c7bf873bb502d81f8b6aa5873f25018e4b6dc15bc847.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\a61a748ed0dd2531326ef7f57dbf57cb9856d18e6d3a3828c4557e5df2eeb831.js
+  1:3  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\ae186f6dbf3353956e0b58aad55a1626d9511a6338df1557aa2a5414147a4818.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src-tauri\target\release\build\app-184f5ff1ebb0899d\out\tauri-codegen-assets\da70da6368a5273c7c63fd02ef11c69a1e1dec652beb7ca70f68985460c5a5ef.js
+  1:1  error  Parsing error: Unexpected character ''
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\auth\AuthContext.jsx
+   18:14  error    Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+  139:8   warning  React Hook useEffect has a missing dependency: 'loading'. Either include it or remove the dependency array                      react-hooks/exhaustive-deps
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\dashboard\DashboardPage.jsx
+  20:13  error  'projects' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u         no-unused-vars
+  20:32  error  'projectsLoading' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\dashboard\hooks\useGlobalSummary.js
+  18:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  16 |     useEffect(() => {
+  17 |         if (!user) {
+> 18 |             setMilestones([]);
+     |             ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  19 |             setCriticalTasks([]);
+  20 |             setLoading(false);
+  21 |             return;  react-hooks/set-state-in-effect
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\gantt\components\GanttChart.jsx
+  475:48  error  'mutations' is defined but never used  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\gantt\hooks\useGanttData.js
+  7:25  error  'isParentTask' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\MilestoneModal.jsx
+  64:8  warning  React Hook useEffect has a missing dependency: 'categories'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\ProjectHeader.jsx
+  6:70  error  'milestones' is assigned a value but never used                                              no-unused-vars
+  7:20  error  'toggleTheme' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\ProjectList.jsx
+  15:24  error  'setSearchTerm' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\ProjectMembers.jsx
+  17:24  error  'isOwner' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\ProjectModal.jsx
+  20:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  18 |             document.body.classList.add('modal-open');
+  19 |             if (initialData) {
+> 20 |                 setFormData({
+     |                 ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  21 |                     name: initialData.name,
+  22 |                     description: initialData.description || '',
+  23 |                     emoji: initialData.emoji || '­ƒÅù´©Å'  react-hooks/set-state-in-effect
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\components\TaskModal.jsx
+   12:18  error  'addDays' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                   no-unused-vars
+   12:27  error  'startOfDay' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                no-unused-vars
+   14:10  error  'adjustToWorkingDay' is defined but never used. Allowed unused vars must match /^[A-Z_]/u        no-unused-vars
+  241:15  error  'currentDuration' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\hooks\useProjectPermissions.js
+  26:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  24 |         if (currentMember) {
+  25 |             const role = currentMember.role;
+> 26 |             setPermissions({
+     |             ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  27 |                 isOwner: role === 'owner',
+  28 |                 canEdit: role === 'owner' || role === 'editor',
+  29 |                 canInvite: role === 'owner' || role === 'editor',  react-hooks/set-state-in-effect
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\hooks\useProjects.test.js
+   1:27  error  'waitFor' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                 no-unused-vars
+   2:48  error  'afterEach' is defined but never used. Allowed unused vars must match /^[A-Z_]/u               no-unused-vars
+  56:13  error  'uidCallback' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u    no-unused-vars
+  56:26  error  'emailCallback' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\projects\pages\ProjectPage.jsx
+   3:10  error  'format' is defined but never used. Allowed unused vars must match /^[A-Z_]/u            no-unused-vars
+   4:10  error  'es' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                no-unused-vars
+  43:13  error  'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  68:22  error  'isOwner' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\tasks\hooks\useTasks.js
+  10:5   error  'updateDoc' is defined but never used. Allowed unused vars must match /^[A-Z_]/u                   no-unused-vars
+  67:19  error  'processedTriggers' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\features\tasks\utils\scheduler.js
+   1:32  error  'addDays' is defined but never used. Allowed unused vars must match /^[A-Z_]/u             no-unused-vars
+   2:46  error  'adjustToWorkingDay' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  79:11  error  'visited' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u    no-unused-vars
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\src\shared\context\ThemeContext.jsx
+  5:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+D:\Users\Usuario\Documents\TRABAJO\PROYECTOS\GANTTAGRAM\tmp\test-cycles.js
+  24:5  error  'process' is not defined  no-undef
+
+Ô£û 55 problems (53 errors, 2 warnings)
+

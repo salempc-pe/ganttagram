@@ -540,17 +540,17 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
 
                             <div className="form-row">
                                 <div className="form-col-flex">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <label className="input-label-with-icon">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label className="input-label-with-icon" style={{ marginBottom: 0 }}>
                                             <Tag size={14} /> CATEGORÍA
                                         </label>
                                         {!isNewCategoryMode && (
                                             <button
                                                 type="button"
-                                                className="text-[10px] font-bold uppercase text-indigo-600 hover:text-indigo-800 transition-colors"
+                                                className="btn-tiny btn-tiny-primary"
                                                 onClick={() => setIsNewCategoryMode(true)}
                                             >
-                                                + Nueva
+                                                + NUEVA
                                             </button>
                                         )}
                                     </div>
@@ -667,19 +667,19 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                             </div>
 
                             <div className="input-wrapper mb-0">
-                                <div className="flex justify-between items-end mb-1">
-                                    <label className="input-label-with-icon mb-0">
+                                <div className="flex justify-between items-end mb-2">
+                                    <label className="input-label-with-icon" style={{ marginBottom: 0 }}>
                                         <Users size={14} /> RECURSOS
                                     </label>
                                     <button
                                         type="button"
-                                        className="text-[10px] font-bold uppercase text-indigo-600 hover:text-indigo-800 transition-colors"
+                                        className={`btn-tiny ${isNewResourceMode ? 'btn-tiny-secondary' : 'btn-tiny-primary'}`}
                                         onClick={() => setIsNewResourceMode(!isNewResourceMode)}
                                     >
-                                        {isNewResourceMode ? 'Cancelar' : '+ Nuevo Recurso'}
+                                        {isNewResourceMode ? 'CANCELAR' : '+ NUEVO RECURSO'}
                                     </button>
                                 </div>
-                                <div className="resources-selector">
+                                <div className="resources-selector" style={{ marginTop: 0 }}>
                                     {isNewResourceMode && (
                                         <div className="bg-indigo-50/50 p-4 rounded-lg flex flex-col gap-3 border border-indigo-100 mb-4 animate-in">
                                             <div className="flex justify-between items-center mb-1">
@@ -700,7 +700,6 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                                 >
                                                     <option value="person">Persona</option>
                                                     <option value="equipment">Maquinaria</option>
-                                                    <option value="material">Material</option>
                                                 </select>
                                             </div>
                                             <div className="flex gap-3 items-center">
@@ -757,7 +756,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                 <label className="input-label-with-icon">
                                     <LinkIcon size={14} /> DEPENDENCIAS
                                 </label>
-                                <div className="dependencies-manager">
+                                <div className="dependencies-manager" style={{ marginTop: 0 }}>
                                     {(initialData ? myPredecessors : pendingDeps).length > 0 && (
                                         <div className="dependencies-list mb-4 space-y-1">
                                             {(initialData ? myPredecessors : pendingDeps).map(dep => (
