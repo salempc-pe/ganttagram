@@ -45,4 +45,13 @@
 - Etiquetas legibles fuera de barras en modo claro y oscuro.
 - No hay parpadeos ni retrasos notables al desplazar el Gantt.
 
+### Phase 5: Deuda Técnica
+**Status**: ⬜ Not Started
+**Objective**: Resolver la deuda técnica encontrada durante la inspección del código base (/map), específicamente el recálculo recursivo de todos los ancestros de una tarea en hierarchy.js.
+**Depends on**: Phase 4
 
+**Tasks**:
+- [ ] TBD (run /plan 5 to create)
+
+**Verification**:
+- TBD

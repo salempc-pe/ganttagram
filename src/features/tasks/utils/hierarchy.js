@@ -87,20 +87,22 @@ export function calculateParentData(parentId, tasks, calendar = null) {
 }
 
 /**
- * Recalcula recursivamente TODOS los ancestros de una tarea dada.
+ * Recalcula recursivamente todos los ancestros de una tarea dada.
  * Retorna un mapa { taskId: { startDate, endDate, progress } } con los cambios necesarios.
  * 
- * NOTA: Aplica los cambios al array `tasks` in-place para que los cálculos
- * de niveles superiores reflejen los cambios de niveles inferiores.
+ * NOTA: Esta función es pura y no muta el arreglo de entrada.
  */
 export function recalculateAncestors(taskId, tasks, calendar = null) {
     const updates = {};
     const ancestorIds = getAncestorIds(taskId, tasks);
     const taskMap = new Map(tasks.map(t => [t.id, t]));
+    
+    // Arreglo temporal de trabajo para no mutar el original
+    const workingTasks = [...tasks];
 
     // Recorrer desde el padre más cercano hacia arriba
     for (const ancestorId of ancestorIds) {
-        const parentData = calculateParentData(ancestorId, tasks, calendar);
+        const parentData = calculateParentData(ancestorId, workingTasks, calendar);
 
         if (!parentData) continue;
 
@@ -116,10 +118,12 @@ export function recalculateAncestors(taskId, tasks, calendar = null) {
         if (startChanged || endChanged || progressChanged) {
             updates[ancestorId] = parentData;
 
-            // Actualizar in-place para que la siguiente iteración (abuelo) use datos frescos
-            currentTask.startDate = parentData.startDate;
-            currentTask.endDate = parentData.endDate;
-            currentTask.progress = parentData.progress;
+            // En lugar de mutar in-place, actualizamos el array de trabajo
+            // para que la siguiente iteración (abuelo) vea los datos frescos de este ancestro
+            const tIdx = workingTasks.findIndex(t => t.id === ancestorId);
+            if (tIdx !== -1) {
+                workingTasks[tIdx] = { ...workingTasks[tIdx], ...parentData };
+            }
         }
     }
 
