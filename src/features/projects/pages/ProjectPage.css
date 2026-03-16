@@ -102,11 +102,12 @@
     .project-content {
         padding: 0;
         padding-bottom: 96px; /* Espacio para el MobileNav tradicional abajo */
-        flex: 1;
+        flex: 1 0 auto;
         display: flex;
         flex-direction: column;
-        min-height: 0;
-        overflow: hidden;
+        min-height: max-content;
+        overflow-y: visible;
+        overflow-x: hidden;
     }
 }
 
@@ -114,7 +115,8 @@
 @media (max-width: 767px) and (orientation: landscape) {
     .project-layout {
         flex-direction: row;
-        /* NavLateral (MobileNav) a un lado, contenido al otro */
+        height: 100dvh;
+        overflow: hidden;
     }
 
     .project-header {
@@ -126,12 +128,16 @@
         display: flex;
         flex-direction: column;
         overflow-y: auto;
-        /* El Nav flotará encima del gráfico, dándole una mejor estética */
+        overflow-x: hidden;
+        position: relative;
     }
 
     .project-content {
         padding: 0;
+        flex: 1 0 auto;
+        min-height: max-content;
         overflow-y: visible;
+        overflow-x: hidden;
         display: flex;
         flex-direction: column;
     }

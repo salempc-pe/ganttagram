@@ -346,3 +346,14 @@ div[class*="tooltipDefaultContainer"] {
 .gantt-wrapper [class*="_3_ygE"] {
     z-index: 50 !important;
 }
+
+@media (max-width: 767px) {
+    .gantt-scroll-container {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .gantt-scroll-container::-webkit-scrollbar {
+        display: none;
+    }
+}

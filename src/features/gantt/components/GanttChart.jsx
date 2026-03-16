@@ -91,6 +91,8 @@ const TooltipContent = ({ task }) => {
 };
 
 const CustomTaskListHeader = ({ headerHeight }) => {
+    const isMobile = window.innerWidth <= 767;
+
     return (
         <div
             className="gantt-list-header-custom"
@@ -112,8 +114,8 @@ const CustomTaskListHeader = ({ headerHeight }) => {
             }}
         >
             <div className="gantt-header-item" style={{ flex: '1', paddingLeft: '16px' }}>Partida / Tarea</div>
-            <div className="gantt-header-item" style={{ width: '80px', textAlign: 'center' }}>Inicio</div>
-            <div className="gantt-header-item" style={{ width: '80px', textAlign: 'center' }}>Fin</div>
+            {!isMobile && <div className="gantt-header-item" style={{ width: '80px', textAlign: 'center' }}>Inicio</div>}
+            {!isMobile && <div className="gantt-header-item" style={{ width: '80px', textAlign: 'center' }}>Fin</div>}
         </div>
     );
 };
@@ -130,6 +132,8 @@ const formatDate = (date) => {
 };
 
 const CustomTaskListTable = ({ rowHeight, tasks, fontSize, onExpanderClick }) => {
+    const isMobile = window.innerWidth <= 767;
+
     return (
         <div style={{ fontFamily: 'var(--font-main)', fontSize: fontSize, background: 'var(--bg-primary)' }}>
             {tasks.map((task) => {
@@ -206,28 +210,32 @@ const CustomTaskListTable = ({ rowHeight, tasks, fontSize, onExpanderClick }) =>
                                 {task._rawName || task.name}
                             </span>
                         </div>
-                        <div className="gantt-list-cell" style={{
-                            width: '80px',
-                            textAlign: 'center',
-                            color: 'var(--text-secondary)',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            fontFamily: 'var(--font-main)',
-                            fontVariantNumeric: 'tabular-nums' // UI/UX Polish
-                        }}>
-                            {formatDate(task.start)}
-                        </div>
-                        <div className="gantt-list-cell" style={{
-                            width: '80px',
-                            textAlign: 'center',
-                            color: 'var(--text-secondary)',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            fontFamily: 'var(--font-main)',
-                            fontVariantNumeric: 'tabular-nums' // UI/UX Polish
-                        }}>
-                            {isMilestone ? '-' : formatDate(task.end)}
-                        </div>
+                        {!isMobile && (
+                            <div className="gantt-list-cell" style={{
+                                width: '80px',
+                                textAlign: 'center',
+                                color: 'var(--text-secondary)',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                fontFamily: 'var(--font-main)',
+                                fontVariantNumeric: 'tabular-nums' // UI/UX Polish
+                            }}>
+                                {formatDate(task.start)}
+                            </div>
+                        )}
+                        {!isMobile && (
+                            <div className="gantt-list-cell" style={{
+                                width: '80px',
+                                textAlign: 'center',
+                                color: 'var(--text-secondary)',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                fontFamily: 'var(--font-main)',
+                                fontVariantNumeric: 'tabular-nums' // UI/UX Polish
+                            }}>
+                                {isMilestone ? '-' : formatDate(task.end)}
+                            </div>
+                        )}
                     </div>
                 );
             })}
@@ -259,8 +267,8 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
 
     // Motor fluido de Sticky (Evita saltos visuales en tablas e indexaciones)
     useEffect(() => {
-        const scroller = wrapperScrollRef.current;
-        if (!scroller) return;
+        const localScroller = wrapperScrollRef.current;
+        const mainScroller = document.querySelector('.project-main');
 
         let frameId;
         const handleScroll = () => {
@@ -268,15 +276,26 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
 
             cancelAnimationFrame(frameId);
             frameId = requestAnimationFrame(() => {
-                if (!ganttRef.current || !scroller) return;
+                if (!ganttRef.current) return;
 
-                const ganttRect = ganttRef.current.getBoundingClientRect();
-                const scrollerRect = scroller.getBoundingClientRect();
+                const isMobile = window.innerWidth <= 767;
+                let offset = 0;
 
-                // El offset es simplemente cuánto se ha desplazado el scroller interno
-                let offset = scroller.scrollTop;
+                if (isMobile && mainScroller) {
+                    // La cabecera gigante ".mobile-view-controls" está justo encima.
+                    // En lugar de getBoundingClientRect(), miramos cuánto ha hecho scroll el usuario
+                    // Si el scroll supera el alto de los controles superiores (aprox 56px), empezamos a aplicar sticky
+                    const controls = document.querySelector('.mobile-view-controls');
+                    const threshold = controls ? controls.offsetHeight : 0;
+                    
+                    if (mainScroller.scrollTop > threshold) {
+                        offset = mainScroller.scrollTop - threshold;
+                    }
+                } else if (localScroller) {
+                    offset = localScroller.scrollTop;
+                }
 
-                const maxOffset = Math.max(0, ganttRect.height - 50);
+                const maxOffset = Math.max(0, ganttRef.current.getBoundingClientRect().height - 50);
                 if (offset > maxOffset) offset = maxOffset;
 
                 const leftHeader = ganttRef.current.querySelector('.gantt-list-header-custom');
@@ -284,19 +303,26 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
 
                 if (leftHeader) {
                     leftHeader.style.transform = `translateY(${Math.floor(offset)}px)`;
+                    leftHeader.style.zIndex = '60';
                 }
 
                 if (rightHeader) {
                     rightHeader.style.transform = `translateY(${Math.floor(offset)}px)`;
+                    rightHeader.style.zIndex = '60';
                 }
             });
         };
 
-        scroller.addEventListener('scroll', handleScroll, { passive: true });
+        if (localScroller) localScroller.addEventListener('scroll', handleScroll, { passive: true });
+        if (mainScroller) mainScroller.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('resize', handleScroll);
+        
         handleScroll();
 
         return () => {
-            scroller.removeEventListener('scroll', handleScroll);
+            if (localScroller) localScroller.removeEventListener('scroll', handleScroll);
+            if (mainScroller) mainScroller.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('resize', handleScroll);
             cancelAnimationFrame(frameId);
         };
     }, []);
