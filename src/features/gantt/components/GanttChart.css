@@ -367,7 +367,7 @@ div[class*="tooltipDefaultContainer"] {
     }
 
     /* Panel Izquierdo (Lista de Tareas) */
-    .gantt-wrapper > div > div:first-child {
+    .gantt-wrapper > div:first-child {
         position: sticky !important;
         left: 0;
         z-index: 60 !important; /* Aumentamos z-index para estar sobre las lineas */

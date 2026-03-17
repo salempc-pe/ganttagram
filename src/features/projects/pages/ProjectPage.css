@@ -110,12 +110,17 @@
     }
 
     .mobile-view-controls {
-        position: sticky;
+        position: fixed !important;
+        top: 0;
         left: 0;
         width: 100vw !important;
         max-width: 100vw !important;
         box-sizing: border-box;
-        z-index: 70;
+        z-index: 80 !important;
+    }
+
+    .gantt-container-outer {
+        margin-top: 57px !important; /* Altura aproximada del header fijo */
     }
 }
 
@@ -151,14 +156,19 @@
     }
 
     .mobile-view-controls {
-        position: sticky;
+        position: fixed !important;
+        top: 0;
         left: 0;
         width: 100vw !important;
         max-width: 100vw !important;
         box-sizing: border-box;
         padding-right: 88px !important;
         /* Salva los botones del solapamiento con el menú lateral flotante */
-        z-index: 70;
+        z-index: 80 !important;
+    }
+
+    .gantt-container-outer {
+        margin-top: 57px !important; /* Altura aproximada del header fijo */
     }
 }
 
