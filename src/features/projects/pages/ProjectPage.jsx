@@ -481,7 +481,7 @@ export const ProjectPage = () => {
                             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 {/* Mobile View Controls */}
                                 <div
-                                    className="mobile-only flex items-center justify-between p-2 w-full overflow-x-auto shrink-0 mobile-view-controls"
+                                    className="mobile-only flex items-center justify-between p-2 overflow-x-auto shrink-0 mobile-view-controls"
                                     style={{
                                         background: 'var(--bg-primary)',
                                         borderBottom: '1px solid var(--border-color)'

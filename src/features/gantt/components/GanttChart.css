@@ -397,13 +397,4 @@ div[class*="tooltipDefaultContainer"] {
         z-index: 45 !important;
         background: var(--bg-primary);
     }
-    
-    .gantt-scroll-container {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    
-    .gantt-scroll-container::-webkit-scrollbar {
-        display: none;
-    }
 }
