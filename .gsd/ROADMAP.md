@@ -55,3 +55,14 @@
 
 **Verification**:
 - [x] VERIFICATION.md (PASS)
+
+### Phase 6: Rediseño de Visualización Móvil
+**Status**: ⬜ Not Started
+**Objective**: Optimizar el espacio del Gantt en móviles. Al desplazar verticalmente u horizontalmente, ocultar la cabecera y los botones (hitos, días), manteniendo visible solo la fila de títulos de tareas y fechas para maximizar el área de visualización del Gantt.
+**Depends on**: Phase 5
+
+**Tasks**:
+- [ ] TBD (run /plan 6 to create)
+
+**Verification**:
+- TBD
