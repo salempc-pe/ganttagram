@@ -282,14 +282,14 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                 const isMobile = window.innerWidth <= 767;
                 let offset = 0;
 
-                if (isMobile && mainScroller) {
-                    const mainRect = mainScroller.getBoundingClientRect();
-                    const ganttRect = ganttRef.current.getBoundingClientRect();
-                    // Cuánto el gantt ha subido más allá del tope visible del mainScroller
-                    const pushUp = mainRect.top - ganttRect.top;
-                    if (pushUp > 0) {
-                        offset = pushUp;
-                    }
+                if (isMobile) {
+                    // Mobile is now handled gracefully 100% by CSS position: sticky
+                    // Limpiamos los transforms por si acaso cambió desde desktop
+                    const leftHeader = ganttRef.current.querySelector('.gantt-list-header-custom');
+                    const rightHeader = ganttRef.current.querySelector('[class*="_CZjuD"] > svg:first-child');
+                    if (leftHeader) leftHeader.style.transform = '';
+                    if (rightHeader) rightHeader.style.transform = '';
+                    return;
                 } else if (localScroller) {
                     offset = localScroller.scrollTop;
                 }

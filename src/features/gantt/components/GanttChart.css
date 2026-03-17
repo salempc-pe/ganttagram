@@ -348,6 +348,31 @@ div[class*="tooltipDefaultContainer"] {
 }
 
 @media (max-width: 767px) {
+    .gantt-container-outer,
+    .gantt-scroll-container,
+    .gantt-wrapper {
+        min-height: 0;
+        height: auto !important; /* Grow based on content */
+        overflow-y: visible !important;
+        flex: none !important;
+    }
+
+    /* 🔥 El Santo Grial del Sticky en Móvil 🔥 */
+    /* Hacemos que la cabecera lateral sea sticky */
+    .gantt-list-header-custom {
+        position: sticky !important;
+        top: 0;
+        z-index: 60 !important;
+    }
+
+    /* Hacemos que el SVG del top calendar (el de arriba) sea sticky */
+    .gantt-wrapper [class*="_CZjuD"] > svg:first-child {
+        position: sticky !important;
+        top: 0;
+        z-index: 55 !important;
+        background: var(--bg-primary); /* Para que no se transparente en scroll */
+    }
+    
     .gantt-scroll-container {
         scrollbar-width: none;
         -ms-overflow-style: none;

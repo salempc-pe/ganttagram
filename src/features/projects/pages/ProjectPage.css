@@ -101,7 +101,6 @@
 
     .project-content {
         padding: 0;
-        padding-bottom: 96px; /* Espacio para el MobileNav tradicional abajo */
         flex: 1 0 auto;
         display: flex;
         flex-direction: column;

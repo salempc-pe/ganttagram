@@ -475,10 +475,10 @@ export const ProjectPage = () => {
                     )}
                 </ProjectHeader>
 
-                <div className="project-content" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div className="project-content" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <Suspense fallback={<LoadingScreen />}>
                         {activeTab === 'gantt' && (
-                            <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                                 {/* Mobile View Controls */}
                                 <div
                                     className="mobile-only flex items-center justify-between p-2 w-full overflow-x-auto shrink-0 mobile-view-controls"
