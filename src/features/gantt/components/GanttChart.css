@@ -385,7 +385,7 @@ div[class*="tooltipDefaultContainer"] {
     }
 
     /* Cabecera Derecha Arriba (Fechas del Calendario) */
-    .gantt-wrapper svg:first-child {
+    .gantt-wrapper [class*="_CZjuD"] {
         position: sticky !important;
         top: 0;
         z-index: 45 !important;
