@@ -282,14 +282,14 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                 const isMobile = window.innerWidth <= 767;
                 let offset = 0;
 
-                if (isMobile) {
-                    // Mobile is now handled gracefully 100% by CSS position: sticky
-                    // Limpiamos los transforms por si acaso cambió desde desktop
-                    const leftHeader = ganttRef.current.querySelector('.gantt-list-header-custom');
-                    const rightHeader = ganttRef.current.querySelector('[class*="_CZjuD"] > svg:first-child');
-                    if (leftHeader) leftHeader.style.transform = '';
-                    if (rightHeader) rightHeader.style.transform = '';
-                    return;
+                if (isMobile && mainScroller) {
+                    const mainRect = mainScroller.getBoundingClientRect();
+                    const ganttRect = ganttRef.current.getBoundingClientRect();
+                    // Cuánto el gantt ha subido más allá del tope visible del mainScroller
+                    const pushUp = mainRect.top - ganttRect.top;
+                    if (pushUp > 0) {
+                        offset = pushUp;
+                    }
                 } else if (localScroller) {
                     offset = localScroller.scrollTop;
                 }
@@ -298,7 +298,10 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                 if (offset > maxOffset) offset = maxOffset;
 
                 const leftHeader = ganttRef.current.querySelector('.gantt-list-header-custom');
-                const rightHeader = ganttRef.current.querySelector('[class*="_CZjuD"] > svg:first-child');
+                // Encontrar con solidez el SVG correcto del calendario. Sabemos que su height es el establecido (45px)
+                const rightHeader = Array.from(ganttRef.current.querySelectorAll('svg')).find(svg => 
+                    parseInt(svg.getAttribute('height')) === 45 || (svg.parentElement && svg.parentElement.className.includes('calendar'))
+                ) || ganttRef.current.querySelector('[class*="_CZjuD"] > svg:first-child');
 
                 if (leftHeader) {
                     leftHeader.style.transform = `translateY(${Math.floor(offset)}px)`;
@@ -308,6 +311,10 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                 if (rightHeader) {
                     rightHeader.style.transform = `translateY(${Math.floor(offset)}px)`;
                     rightHeader.style.zIndex = '60';
+                    // Fijar el background al padre para que no transparente en el SVG
+                    if (rightHeader.parentElement) {
+                         rightHeader.parentElement.style.zIndex = '55';
+                    }
                 }
             });
         };

@@ -2,19 +2,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: rgba(255, 255, 255, 0.96);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: var(--bg-primary, #ffffff);
+    border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.05));
     position: fixed;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
+    bottom: 0;
+    left: 0;
+    right: 0;
     height: 64px;
-    border-radius: 20px;
+    padding-bottom: env(safe-area-inset-bottom);
     z-index: 1000;
-    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.12);
-    padding: 0 4px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .mobile-nav-item {
@@ -58,13 +55,16 @@
 @media (max-width: 767px) and (orientation: landscape) {
     .mobile-nav {
         flex-direction: column;
-        top: 12px;
-        right: 12px;
-        bottom: 12px;
+        top: 0;
+        right: 0;
+        bottom: 0;
         left: auto;
-        width: 64px;
-        height: auto;
-        padding: 4px 0;
+        width: 72px;
+        height: 100%;
+        padding: 12px 0;
+        border-top: none;
+        border-left: 1px solid var(--border-color, rgba(0, 0, 0, 0.05));
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.04);
     }
 
     .mobile-nav-item {
@@ -76,9 +76,9 @@
 
 /* === DARK MODE === */
 :root[data-theme="dark"] .mobile-nav {
-    background-color: rgba(15, 23, 42, 0.95);
+    background-color: var(--bg-primary, #0f172a);
     border-color: #1e293b;
-    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
 }
 
 :root[data-theme="dark"] .mobile-nav-item {

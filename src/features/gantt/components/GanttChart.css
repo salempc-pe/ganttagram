@@ -357,20 +357,10 @@ div[class*="tooltipDefaultContainer"] {
         flex: none !important;
     }
 
-    /* 🔥 El Santo Grial del Sticky en Móvil 🔥 */
-    /* Hacemos que la cabecera lateral sea sticky */
-    .gantt-list-header-custom {
-        position: sticky !important;
-        top: 0;
-        z-index: 60 !important;
-    }
-
-    /* Hacemos que el SVG del top calendar (el de arriba) sea sticky */
-    .gantt-wrapper [class*="_CZjuD"] > svg:first-child {
-        position: sticky !important;
-        top: 0;
-        z-index: 55 !important;
-        background: var(--bg-primary); /* Para que no se transparente en scroll */
+    /* Javascript engine handles translations dynamically due to CSS dual-axis overflow limitations */
+    .gantt-list-header-custom,
+    .gantt-wrapper svg {
+        position: relative;
     }
     
     .gantt-scroll-container {
