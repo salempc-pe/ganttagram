@@ -53,3 +53,14 @@ next-prompt.md
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Frameworks y Herramientas adicionales
+.eslintcache
+coverage/
+build/
+.firebase/
+firebase-debug.log*
+.netlify/
+
+# Archivos de certificados
+*.pem
