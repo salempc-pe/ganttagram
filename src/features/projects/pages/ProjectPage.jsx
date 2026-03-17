@@ -58,6 +58,9 @@ export const ProjectPage = () => {
     const [editingMilestone, setEditingMilestone] = useState(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isConfirmDeleteProjectOpen, setIsConfirmDeleteProjectOpen] = useState(false);
+    
+    // Estado para ocultar cabecera/botones al hacer scroll en móvil en el Gantt
+    const [isScrolled, setIsScrolled] = useState(false);
 
     const { tasks, addTask, updateTask, updateTasksBatch } = useTasks(projectId);
     const { updateProject, deleteProject } = useProjects();
@@ -339,7 +342,7 @@ export const ProjectPage = () => {
     if (!project) return <div className="flex justify-center p-8">Proyecto no encontrado</div>;
 
     return (
-        <div className="project-layout">
+        <div className={`project-layout ${isScrolled && activeTab === 'gantt' ? 'is-scrolled' : ''}`}>
             <MobileHeader
                 projectName={project.name}
                 onMenuClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -577,6 +580,7 @@ export const ProjectPage = () => {
                                     onDoubleClick={handleGanttDoubleClick}
                                     onTaskChange={handleGanttTaskChange}
                                     readOnly={!canEdit}
+                                    onScrollStateChange={setIsScrolled}
                                 />
                             </div>
                         )}

@@ -14,6 +14,7 @@
     height: 100%; /* Ocupa el 100% de .project-layout */
     background-color: var(--bg-primary);
     overflow: hidden; 
+    transition: all 0.3s ease; /* Transición para cuando cambia de altura */
 }
 
 /* Header padding se maneja localmente en el componente mediante inline styles */
@@ -122,6 +123,17 @@
         max-width: 100% !important;
         box-sizing: border-box;
         z-index: 80 !important;
+        
+        /* Animación suave */
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.3s ease;
+        transform-origin: top;
+    }
+
+    .project-layout.is-scrolled .mobile-view-controls {
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        position: absolute !important; /* Para que deje de ocupar su espacio y el Gantt suba */
     }
 }
 
@@ -171,6 +183,23 @@
         padding-right: 88px !important;
         /* Salva los botones del solapamiento con el menú lateral flotante */
         z-index: 80 !important;
+        
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    }
+
+    /* Ocultar elementos en landscape si hay scroll */
+    .project-layout.is-scrolled .mobile-header-pro {
+        transform: translateY(-100%);
+        margin-bottom: -56px; /* Ajustar esto según el alto de la cabecera */
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .project-layout.is-scrolled .mobile-view-controls {
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        position: absolute !important; /* Para que deje de ocupar su espacio */
     }
 }
 

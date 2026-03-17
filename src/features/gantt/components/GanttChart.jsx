@@ -244,7 +244,7 @@ const CustomTaskListTable = ({ rowHeight, tasks, fontSize, onExpanderClick }) =>
     );
 };
 
-export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, readOnly = false, onTaskChange }) => {
+export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, readOnly = false, onTaskChange, onScrollStateChange }) => {
     const { data, loading } = useGanttData(projectId);
 
     // Estado local para manejar expand/collapse
@@ -256,6 +256,35 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
 
     // Estado para mostrar/ocultar la lista (en móvil empieza visible)
     const [isListVisible, setIsListVisible] = useState(true);
+
+    // Añadir listener de scroll para ocultar elementos al bajar (para móviles)
+    useEffect(() => {
+        const scrollContainer = wrapperScrollRef.current;
+        if (!scrollContainer || !onScrollStateChange) return;
+
+        let lastScrollTop = 0;
+        let ticking = false;
+
+        const handleScroll = () => {
+            lastScrollTop = scrollContainer.scrollTop;
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    // Si el scroll supera los 20px, consideramos que está "scrolled"
+                    const isScrolled = lastScrollTop > 20;
+                    onScrollStateChange(isScrolled);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        // Escuchar el evento de scroll
+        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            scrollContainer.removeEventListener('scroll', handleScroll);
+        };
+    }, [onScrollStateChange]);
 
     // Actualizar visibilidad si cambia el tamaño de ventana
     useEffect(() => {
