@@ -105,9 +105,14 @@
         flex: 1 0 auto;
         display: flex;
         flex-direction: column;
-        min-height: max-content;
-        overflow-y: visible;
-        overflow-x: hidden;
+        overflow: visible;
+    }
+
+    .mobile-view-controls {
+        position: sticky;
+        left: 0;
+        width: 100vw;
+        z-index: 40;
     }
 }
 
@@ -137,15 +142,18 @@
         padding-right: 72px; /* Espacio para el menú lateral en landscape */
         flex: 1 0 auto;
         min-height: max-content;
-        overflow-y: visible;
-        overflow-x: hidden;
+        overflow: visible;
         display: flex;
         flex-direction: column;
     }
 
     .mobile-view-controls {
+        position: sticky;
+        left: 0;
+        width: 100vw;
         padding-right: 88px !important;
         /* Salva los botones del solapamiento con el menú lateral flotante */
+        z-index: 40;
     }
 }
 

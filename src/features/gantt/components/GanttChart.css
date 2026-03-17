@@ -352,15 +352,44 @@ div[class*="tooltipDefaultContainer"] {
     .gantt-scroll-container,
     .gantt-wrapper {
         min-height: 0;
-        height: auto !important; /* Grow based on content */
-        overflow-y: visible !important;
+        height: auto !important;
+        overflow: visible !important;
         flex: none !important;
     }
 
-    /* Javascript engine handles translations dynamically due to CSS dual-axis overflow limitations */
-    .gantt-list-header-custom,
-    .gantt-wrapper svg {
-        position: relative;
+    /* 
+       🔥 Holy Grail: Full 2D CSS Sticky 🔥
+       Desactivamos el overflow-x de la librería para que el scroll horizontal
+       se paseedea por toda la app, permitiendo position: sticky sin trampas
+    */
+    .gantt-wrapper > div {
+        overflow: visible !important;
+    }
+
+    /* Panel Izquierdo (Lista de Tareas) */
+    .gantt-wrapper > div:first-child {
+        position: sticky !important;
+        left: 0;
+        z-index: 50 !important;
+        background: var(--bg-primary);
+        box-shadow: 4px 0 12px rgba(0, 0, 0, 0.05); /* Sombra para separar del gráfico */
+        flex-shrink: 0;
+    }
+
+    /* Cabecera Izquierda Arriba (Partida/Tarea) */
+    .gantt-list-header-custom {
+        position: sticky !important;
+        top: 0;
+        z-index: 60 !important;
+        background: var(--bg-primary);
+    }
+
+    /* Cabecera Derecha Arriba (Fechas del Calendario) */
+    .gantt-wrapper svg:first-child {
+        position: sticky !important;
+        top: 0;
+        z-index: 45 !important;
+        background: var(--bg-primary);
     }
     
     .gantt-scroll-container {
