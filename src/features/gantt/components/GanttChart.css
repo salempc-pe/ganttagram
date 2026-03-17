@@ -397,4 +397,14 @@ div[class*="tooltipDefaultContainer"] {
         z-index: 45 !important;
         background: var(--bg-primary);
     }
+
+    .gantt-scroll-container {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        overflow-x: auto !important;
+        overflow-y: visible !important; /* Delega su vertical al project-main que tiene hidden el horizontal */
+    }
+    .gantt-scroll-container::-webkit-scrollbar {
+        display: none;
+    }
 }
