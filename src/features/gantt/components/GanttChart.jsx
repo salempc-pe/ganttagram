@@ -113,7 +113,7 @@ const CustomTaskListHeader = ({ headerHeight }) => {
                 zIndex: 60
             }}
         >
-            <div className="gantt-header-item" style={{ flex: '1', paddingLeft: '16px' }}>Partida / Tarea</div>
+            <div className="gantt-header-item" style={{ flex: '1', paddingLeft: '16px', paddingRight: '12px' }}>Partida / Tarea</div>
             {!isMobile && <div className="gantt-header-item" style={{ width: '80px', textAlign: 'center' }}>Inicio</div>}
             {!isMobile && <div className="gantt-header-item" style={{ width: '80px', textAlign: 'center' }}>Fin</div>}
         </div>
@@ -162,6 +162,7 @@ const CustomTaskListTable = ({ rowHeight, tasks, fontSize, onExpanderClick }) =>
                             style={{
                                 flex: '1',
                                 paddingLeft: `${indent}px`,
+                                paddingRight: '12px',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap',
@@ -282,14 +283,12 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                 let offset = 0;
 
                 if (isMobile && mainScroller) {
-                    // La cabecera gigante ".mobile-view-controls" está justo encima.
-                    // En lugar de getBoundingClientRect(), miramos cuánto ha hecho scroll el usuario
-                    // Si el scroll supera el alto de los controles superiores (aprox 56px), empezamos a aplicar sticky
-                    const controls = document.querySelector('.mobile-view-controls');
-                    const threshold = controls ? controls.offsetHeight : 0;
-                    
-                    if (mainScroller.scrollTop > threshold) {
-                        offset = mainScroller.scrollTop - threshold;
+                    const mainRect = mainScroller.getBoundingClientRect();
+                    const ganttRect = ganttRef.current.getBoundingClientRect();
+                    // Cuánto el gantt ha subido más allá del tope visible del mainScroller
+                    const pushUp = mainRect.top - ganttRect.top;
+                    if (pushUp > 0) {
+                        offset = pushUp;
                     }
                 } else if (localScroller) {
                     offset = localScroller.scrollTop;
