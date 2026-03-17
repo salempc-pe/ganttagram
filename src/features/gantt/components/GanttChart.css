@@ -384,8 +384,14 @@ div[class*="tooltipDefaultContainer"] {
         background: var(--bg-primary);
     }
 
+    /* Romper el overflow escondido que trae por defecto la librería */
+    .gantt-wrapper [class*="_CZjuD"],
+    .gantt-wrapper [class*="_2B2zv"] {
+        overflow: visible !important;
+    }
+
     /* Cabecera Derecha Arriba (Fechas del Calendario) */
-    .gantt-wrapper [class*="_CZjuD"] {
+    .gantt-wrapper [class*="_CZjuD"] > svg:first-child {
         position: sticky !important;
         top: 0;
         z-index: 45 !important;
