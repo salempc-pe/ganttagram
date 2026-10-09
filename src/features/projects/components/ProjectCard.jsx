@@ -1,45 +1,70 @@
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { Settings2, Calendar, Copy, Trash2, Pencil, Building } from 'lucide-react';
+import { Settings2, Calendar, Copy, Trash2, Building2 } from 'lucide-react';
 import './ProjectCard.css';
 
 export const ProjectCard = ({ project, onOpen, onDelete, onDuplicate, onEdit }) => {
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onOpen(project.id);
+        }
+    };
+
+    const formattedDate = project.updatedAt
+        ? format(project.updatedAt?.toDate ? project.updatedAt.toDate() : new Date(project.updatedAt), "d MMM yyyy", { locale: es })
+        : 'ACTIVO';
+
+    const safeProjectId = project.id ? String(project.id).substring(0, 4).toUpperCase() : '0000';
+
     return (
-        <div className="project-card group" onClick={() => onOpen(project.id)}>
+        <div
+            className="project-card group"
+            onClick={() => onOpen(project.id)}
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
+            role="button"
+            aria-label={`Proyecto ${project.name}, actualizado ${formattedDate}`}
+        >
             <div className="project-card-header">
                 <div className="project-visual">
-                    <span className="project-emoji text-2xl">{project.emoji || '🏗️'}</span>
+                    <div className="project-icon-badge">
+                        <Building2 size={20} className="text-primary" aria-hidden="true" />
+                    </div>
                 </div>
                 <div className="project-actions">
                     <button
                         className="icon-btn"
                         onClick={(e) => {
                             e.stopPropagation();
-                            onEdit();
+                            onEdit(project);
                         }}
+                        aria-label={`Configurar proyecto ${project.name}`}
                         title="Configurar proyecto"
                     >
-                        <Settings2 size={16} />
+                        <Settings2 size={16} aria-hidden="true" />
                     </button>
                     <button
                         className="icon-btn"
                         onClick={(e) => {
                             e.stopPropagation();
-                            if (confirm('¿Deseas duplicar este proyecto?')) onDuplicate(project.id);
+                            onDuplicate(project);
                         }}
+                        aria-label={`Duplicar proyecto ${project.name}`}
                         title="Duplicar proyecto"
                     >
-                        <Copy size={16} />
+                        <Copy size={16} aria-hidden="true" />
                     </button>
                     <button
                         className="icon-btn text-error"
                         onClick={(e) => {
                             e.stopPropagation();
-                            if (confirm('¿Estás seguro de eliminar este proyecto?')) onDelete(project.id);
+                            onDelete(project);
                         }}
+                        aria-label={`Eliminar proyecto ${project.name}`}
                         title="Eliminar proyecto"
                     >
-                        <Trash2 size={16} />
+                        <Trash2 size={16} aria-hidden="true" />
                     </button>
                 </div>
             </div>
@@ -52,17 +77,12 @@ export const ProjectCard = ({ project, onOpen, onDelete, onDuplicate, onEdit }) 
             </div>
 
             <div className="project-card-footer">
-                <div className="project-meta">
-                    <Calendar size={12} />
-                    <span>
-                        {project.updatedAt ?
-                            format(project.updatedAt?.toDate ? project.updatedAt.toDate() : new Date(project.updatedAt), "d MMM yyyy", { locale: es }) :
-                            'ACTIVO'
-                        }
-                    </span>
+                <div className="project-meta font-tech">
+                    <Calendar size={13} aria-hidden="true" />
+                    <span>{formattedDate}</span>
                 </div>
-                <div className="project-tag-id">
-                    PROYECTO-{project.id.substring(0, 4).toUpperCase()}
+                <div className="project-tag-id font-tech">
+                    PROYECTO-{safeProjectId}
                 </div>
             </div>
         </div>

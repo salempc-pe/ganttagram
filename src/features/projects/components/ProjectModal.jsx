@@ -16,15 +16,17 @@ export const ProjectModal = ({ isOpen, onClose, onSubmit, initialData = null }) 
         if (isOpen) {
             document.documentElement.classList.add('modal-open');
             document.body.classList.add('modal-open');
-            if (initialData) {
-                setFormData({
-                    name: initialData.name,
-                    description: initialData.description || '',
-                    emoji: initialData.emoji || '🏗️'
-                });
-            } else {
-                setFormData({ name: '', description: '', emoji: '🏗️' });
-            }
+            Promise.resolve().then(() => {
+                if (initialData) {
+                    setFormData({
+                        name: initialData.name,
+                        description: initialData.description || '',
+                        emoji: initialData.emoji || '🏗️'
+                    });
+                } else {
+                    setFormData({ name: '', description: '', emoji: '🏗️' });
+                }
+            });
         }
         return () => {
             document.documentElement.classList.remove('modal-open');

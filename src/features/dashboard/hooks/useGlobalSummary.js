@@ -15,13 +15,17 @@ export const useGlobalSummary = () => {
 
     useEffect(() => {
         if (!user) {
-            setMilestones([]);
-            setCriticalTasks([]);
-            setLoading(false);
+            Promise.resolve().then(() => {
+                setMilestones([]);
+                setCriticalTasks([]);
+                setLoading(false);
+            });
             return;
         }
 
-        setLoading(true);
+        Promise.resolve().then(() => {
+            setLoading(true);
+        });
 
         // 1. Obtener los proyectos que el usuario posee
         // (En el futuro esto debería incluir proyectos donde es miembro)

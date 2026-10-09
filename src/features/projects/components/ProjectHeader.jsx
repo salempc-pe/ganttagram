@@ -3,8 +3,8 @@ import { ListTodo, Calendar, TrendingUp, Sun, Moon } from 'lucide-react';
 import { differenceInDays } from 'date-fns';
 import { useTheme } from '../../../shared/context/ThemeContext';
 
-export const ProjectHeader = ({ project, tasks = [], resources = [], milestones = [], children }) => {
-    const { theme, toggleTheme } = useTheme();
+export const ProjectHeader = ({ project, tasks = [], resources = [], children }) => {
+    const { theme } = useTheme();
     const stats = useMemo(() => {
         const totalProgress = tasks.reduce((acc, t) => acc + (parseInt(t.progress) || 0), 0);
         const avgProgress = tasks.length > 0 ? Math.round(totalProgress / tasks.length) : 0;

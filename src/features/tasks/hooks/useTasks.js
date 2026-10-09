@@ -7,7 +7,6 @@ import {
     onSnapshot,
     addDoc,
     doc,
-    updateDoc,
     writeBatch,
     getDocs,
     serverTimestamp
@@ -64,7 +63,6 @@ export const useTasks = (projectId) => {
             });
 
             const finalUpdates = { ...initialUpdates };
-            const processedTriggers = new Set();
             let queue = Object.keys(initialUpdates);
             let iterations = 0;
             const maxIterations = Math.max(50, tasks.length * 2);

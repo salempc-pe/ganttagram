@@ -8,6 +8,7 @@ import { useDependencies } from '../../tasks/hooks/useDependencies';
 import { useCategories } from '../../projects/hooks/useCategories';
 import { calculateAutoSchedule, snapToPredecessors } from '../../tasks/utils/scheduler';
 import { format } from 'date-fns';
+import { ConfirmModal } from '../../../shared/components/ConfirmModal';
 import './MilestoneModal.css';
 
 export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialData = null, calendar = null }) => {
@@ -30,6 +31,7 @@ export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialDa
     const [newDep, setNewDep] = useState({ fromTaskId: '', type: 'FS', lag: 0 });
     const [pendingDeps, setPendingDeps] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -61,6 +63,7 @@ export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialDa
             document.documentElement.classList.remove('modal-open');
             document.body.classList.remove('modal-open');
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialData, isOpen]);
 
     if (!isOpen) return null;
@@ -185,18 +188,19 @@ export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialDa
         }
     };
 
-    const handleDelete = async () => {
+    const handleDelete = () => {
         if (!initialData) return;
+        setIsConfirmDeleteOpen(true);
+    };
 
-        if (window.confirm("¿Estás seguro de que deseas eliminar este hito?")) {
-            setLoading(true);
-            const result = await deleteMilestone(initialData.id);
-            setLoading(false);
-            if (result.success) {
-                onClose();
-            } else {
-                alert('Error al eliminar: ' + result.error);
-            }
+    const confirmDeleteAction = async () => {
+        setLoading(true);
+        const result = await deleteMilestone(initialData.id);
+        setLoading(false);
+        if (result.success) {
+            onClose();
+        } else {
+            alert('Error al eliminar: ' + result.error);
         }
     };
 
@@ -493,6 +497,15 @@ export const MilestoneModal = ({ isOpen, onClose, onSubmit, projectId, initialDa
                     </Button>
                 </div>
             </div>
+            <ConfirmModal
+                isOpen={isConfirmDeleteOpen}
+                onClose={() => setIsConfirmDeleteOpen(false)}
+                onConfirm={confirmDeleteAction}
+                title="¿Eliminar Hito?"
+                message="¿Estás seguro de que deseas eliminar este hito? Esta acción es definitiva y no se puede deshacer."
+                confirmText="Eliminar"
+                variant="danger"
+            />
         </div>
     );
 };

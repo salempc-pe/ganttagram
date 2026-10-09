@@ -1,31 +1,39 @@
-/* Gantt Override Styles - Technical Blueprint */
+/* ============================================================
+   GANTTAGRAM — GanttChart Styles
+   El cronograma usa JavaScript para mantener sus cabeceras
+   pegadas al tope de .project-main mientras el usuario desplaza.
+   El scroll horizontal es propio; el vertical lo toma project-main.
+   ============================================================ */
 
+/* === CONTENEDOR EXTERNO === */
 .gantt-container-outer {
     position: relative;
     width: 100%;
-    flex: 1; /* Ocupa el espacio disponible en project-content */
+    flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
     background-image: var(--grid-pattern);
     background-size: 24px 24px;
-    overflow: hidden;
+    overflow: hidden; /* Clip horizontal para el scroll interno */
 }
 
-
-
+/* === CONTENEDOR DE SCROLL HORIZONTAL === */
 .gantt-scroll-container {
     width: 100%;
     flex: 1;
-    min-height: 0; /* Crucial */
+    min-height: 0;
+    /* Solo scroll horizontal — el vertical lo maneja .project-main */
     overflow-x: auto !important;
-    overflow-y: auto !important;
+    overflow-y: visible !important;
     position: relative;
-    display: flex; /* Cambiado a flex para contener el wrapper */
+    display: flex;
     flex-direction: column;
     -webkit-overflow-scrolling: touch;
+    cursor: grab;
 }
 
+/* === WRAPPER INTERNO DEL GANTT === */
 .gantt-wrapper {
     position: relative;
     background: transparent;
@@ -33,10 +41,108 @@
     flex: 1;
     min-height: 0;
     min-width: fit-content;
-    overflow: visible;
+    overflow: visible; /* Permite que las cabeceras salgan del clip con transform */
 }
 
-/* List Column Styles */
+/* === COMPORTAMIENTO EN DESKTOP ===
+   En desktop el gantt-container-outer ocupa el height completo
+   y el scroll vertical lo hace project-main.
+*/
+.gantt-container-outer,
+.gantt-wrapper {
+    flex: 1 !important;
+    min-height: 0;
+    height: 100% !important;
+}
+
+/* === COMPORTAMIENTO EN MOBILE ===
+   En mobile todo se expande en altura natural (no fixed height)
+   para que project-main pueda hacer el scroll.
+*/
+@media (max-width: 767px) {
+    .gantt-container-outer,
+    .gantt-scroll-container,
+    .gantt-wrapper {
+        min-height: 0 !important;
+        height: auto !important;
+        flex: none !important;
+        overflow: visible !important;
+    }
+    .gantt-scroll-container {
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .gantt-scroll-container::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* === STICKY HORIZONTAL: Panel Izquierdo (Lista de Tareas) ===
+   El div izquierdo de la librería se pega horizontalmente.
+*/
+.gantt-wrapper > div {
+    overflow: visible !important;
+}
+
+.gantt-wrapper > div:first-child {
+    position: sticky !important;
+    left: 0;
+    z-index: 60 !important;
+    background: var(--bg-primary);
+    box-shadow: 4px 0 12px rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+}
+
+/* === CABECERA IZQUIERDA (Partida / Tarea / Inicio / Fin) ===
+   El JS le aplica translateY para que siga el scroll vertical.
+   Necesita position: relative para que transform funcione.
+*/
+.gantt-list-header-custom {
+    position: relative;
+    z-index: 70 !important;
+    background: var(--bg-primary);
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    contain: layout style;
+}
+
+/* === CABECERAS DE LA LIBRERÍA — SOLIDEZ ===
+   Las cabeceras SVG de la librería necesitan fondo sólido
+   para que no se transparente el contenido al deslizar.
+*/
+.gantt-wrapper [class*="_3_ygE"],
+.gantt-wrapper [class*="_CZjuD"] > svg:first-child {
+    position: relative;
+    z-index: 40 !important;
+    background-color: var(--bg-primary) !important;
+}
+
+.gantt-wrapper [class*="_3_ygE"] {
+    z-index: 50 !important;
+}
+
+/* === CABECERA DERECHA (Fechas del Calendario) ===
+   El JS le aplica translateY para que siga el scroll vertical.
+*/
+.gantt-wrapper [class*="_CZjuD"] > svg:first-child {
+    z-index: 45 !important;
+    background: var(--bg-primary);
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    contain: layout style;
+}
+
+/* Romper overflow oculto de la librería para que nuestro translateY funcione */
+.gantt-wrapper [class*="_CZjuD"],
+.gantt-wrapper [class*="_2B2zv"] {
+    overflow: visible !important;
+}
+
+/* === ESTILOS DE LA COLUMNA DE LISTA === */
 .gantt-wrapper ._3_y5_ {
     transition: width 0.3s ease, opacity 0.3s ease !important;
     border-right: 2px solid var(--border-color);
@@ -49,23 +155,61 @@
     border-right: none !important;
 }
 
-.gantt-list-header {
-    background-color: var(--bg-secondary) !important;
-    font-family: var(--font-title) !important;
-    text-transform: uppercase;
-    font-size: 0.65rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.05em;
-    border-bottom: 2px solid var(--border-color) !important;
-}
-
 .gantt-list-row {
     font-family: var(--font-main);
     font-size: 0.75rem;
     border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease !important;
 }
 
-/* Tooltip Styles - Technical Blueprint */
+.gantt-list-row:hover {
+    background-color: var(--bg-secondary);
+}
+
+.gantt-list-row span {
+    transition: color 0.2s ease;
+}
+
+.gantt-list-row:hover span {
+    color: var(--sidebar-active);
+}
+
+/* === JERARQUÍA: FILAS PADRE === */
+.gantt-parent-row {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.03), transparent) !important;
+}
+
+.gantt-parent-row:hover {
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.06), transparent) !important;
+}
+
+.gantt-expander:hover {
+    background: rgba(99, 102, 241, 0.15) !important;
+    transform: scale(1.1);
+}
+
+/* === STATE EMPTY === */
+.gantt-empty {
+    padding: var(--space-xl);
+    margin: var(--space-lg);
+    background: var(--bg-primary);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: var(--space-sm);
+    color: var(--text-primary);
+}
+
+.gantt-empty p:first-child {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* === TOOLTIP === */
 .gantt-tooltip {
     background: #ffffff !important;
     border-radius: var(--radius-sm) !important;
@@ -79,7 +223,6 @@
     pointer-events: none !important;
 }
 
-/* Fuerza absoluta sobre los encapsuladores de la librería gantt-task-react */
 div[class*="tooltipDetailsContainer"] {
     pointer-events: none !important;
     transform: translateY(25px) !important;
@@ -182,60 +325,7 @@ div[class*="tooltipDefaultContainer"] {
     font-family: var(--font-tech);
 }
 
-/* --- Subtask Hierarchy Styles --- */
-
-.gantt-parent-row {
-    background: linear-gradient(90deg, rgba(99, 102, 241, 0.03), transparent) !important;
-}
-
-.gantt-parent-row:hover {
-    background: linear-gradient(90deg, rgba(99, 102, 241, 0.06), transparent) !important;
-}
-
-.gantt-expander:hover {
-    background: rgba(99, 102, 241, 0.15) !important;
-    transform: scale(1.1);
-}
-
-/* --- Row Interactions --- */
-.gantt-list-row {
-    transition: background-color 0.2s ease !important;
-}
-
-.gantt-list-row:hover {
-    background-color: var(--bg-secondary);
-}
-
-.gantt-list-row span {
-    transition: color 0.2s ease;
-}
-
-.gantt-list-row:hover span {
-    color: var(--sidebar-active);
-}
-
-/* --- Empty State --- */
-.gantt-empty {
-    padding: var(--space-2xl);
-    margin: var(--space-xl);
-    background: var(--bg-primary);
-    border: 1px dashed var(--border-color);
-    border-radius: var(--radius-lg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: var(--space-sm);
-    color: var(--text-primary);
-}
-
-.gantt-empty p:first-child {
-    font-weight: 700;
-    font-size: 1.1rem;
-}
-
-/* === ESTILOS PARA TAREAS PADRE (CORCHETES DE PROYECTO) === */
+/* === BARRA DE TAREAS PADRE (CORCHETES DE PROYECTO) === */
 .projectWrapper .projectBackground {
     fill: transparent !important;
     stroke: var(--text-secondary) !important;
@@ -248,13 +338,12 @@ div[class*="tooltipDefaultContainer"] {
     fill: var(--text-secondary) !important;
 }
 
-/* Asegurar legibilidad del texto en el Gantt */
+/* === LEGIBILIDAD DEL TEXTO EN BARRAS === */
 .gantt-wrapper text.barLabel {
-    fill: var(--text-primary); /* Fallback */
+    fill: var(--text-primary);
     font-family: var(--font-title) !important;
     font-weight: 700 !important;
     font-size: 12px !important;
-    /* Halo de legibilidad base */
     paint-order: stroke fill;
     stroke: var(--bg-primary);
     stroke-width: 1px;
@@ -264,13 +353,14 @@ div[class*="tooltipDefaultContainer"] {
     pointer-events: none;
 }
 
-/* Fallback inicial para modo oscuro */
 :root[data-theme="dark"] .gantt-wrapper text.barLabel {
     fill: #ffffff;
     stroke: rgba(15, 23, 42, 0.5);
 }
 
-/* === MODOS OSCUROS PARA GANTT-TASK-REACT SVG === */
+/* ============================================================
+   DARK MODE OVERRIDES PARA GANTT-TASK-REACT SVG
+   ============================================================ */
 :root[data-theme="dark"] .gantt-wrapper ._2dZTy {
     fill: var(--bg-primary) !important;
 }
@@ -298,13 +388,12 @@ div[class*="tooltipDefaultContainer"] {
     stroke: var(--border-color) !important;
 }
 
-/* Tooltip Card Overrides */
 :root[data-theme="dark"] .gantt-tooltip {
     background: var(--bg-secondary) !important;
     border-color: var(--border-color) !important;
 }
 
-/* === BRUTE FORCE SVG OVERRIDES FOR MISSING CLASSES === */
+/* Brute-force override para elementos sin clase semántica */
 :root[data-theme="dark"] .gantt-wrapper svg rect[fill="#ffffff"],
 :root[data-theme="dark"] .gantt-wrapper svg rect[fill="#fff"],
 :root[data-theme="dark"] .gantt-wrapper svg rect[fill="white"] {
@@ -332,79 +421,14 @@ div[class*="tooltipDefaultContainer"] {
     fill: var(--text-primary) !important;
 }
 
-/* === JS STICKY HEADERS OVERLAYS === */
-
-/* Sólo aplicar la solidez para que no se trasluza cuando el JS motor traslade Y localmente. Sin dañar overflow horizontal */
-.gantt-wrapper [class*="_3_ygE"],
-.gantt-wrapper [class*="_CZjuD"]>svg:first-child {
-    position: relative;
-    z-index: 40 !important;
-    background-color: var(--bg-primary) !important;
-}
-
-/* El panel lateral izquierdo encima de todo garantizado */
-.gantt-wrapper [class*="_3_ygE"] {
-    z-index: 50 !important;
-}
-
-@media (max-width: 767px) {
-    .gantt-container-outer,
-    .gantt-scroll-container,
-    .gantt-wrapper {
-        min-height: 0;
-        height: auto !important;
-        overflow: visible !important;
-        flex: none !important;
-    }
-
-    /* 
-       🔥 Holy Grail: Full 2D CSS Sticky 🔥
-       Desactivamos el overflow-x de la librería para que el scroll horizontal
-       se paseedea por toda la app, permitiendo position: sticky sin trampas
-    */
-    .gantt-wrapper > div {
-        overflow: visible !important;
-    }
-
-    /* Panel Izquierdo (Lista de Tareas) */
-    .gantt-wrapper > div:first-child {
-        position: sticky !important;
-        left: 0;
-        z-index: 60 !important; /* Aumentamos z-index para estar sobre las lineas */
-        background: var(--bg-primary);
-        box-shadow: 4px 0 12px rgba(0, 0, 0, 0.05); /* Sombra para separar del gráfico */
-        flex-shrink: 0;
-    }
-
-    /* Cabecera Izquierda Arriba (Partida/Tarea) */
-    .gantt-list-header-custom {
-        position: sticky !important;
-        top: 0;
-        z-index: 60 !important;
-        background: var(--bg-primary);
-    }
-
-    /* Romper el overflow escondido que trae por defecto la librería */
-    .gantt-wrapper [class*="_CZjuD"],
-    .gantt-wrapper [class*="_2B2zv"] {
-        overflow: visible !important;
-    }
-
-    /* Cabecera Derecha Arriba (Fechas del Calendario) */
-    .gantt-wrapper [class*="_CZjuD"] > svg:first-child {
-        position: sticky !important;
-        top: 0;
-        z-index: 45 !important;
-        background: var(--bg-primary);
-    }
-
-    .gantt-scroll-container {
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-        overflow-x: auto !important;
-        overflow-y: visible !important; /* Delega su vertical al project-main que tiene hidden el horizontal */
-    }
-    .gantt-scroll-container::-webkit-scrollbar {
-        display: none;
-    }
+/* ============================================================
+   Bloquear el tirador de redimensión izquierdo del Gantt
+   ============================================================ */
+.gantt-wrapper svg g rect[class*="_3w_5u"]:first-of-type,
+.gantt-wrapper svg g rect[class*="handle"]:first-of-type,
+.gantt-wrapper svg g rect.bar-handle:first-of-type {
+    pointer-events: none !important;
+    cursor: default !important;
+    opacity: 0 !important;
+    display: none !important;
 }

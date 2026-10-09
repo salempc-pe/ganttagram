@@ -21,8 +21,8 @@ export const ProjectSidebar = ({ activeTab, onTabChange }) => {
     const menuItems = [
         { id: 'gantt', label: 'Cronograma', icon: CalendarIcon },
         { id: 'list', label: 'Lista de Tareas', icon: List },
+        { id: 'board', label: 'Kanban', icon: Layout },
         { id: 'recursos', label: 'Recursos', icon: Briefcase },
-        { id: 'board', label: 'Kanban', icon: Layout }, // Futuro
         { id: 'team', label: 'Equipo', icon: Users },
         { id: 'settings', label: 'Configuración', icon: Settings },
     ];

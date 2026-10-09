@@ -14,7 +14,7 @@ const ROLE_CONFIG = {
 export const ProjectMembers = ({ projectId }) => {
     const { user } = useAuth();
     const { members, loading, addMember, updateMemberRole, removeMember } = useMembers(projectId);
-    const { canInvite, isOwner } = useProjectPermissions(projectId);
+    const { canInvite } = useProjectPermissions(projectId);
 
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteRole, setInviteRole] = useState('editor');

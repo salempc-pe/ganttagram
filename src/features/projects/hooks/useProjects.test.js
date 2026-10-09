@@ -1,5 +1,5 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { useProjects } from './useProjects';
 import { useAuth } from '../../auth/AuthContext';
 import * as firestore from 'firebase/firestore';
@@ -9,25 +9,48 @@ vi.mock('../../auth/AuthContext', () => ({
     useAuth: vi.fn()
 }));
 
-vi.mock('../../../services/firebase/config', () => ({
-    db: {}
-}));
+vi.mock('../../../services/firebase/config', () => {
+    if (!globalThis.__mockFirestore) {
+        globalThis.__mockFirestore = {
+            collection: vi.fn(),
+            query: vi.fn(),
+            where: vi.fn(),
+            onSnapshot: vi.fn(),
+            addDoc: vi.fn(),
+            deleteDoc: vi.fn(),
+            doc: vi.fn(),
+            getDoc: vi.fn(),
+            getDocs: vi.fn(),
+            serverTimestamp: vi.fn(() => 'mock-timestamp'),
+            updateDoc: vi.fn()
+        };
+    }
+    return {
+        db: {},
+        ...globalThis.__mockFirestore
+    };
+});
 
 vi.mock('firebase/firestore', async (importOriginal) => {
     const actual = await importOriginal();
+    if (!globalThis.__mockFirestore) {
+        globalThis.__mockFirestore = {
+            collection: vi.fn(),
+            query: vi.fn(),
+            where: vi.fn(),
+            onSnapshot: vi.fn(),
+            addDoc: vi.fn(),
+            deleteDoc: vi.fn(),
+            doc: vi.fn(),
+            getDoc: vi.fn(),
+            getDocs: vi.fn(),
+            serverTimestamp: vi.fn(() => 'mock-timestamp'),
+            updateDoc: vi.fn()
+        };
+    }
     return {
         ...actual,
-        collection: vi.fn(),
-        query: vi.fn(),
-        where: vi.fn(),
-        onSnapshot: vi.fn(),
-        addDoc: vi.fn(),
-        deleteDoc: vi.fn(),
-        doc: vi.fn(),
-        getDoc: vi.fn(),
-        getDocs: vi.fn(),
-        serverTimestamp: vi.fn(() => 'mock-timestamp'),
-        updateDoc: vi.fn()
+        ...globalThis.__mockFirestore
     };
 });
 
@@ -53,16 +76,13 @@ describe('useProjects hook', () => {
     });
 
     it('should setup onSnapshot listeners when user is authenticated', () => {
-        let uidCallback, emailCallback;
         const unsubUid = vi.fn();
         const unsubEmail = vi.fn();
 
-        firestore.onSnapshot.mockImplementation((query, onNext) => {
+        firestore.onSnapshot.mockImplementation((query) => {
             if (query === 'qUid') {
-                uidCallback = onNext;
                 return unsubUid;
             } else {
-                emailCallback = onNext;
                 return unsubEmail;
             }
         });

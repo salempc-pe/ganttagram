@@ -5,8 +5,32 @@ import './index.css';
 import { ErrorBoundary } from './shared/components/ErrorBoundary';
 import { registerSW } from 'virtual:pwa-register';
 
-// Registrar Service Worker para PWA (reactivado)
-registerSW({ immediate: true });
+// Registrar Service Worker para PWA con soporte de actualización automática
+const updateSW = registerSW({
+  immediate: true,
+  onNeedRefresh() {
+    console.log('Nueva actualización detectada en la PWA. Recargando aplicación...');
+    updateSW(true); // Activa el nuevo Service Worker y recarga la página
+  }
+});
+
+// Forzar la comprobación de actualización de la PWA al iniciar (al menos una vez al día)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.ready.then((registration) => {
+    const lastCheck = localStorage.getItem('ganttagram_last_sw_check');
+    const now = Date.now();
+    const oneDay = 24 * 60 * 60 * 1000; // 1 día en milisegundos
+
+    if (!lastCheck || (now - parseInt(lastCheck)) > oneDay) {
+      console.log('Iniciando verificación diaria de actualizaciones para la PWA...');
+      registration.update().then(() => {
+        localStorage.setItem('ganttagram_last_sw_check', now.toString());
+      }).catch((err) => {
+        console.error('No se pudo verificar la actualización del Service Worker:', err);
+      });
+    }
+  });
+}
 
 // Manejar errores de carga de chunks (común después de un deploy)
 window.addEventListener('vite:preloadError', (event) => {

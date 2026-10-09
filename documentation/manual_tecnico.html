@@ -6,108 +6,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manual Técnico - Ganttagram</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
         :root {
-            --primary: #0f172a;
-            --accent: #2563eb;
-            --bg: #f8fafc;
-            --surface: #ffffff;
-            --text-main: #0f172a;
+            /* Slate/Graphite Palette based on App */
+            --graphite-900: #1a1d24;
+            --graphite-800: #222831;
+            --graphite-700: #2a3038;
+            --graphite-100: #e2e8f0;
+
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
             --text-secondary: #475569;
-            --border: #e2e8f0;
+            --accent-color: #f97316;
+            --primary-color: #2a3038;
+            --border-color: #e2e8f0;
+            --radius-lg: 8px;
+            --radius-md: 6px;
+            --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08);
+
             --code-bg: #1e293b;
             --code-text: #e2e8f0;
-            --radius: 6px;
-        }
-
-        @media print {
-            @page {
-                size: A4;
-                margin: 20mm;
-            }
-
-            html, body {
-                width: auto;
-                height: auto;
-                background: white !important;
-                color: black !important;
-                font-size: 11pt;
-                margin: 0;
-                padding: 0;
-            }
-
-            .no-print {
-                display: none !important;
-            }
-
-            .page-break {
-                page-break-before: always;
-                padding-top: 10mm;
-            }
-
-            .container {
-                box-shadow: none !important;
-                border: none !important;
-                width: 100% !important;
-                max-width: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                display: block !important;
-                float: none !important;
-            }
-
-            p, li {
-                text-align: justify;
-                line-height: 1.6;
-            }
-
-            pre {
-                background: #f8fafc !important;
-                color: black !important;
-                border: 1px solid #ddd;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                font-size: 9pt;
-                padding: 10px;
-                margin: 10px 0;
-            }
-
-            h1 { font-size: 24pt; }
-            h2 { font-size: 18pt; page-break-after: avoid; color: var(--accent) !important; border-bottom: 1pt solid #ddd !important; }
-            h3 { font-size: 14pt; }
-
-            table {
-                width: 100% !important;
-                border-collapse: collapse;
-                page-break-inside: auto;
-            }
-
-            tr {
-                page-break-inside: avoid;
-                page-break-after: auto;
-            }
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            line-height: 1.5;
-            color: var(--text-main);
-            background: var(--bg);
+            font-family: 'Inter', system-ui, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
             margin: 0;
             padding: 40px 20px;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1050px;
             margin: 0 auto;
-            background: var(--surface);
+            background: var(--bg-card);
             padding: 50px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
         }
 
         header {
-            border-bottom: 3px solid var(--accent);
+            border-bottom: 3px solid var(--graphite-800);
             padding-bottom: 30px;
             margin-bottom: 40px;
         }
@@ -115,46 +60,66 @@
         h1, h2, h3, h4 {
             font-family: 'Space Grotesk', sans-serif;
             letter-spacing: -0.01em;
+            color: var(--graphite-900);
         }
 
-        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
 
         h2 {
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
             margin-top: 50px;
-            color: var(--accent);
+            color: var(--graphite-800);
             font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 24px;
+            background-color: var(--accent-color);
         }
 
         h3 {
             margin-top: 35px;
-            color: var(--primary);
+            color: var(--graphite-700);
             font-size: 1.4rem;
+        }
+
+        p, li {
+            color: var(--text-secondary);
         }
 
         .tech-badge {
             display: inline-block;
-            background: #e0f2fe;
-            color: #0369a1;
+            background: #fff7ed;
+            color: #b45309;
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
             margin-right: 8px;
             margin-bottom: 8px;
-            border: 1px solid #bae6fd;
+            border: 1px solid #fde68a;
         }
 
         pre {
             background: var(--code-bg);
             color: var(--code-text);
             padding: 20px;
-            border-radius: var(--radius);
+            border-radius: var(--radius-md);
             overflow-x: auto;
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem;
             line-height: 1.6;
+            margin: 20px 0;
         }
 
         code {
@@ -172,202 +137,187 @@
         }
 
         table th, table td {
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-color);
             padding: 14px;
             text-align: left;
+            color: var(--text-secondary);
         }
 
         table th {
-            background: #f1f5f9;
+            background: var(--bg-secondary);
             font-weight: 600;
+            color: var(--graphite-800);
         }
 
-        .arch-box {
-            border: 2px dashed var(--accent);
-            padding: 25px;
-            text-align: center;
-            background: #f0f7ff;
-            margin: 25px 0;
-            font-weight: 600;
-            border-radius: var(--radius);
+        .list-detailed {
+            padding-left: 20px;
         }
 
         .list-detailed li {
             margin-bottom: 10px;
         }
+        
+        strong {
+            color: var(--text-primary);
+        }
 
-        footer {
-            margin-top: 60px;
-            padding-top: 30px;
-            border-top: 1px solid var(--border);
-            text-align: center;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
+        @media print {
+            @page {
+                size: A4;
+                margin: 20mm;
+            }
+
+            body {
+                background: white !important;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .page-break {
+                page-break-before: always;
+                padding-top: 10mm;
+            }
+
+            h2 {
+                page-break-after: avoid;
+            }
+
+            pre {
+                background: #f8fafc !important;
+                color: black !important;
+                border: 1px solid #ddd;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
         }
 
         .print-btn {
             position: fixed;
             top: 25px;
             right: 25px;
-            background: var(--accent);
+            background: var(--graphite-800);
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 50px;
+            border-radius: var(--radius-full);
             cursor: pointer;
+            font-family: var(--font-main);
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-            transition: all 0.2s;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.2s;
             z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .print-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.4);
+            background: var(--graphite-900);
+            box-shadow: var(--shadow-lg);
         }
     </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600&family=JetBrains+Mono&display=swap" rel="stylesheet">
 </head>
 
 <body>
-    <button class="print-btn no-print" onclick="window.print()">🖨️ Imprimir Manual Técnico</button>
+    <button class="print-btn no-print" onclick="window.print()">🖨️ Imprimir PDF Téc.</button>
 
     <div class="container">
         <header>
             <h1>Manual Técnico: Ganttagram</h1>
-            <p>Documentación exhaustiva de arquitectura, backend, frontend y protocolos de despliegue.</p>
-            <div>
+            <p>Documentación exhaustiva de arquitectura (Phase 3), optimizaciones de backend, y estructura de programación UI determinista.</p>
+            <div style="margin-top: 15px;">
                 <span class="tech-badge">React 18</span>
                 <span class="tech-badge">Vite 6</span>
                 <span class="tech-badge">Firebase Firestore</span>
-                <span class="tech-badge">Firebase Auth</span>
+                <span class="tech-badge">DFS Graph Engine</span>
                 <span class="tech-badge">Tauri 2.0</span>
-                <span class="tech-badge">Lucide Icons</span>
             </div>
         </header>
 
-        <h2>1. Resumen Ejecutivo del Stack</h2>
-        <p>Ganttagram es una solución de alto rendimiento para el sector construcción. Combina la agilidad de las tecnologías web modernas con la capacidad de ejecución nativa en escritorio mediante Tauri. El sistema está diseñado bajo el principio de <strong>Optimistic UI</strong> y sincronización en tiempo real.</p>
+        <h2>1. Resumen Ejecutivo de Arquitectura (v1.2)</h2>
+        <p>Ganttagram combina un rendimiento superior y la optimización reactiva (Optimistic UI) para el manejo de construcción civil o dependencias algorítmicas de gran peso. La herramienta fue construida priorizando la validación estricta de predecesores.</p>
 
-        <h2>2. Arquitectura del Frontend (Client-Side)</h2>
-        <p>La aplicación utiliza una estructura <strong>Feature-Based</strong> para maximizar la escalabilidad y mantenibilidad.</p>
+        <h2>2. Lógica de Nivel de Dominio y Dependencias Circulares</h2>
+        <p>En el corazón de la actualización de la <strong>Fase 3</strong> se encuentra el sistema para garantizar la sanidad de la data del usuario. Se evitaron los 'bucles infinitos' de planificación cruzada.</p>
 
-        <h3>2.1. Estructura de Directorios</h3>
-        <table class="list-detailed">
-            <thead>
-                <tr>
-                    <th>Ruta</th>
-                    <th>Responsabilidad Técnica</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><code>/src/features/</code></td>
-                    <td>Contiene módulos de negocio encapsulados (Gantt, Auth, Resources). Cada módulo tiene sus propios componentes, hooks y estilos.</td>
-                </tr>
-                <tr>
-                    <td><code>/src/services/</code></td>
-                    <td>Abstracciones de APIs externas. Principalmente <code>firebase/config.js</code> que inicializa la conexión con el Backend.</td>
-                </tr>
-                <tr>
-                    <td><code>/src/shared/</code></td>
-                    <td>Librería de componentes UI atómicos (Atomic Design) usados en toda la app para mantener consistencia visual.</td>
-                </tr>
-                <tr>
-                    <td><code>/src/assets/</code></td>
-                    <td>Recursos estáticos, imágenes de sistema y fuentes locales.</td>
-                </tr>
-                <tr>
-                    <td><code>/src-tauri/</code></td>
-                    <td>Capa de Rust que permite el acceso a APIs del sistema operativo (Archivos, Notificaciones, Ventanas).</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h3>2.2. Lógica de Negocio Avanzada</h3>
-        <p>Uno de los componentes críticos es el motor de <strong>Dependencias entre Tareas</strong> (<code>useDependencies</code>):</p>
+        <h3>2.1. DFS y Búsqueda en Profundidad (Cycle Detection)</h3>
+        <p>Se introdujo un algoritmo robusto basado en Grafos Computacionales.</p>
         <ul class="list-detailed">
-            <li><strong>Detección de Ciclos:</strong> Implementa un algoritmo de búsqueda (BFS) para evitar dependencias circulares antes de persistir en la base de datos.</li>
-            <li><strong>Cálculo de Holguras (Lag):</strong> Permite definir tiempos de espera entre tareas vinculadas directamente en el modelo de datos.</li>
-            <li><strong>Estado Optimista:</strong> El hook utiliza <code>onSnapshot</code> de Firebase para reaccionar inmediatamente a cambios remotos, actualizando el gráfico de Gantt sin recargas.</li>
+            <li><strong>Detección de Ciclos:</strong> La función <code>detectCycle(tasks, startTaskId, targetDependencyId)</code> realiza un recorrido Graph-DFS en memoria para revisar todos los descendientes en el árbol de actividades antes de persistir una modificación.</li>
+            <li><strong>Protección de Componente:</strong> La ventana de edición (<code>TaskModal.jsx</code>) restringe la acción del usuario abortando los guardados antes de emitir cualquier lectura/escritura (I/O) hacia Firestore.</li>
+        </ul>
+
+        <h3>2.2. Unificación del Motor de Cálculos (Scheduler)</h3>
+        <p>Uno de los retos solucionados en el último ciclo de desarrollo es la divergencia entre la tabla de edición paramétrica y la lógica principal del Gantt Chart.</p>
+        <ul class="list-detailed">
+            <li><strong>ASAP Estricto Absoluto:</strong> Todas las fechas, sin excepción y ya sean procesadas por arrastre, modal de creación, o borrado, siguen directrices encapsuladas en <code>scheduler.js</code>.</li>
+            <li>Las tareas nuevas consultan dinámicamente sus predecesores y fuerzan la matemática "Día subsecuente".</li>
         </ul>
 
         <div class="page-break"></div>
 
-        <h2>3. Arquitectura del Backend (Serverless & Cloud)</h2>
-        <p>Ganttagram prescinde de un servidor tradicional en favor de una arquitectura Serverless robusta basada en Google Firebase.</p>
+        <h2>3. Rendimiento en Rendering: Pantalla y Gráficos</h2>
 
-        <h3>3.1. Modelo de Datos (NoSQL Firestore)</h3>
-        <p>Se utiliza una estructura jerárquica refinada:</p>
+        <h3>3.1. Sticky Headers con Recomposición GPU</h3>
+        <p>El principal problema de una malla gráfica vasta (El cronograma visual en <code>ProjectGantt.jsx</code>) radica en el jitter provocado al hacer *scroll* sobre la interfaz.</p>
+        <table class="list-detailed">
+            <thead>
+                <tr>
+                    <th>Estrategia Obsoleta</th>
+                    <th>Estrategia Nueva (Implementada)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Uso asíncrono de <code>requestAnimationFrame</code> reactivo dependiente del motor V8.</td>
+                    <td>Propiedades Sincrónicas vía CSS Layout usando <code>position: sticky</code> y <code>zIndex</code>.</td>
+                </tr>
+                <tr>
+                    <td>Cálculo forzado reflow cada que el usuario desliza 1px. Tearing horizontal.</td>
+                    <td>Se activaron capas de composición aceleradas por hardware (GPUs).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>3.2. Estructura Re-renderización y Cascada</h3>
+        <p>Los hooks iterativos de redibujado, tales como <code>useTasks</code> garantizan la aturdimiento de re-cálculos múltiples y la iteración máxima (bucle de estabilidad).</p>
+
+        <h2>4. Modelo de Datos Remoto y Sync</h2>
+        <p>Ganttagram persiste inmutabilidad asíncrona mediante Firebase Firestore. Este modelo soporta sincronización atómica entre varios usuarios.</p>
+
         <pre>
 /projects {document}
    ├── name, description, budget, startDate
    ├── /tasks {subcollection}
    │      ├── title, progress, startDate, endDate, resourceId, category
    ├── /dependencies {subcollection}
-   │      ├── fromTaskId, toTaskId, type (FS, SS, etc), lag
-   ├── /resources {subcollection}
-   │      ├── name, type (Personal, Maquinaria, Materiales), cost
-   └── /milestones {subcollection}
-          ├── title, date, importance
+   │      ├── fromTaskId, toTaskId, lag
+   └── /resources {subcollection}
         </pre>
 
-        <h3>3.2. Seguridad y Reglas de Negocio</h3>
-        <p>La integridad de los datos de construcción se protege mediante <strong>Firestore Security Rules</strong>. Cada acceso es validado a nivel de servidor:</p>
+        <h2>5. Procedimiento Base de Compilación</h2>
+        <p>Para crear un *Build* de producción Web y validarlo:</p>
         <pre>
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /projects/{projectId} {
-      allow read, write: if request.auth != null;
-      
-      match /{allSubcollections=**} {
-        allow read, write: if request.auth != null;
-      }
-    }
-  }
-}
+# Test Local y Construcción Nativa de SPA
+npm run dev
+
+# Bundle producción optimizado Minificado
+npm run build
         </pre>
 
-        <h3>3.3. Autenticación</h3>
-        <p>Se implementa <strong>Firebase Auth</strong> con persistencia local. El flujo asegura que ningún dato sea solicitado o mostrado hasta que el token JWT del usuario sea validado por el proveedor.</p>
-
-        <div class="page-break"></div>
-
-        <h2>4. Sistema de Diseño (Industrial-Tech Premium)</h2>
-        <p>El diseño no es solo estético, es funcional (Ingeniería de Interfaz).</p>
-
-        <h3>4.1. Variables CSS Dinámicas</h3>
-        <p>En <code>index.css</code>, se definen tokens que cambian según el tema:</p>
-        <ul class="list-detailed">
-            <li><strong>Modo Blueprint (Claro):</strong> Fondo `#f8fafc`, acento azul `#2563eb`. Optimizado para alta visibilidad en obra.</li>
-            <li><strong>Modo Deep Slate (Oscuro):</strong> Fondo `#0f172a`, superficies `#1e293b`. Diseñado para reducir fatiga visual en oficina.</li>
-        </ul>
-
-        <h3>4.2. Renderizado de Gantt</h3>
-        <p>El gráfico de Gantt utiliza una combinación de CSS Grid y posicionamiento absoluto calculado dinámicamente mediante hooks de React, permitiendo el escalado fluido en resoluciones 4K.</p>
-
-        <h2>5. Despliegue y CI/CD</h2>
-        <h3>5.1. Producción Web (Netlify)</h3>
-        <p>El despliegue se realiza mediante <code>Netlify CLI</code> o integración con GitHub. El archivo <code>netlify.toml</code> asegura el manejo de SPA Routing:</p>
-        <pre>
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-        </pre>
-
-        <h3>5.2. Empaquetado Desktop</h3>
-        <p>Para generar los instaladores de escritorio:</p>
-        <pre>
-# Generar instalador para Windows (.msi, .exe)
-npm run tauri build
-        </pre>
-
-        <footer>
-            <p>&copy; 2026 Manual Técnico de Ganttagram | v1.1.0 | Desarrollado con precisión industrial</p>
+        <footer style="margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border-color); text-align: center; color: var(--text-secondary); font-size: 0.875rem;">
+            <p>&copy; 2026 Manual Técnico de Ganttagram | Compilación Final Técnica (Base Fase 3)</p>
         </footer>
     </div>
 </body>

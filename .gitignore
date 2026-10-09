@@ -60,7 +60,6 @@ coverage/
 build/
 .firebase/
 firebase-debug.log*
-.netlify/
 
 # Archivos de certificados
 *.pem

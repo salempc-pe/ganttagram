@@ -22,16 +22,17 @@
   --text-secondary: #475569;
   --text-tertiary: #94a3b8;
 
-  /* Colores de Marca y Acento */
+  /* Colores de Marca y Acento (Blueprint & Safety) */
   --sidebar-bg: var(--graphite-800);
   --sidebar-text: #94a3b8;
-  --sidebar-active: var(--accent-color);
+  --sidebar-active: var(--primary-color);
 
-  /* Color de Acento Construcción (Naranja) */
+  /* Color Blueprint (Azul interactivo) y Safety Accent (Naranja seguridad) */
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
   --accent-color: #f97316;
   --accent-hover: #ea580c;
-  --primary-color: var(--graphite-700);
-  --primary-hover: var(--graphite-900);
+  --accent-safety: #f97316;
 
   --border-color: #e2e8f0;
   --border-hover: #cbd5e1;
@@ -63,7 +64,7 @@
 
   /* Tipografía Blueprint */
   --font-main: 'Inter', system-ui, sans-serif;
-  --font-title: 'IBM Plex Sans', sans-serif;
+  --font-title: 'Space Grotesk', system-ui, sans-serif;
   --font-tech: 'JetBrains Mono', monospace;
 
   /* Grid Background */

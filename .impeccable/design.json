@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-13T09:10:00-05:00",
+  "title": "Design System: Industrial-Tech Premium (GANTTAGRAM)",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Blueprint Blue", "canonical": "#2563eb" },
+      "accent-safety": { "role": "secondary", "displayName": "Construction Orange", "canonical": "#f97316" },
+      "neutral-bg": { "role": "neutral", "displayName": "Background Slate", "canonical": "#f8fafc" },
+      "surface": { "role": "neutral", "displayName": "Surface White", "canonical": "#ffffff" },
+      "text-primary": { "role": "neutral", "displayName": "Primary Text Dark", "canonical": "#0f172a" },
+      "text-secondary": { "role": "neutral", "displayName": "Secondary Text Slate", "canonical": "#475569" },
+      "border": { "role": "neutral", "displayName": "Crisp Border", "canonical": "#e2e8f0" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display Space Grotesk", "purpose": "Títulos ejecutivos y encabezados de obra." },
+      "body": { "displayName": "Body Inter", "purpose": "Contenido general y descripciones." },
+      "mono": { "displayName": "Mono JetBrains Mono", "purpose": "Fechas, metrados, códigos RNE y números." }
+    },
+    "shadows": [
+      { "name": "panel-float", "value": "0 4px 12px -2px rgba(15, 23, 42, 0.08)", "purpose": "Elevación discreta para selectores y menús desplegables." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Transiciones suaves en botones y micro-interacciones." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Safety Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Botón de acción principal o ejecución crítica.",
+      "html": "<button class=\"ds-btn-safety\">NUEVA PARTIDA</button>",
+      "css": ".ds-btn-safety { background-color: #f97316; color: #ffffff; padding: 10px 20px; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 14px; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s ease; } .ds-btn-safety:hover { background-color: #ea580c; }"
+    },
+    {
+      "name": "Blueprint Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Botón de interacción secundaria o navegación.",
+      "html": "<button class=\"ds-btn-blueprint\">VER CRONOGRAMA</button>",
+      "css": ".ds-btn-blueprint { background-color: #2563eb; color: #ffffff; padding: 10px 20px; font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 14px; border: none; border-radius: 6px; cursor: pointer; transition: background-color 0.2s ease; } .ds-btn-blueprint:hover { background-color: #1d4ed8; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Technical Blueprint Instrument",
+    "overview": "GANTTAGRAM es una herramienta de gestión de proyectos de alta precisión para la construcción en Perú con estética Industrial-Tech Premium.",
+    "keyCharacteristics": [
+      "Estética Technical Blueprint clara, limpia y de alto contraste.",
+      "Jerarquía tipográfica tripartita (Space Grotesk, Inter, JetBrains Mono).",
+      "Alta densidad de datos compacta.",
+      "Acentos funcionales de seguridad (Orange #f97316) e interactividad (Blue #2563eb)."
+    ],
+    "rules": [
+      { "name": "The Blueprint Accent Rule", "body": "El azul es para interactividad normal; el naranja se reserva para acciones prioritarias o ruta crítica.", "section": "colors" },
+      { "name": "The Numeric Precision Rule", "body": "Todos los datos cuantitativos se representan obligatoriamente en JetBrains Mono.", "section": "typography" },
+      { "name": "The Boundary over Shadow Rule", "body": "La estructura la definen los bordes finos de 1px, no las sombras difusas.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do mantener tipografía monoespaciada para datos numéricos.",
+      "Do usar bordes de 1px #e2e8f0 para delimitar módulos.",
+      "Do emplear el naranja #f97316 para la ruta crítica."
+    ],
+    "donts": [
+      "Don't usar fondos oscuros o neones.",
+      "Don't aplicar sombreados voluminosos en las barras del Gantt.",
+      "Don't saturar con más de 10% de naranja en la pantalla."
+    ]
+  }
+}

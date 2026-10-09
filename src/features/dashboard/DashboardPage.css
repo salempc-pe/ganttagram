@@ -11,18 +11,27 @@
     }
 }
 
+.dashboard-title {
+    font-family: var(--font-title);
+    font-size: var(--font-2xl);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-xs) 0;
+}
+
 /* Metrics Grid - Industrial Style */
 .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-xl);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-lg);
     margin-bottom: var(--space-xl);
 }
 
 @media (max-width: 767px) {
     .metrics-grid {
-        grid-template-columns: 1fr;
-        gap: var(--space-md);
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-sm);
         margin-bottom: var(--space-lg);
     }
 }
@@ -34,52 +43,61 @@
     border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     position: relative;
     overflow: hidden;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-@media (max-width: 767px) {
-    .metric-tile {
-        padding: 0.75rem var(--space-md);
-        display: grid;
-        grid-template-columns: 1fr auto;
-        grid-template-areas:
-            "label value"
-            "trend value";
-        align-items: center;
-        gap: 0;
-    }
-
-    .metric-label {
-        grid-area: label;
-        font-size: 0.6rem;
-    }
-
-    .metric-trend {
-        grid-area: trend;
-        font-size: 0.7rem;
-    }
-
-    .metric-value {
-        grid-area: value;
-        font-size: 1.75rem !important;
-        margin-left: var(--space-md);
-    }
-
-    .metric-tile::before {
-        width: 3px;
-    }
+.metric-tile:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-sm);
 }
 
-.metric-tile::before {
+.metric-tile.tile-blueprint::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
+    width: 3px;
     height: 100%;
     background: var(--primary-color);
+}
+
+.metric-tile.tile-alert::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--error);
+}
+
+.metric-tile.tile-milestone::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--accent-color);
+}
+
+.metric-tile.tile-progress::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--success);
+}
+
+.metric-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .metric-label {
@@ -87,21 +105,23 @@
     font-size: 0.75rem;
     font-weight: 700;
     letter-spacing: 0.05em;
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
     font-family: var(--font-title);
 }
 
 .metric-value {
-    font-family: var(--font-title);
-    font-size: 2rem;
-    font-weight: 500;
+    font-family: var(--font-tech);
+    font-size: 2.25rem;
+    font-weight: 600;
     color: var(--text-primary);
-    line-height: 1.2;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
 }
 
 .metric-trend {
     font-size: 0.75rem;
     font-weight: 500;
+    color: var(--text-secondary);
 }
 
 /* Dashboard Grid */
@@ -124,6 +144,10 @@
     .card-header {
         margin-bottom: var(--space-md) !important;
     }
+
+    .metric-value {
+        font-size: 1.75rem;
+    }
 }
 
 @media (min-width: 768px) {
@@ -137,12 +161,12 @@
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: var(--space-lg);
-    transition: all var(--transition-fast);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .dashboard-card:hover {
     border-color: var(--primary-color);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-sm);
 }
 
 .card-header {
@@ -150,8 +174,8 @@
     align-items: center;
     gap: var(--space-sm);
     margin-bottom: var(--space-lg);
-    padding-bottom: var(--space-md);
-    border-bottom: 2px solid var(--bg-secondary);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .card-title {
@@ -160,7 +184,7 @@
     font-weight: 700;
     text-transform: uppercase;
     color: var(--text-primary);
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
     margin: 0;
     line-height: 1;
 }
@@ -172,7 +196,7 @@
 .summary-list {
     display: flex;
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
 }
 
 .summary-item {
@@ -183,21 +207,20 @@
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
+    transition: background var(--transition-fast), border-color var(--transition-fast);
 }
 
 .summary-item:hover {
     background: var(--bg-secondary);
     border-color: var(--primary-color);
-    transform: translateX(2px);
 }
 
 .summary-item.overdue {
-    border-left: 4px solid var(--error);
+    border-left: 2px solid var(--error);
 }
 
 .summary-item.milestone {
-    border-left: 4px solid var(--primary-color);
+    border-left: 2px solid var(--primary-color);
 }
 
 .item-main {
@@ -218,24 +241,72 @@
     align-items: center;
     font-size: 0.75rem;
     color: var(--text-secondary);
-    font-family: var(--font-tech);
 }
 
 .project-tag {
-    background: var(--bg-tertiary);
-    padding: 3px 8px;
-    border-radius: 2px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
 }
 
 .empty-state {
     text-align: center;
     padding: var(--space-xl);
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
     font-size: var(--font-sm);
-    font-style: italic;
 }
 
-/* Mobile Nav/Header Overrides removed for blueprint theme consistency */
+/* User avatar and logout button classes without inline styles */
+.user-avatar-badge {
+    width: 44px;
+    height: 44px;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1rem;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.user-name-text {
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-email-text {
+    font-size: 0.75rem;
+    margin: 2px 0 0 0;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: var(--font-tech);
+}
+
+.btn-logout-header {
+    color: var(--error) !important;
+    font-weight: 700;
+}
+
+.version-tag {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: center;
+    margin: 0;
+    font-family: var(--font-tech);
+}

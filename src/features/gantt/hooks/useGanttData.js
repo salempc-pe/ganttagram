@@ -4,7 +4,7 @@ import { useMilestones } from '../../projects/hooks/useMilestones';
 import { useDependencies } from '../../tasks/hooks/useDependencies';
 import { useResources } from '../../resources/hooks/useResources';
 import { useCategories } from '../../projects/hooks/useCategories';
-import { buildFlatTree, isParentTask } from '../../tasks/utils/hierarchy';
+import { buildFlatTree } from '../../tasks/utils/hierarchy';
 
 export const useGanttData = (projectId) => {
     const { tasks, loading: tasksLoading } = useTasks(projectId);
@@ -78,10 +78,10 @@ export const useGanttData = (projectId) => {
                 resources: taskResources,
                 displayResources: taskResources.map(r => r.name).join(', '),
                 styles: {
-                    backgroundColor: hasChildren ? '#64748b' : categoryColor,
-                    backgroundSelectedColor: hasChildren ? '#475569' : categoryColor,
-                    progressColor: hasChildren ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.4)',
-                    progressSelectedColor: 'rgba(255,255,255,0.6)'
+                    backgroundColor: hasChildren ? '#e2e8f0' : categoryColor + '30',
+                    backgroundSelectedColor: hasChildren ? '#cbd5e1' : categoryColor + '45',
+                    progressColor: hasChildren ? '#94a3b8' : categoryColor,
+                    progressSelectedColor: hasChildren ? '#64748b' : categoryColor
                 },
                 isDisabled: false,
                 project: task.parentId || projectId,

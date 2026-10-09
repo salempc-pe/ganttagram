@@ -15,6 +15,7 @@ import { auth, db, doc, setDoc, getDoc } from '../../services/firebase/config';
 
 const AuthContext = createContext({});
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (!context) {
@@ -136,6 +137,7 @@ export const AuthProvider = ({ children }) => {
             unsubscribe();
             clearTimeout(timeout);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const register = async (email, password, displayName) => {

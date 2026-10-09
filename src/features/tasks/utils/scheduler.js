@@ -1,5 +1,5 @@
-import { startOfDay, endOfDay, addDays } from 'date-fns';
-import { addWorkingDays, getWorkingDuration, adjustToWorkingDay } from '../../../shared/utils/calendar';
+import { startOfDay, endOfDay } from 'date-fns';
+import { addWorkingDays, getWorkingDuration } from '../../../shared/utils/calendar';
 
 /**
  * Calcula las nuevas fechas para un conjunto de tareas e hitos basándose en dependencias.
@@ -76,7 +76,6 @@ export const calculateAutoSchedule = (tasks, dependencies, triggerId, updatedDat
     snapToPredecessors(triggerId, itemMap, depsByTo[triggerId] || [], calendar);
 
     const updates = {};
-    const visited = new Set();
     let iterations = 0;
     const maxIterations = (tasks.length + milestones.length) * 10;
 

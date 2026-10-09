@@ -590,3 +590,16 @@
         }
     }
 }
+
+.resource-chip.disabled {
+    opacity: 0.55;
+    cursor: not-allowed !important;
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-tertiary) !important;
+}
+
+.resource-chip.disabled:hover {
+    border-color: var(--border-color) !important;
+    background-color: var(--bg-secondary) !important;
+}

@@ -1,71 +1,98 @@
+/* ============================================================
+   GANTTAGRAM — ProjectPage Layout
+   Arquitectura de scroll unificada: project-main es el único
+   contenedor con scroll vertical en TODAS las plataformas.
+   ============================================================ */
+
+/* === LAYOUT RAÍZ === */
 .project-layout {
     display: flex;
     height: 100dvh;
     width: 100%;
-    overflow: hidden;
+    overflow: hidden; /* El layout raíz nunca hace scroll */
 }
 
+/* === CONTENEDOR PRINCIPAL DE SCROLL === */
+/* 
+   project-main es el ÚNICO elemento con overflow-y: auto.
+   En desktop: ocupa todo el espacio entre la sidebar y el borde.
+   En mobile:  ocupa toda la pantalla.
+   El GanttChart escucha el scroll de este elemento.
+*/
 .project-main {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-width: 0;
-    min-height: 0; /* Crucial para flexbox */
-    height: 100%; /* Ocupa el 100% de .project-layout */
-    background-color: var(--bg-primary);
-    overflow: hidden; 
-    transition: all 0.3s ease; /* Transición para cuando cambia de altura */
-}
-
-/* Header padding se maneja localmente en el componente mediante inline styles */
-
-.view-selector-btn {
-    transition: all var(--transition-fast);
-    font-family: var(--font-title);
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.08em;
-    color: #475569;
-}
-
-.dark .view-selector-btn {
-    color: #cbd5e1;
-}
-
-.dark .view-selector-btn:hover {
-    color: #ffffff;
-}
-
-.project-content {
-    flex: 1;
     min-height: 0;
+    height: 100%;
+    background-color: var(--bg-primary);
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    /* Ocultar scrollbar en todas las plataformas para look limpio */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.project-main::-webkit-scrollbar {
+    display: none;
+}
+
+/* === PROJECT HEADER — COLAPSO AL HACER SCROLL === */
+/*
+   Usamos grid-template-rows para animar la altura del header
+   sin afectar el layout del contenido debajo.
+*/
+.project-header-container {
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0; /* Nunca se reduce si no hay scroll */
+}
+
+.project-layout.is-scrolled .project-header-container {
+    grid-template-rows: 0fr;
+}
+
+/* El project-header necesita overflow: hidden para la animación */
+.project-header {
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* === PROJECT CONTENT === */
+/*
+   Ocupa el espacio restante después del header.
+   NOT overflow: visible aquí — el scroll lo maneja .project-main.
+*/
+.project-content {
+    flex: 1 0 auto; /* Crece pero no se encoge por debajo de su contenido */
     padding: 0;
     display: flex;
     flex-direction: column;
     position: relative;
-    overflow: hidden; 
+    min-height: 0;
 }
 
-/* Forzar a cualquier hijo directo (como el de Suspense o Tabs) a llenar el espacio */
+/* Los hijos directos del project-content deben intentar llenar el espacio */
 .project-content > *:not(.modal-overlay) {
     flex: 1;
     display: flex;
     min-height: 0;
 }
 
+/* Las pestañas con scroll propio (lista, recursos, etc.) */
 .tab-container-scroll {
-    overflow-y: auto;
+    flex: 1 0 auto;
+    min-height: 0;
+    overflow: visible; /* El scroll lo toma project-main */
 }
 
-/* === RESPONSIVE MODS === */
-
-/* CLASES DE UTILIDAD PARA INDEPENDIZARSE DE TAILWIND `md:` Y USAR 1024px */
+/* === UTILIDADES RESPONSIVE === */
 @media (min-width: 768px) {
     .mobile-only {
         display: none !important;
     }
-
     .desktop-only {
         display: flex !important;
     }
@@ -77,8 +104,7 @@
     }
 }
 
-
-/* Móvil y Tablets en vertical */
+/* === MOBILE PORTRAIT === */
 @media (max-width: 767px) and (orientation: portrait) {
     .project-layout {
         flex-direction: column;
@@ -86,58 +112,47 @@
         overflow: hidden;
     }
 
+    /* En móvil, el ProjectHeader (desktop) está oculto; usa MobileHeader */
     .project-header {
         display: none !important;
-    }
-
-    .project-main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        min-height: 0;
-        overflow-y: auto;
-        overflow-x: hidden !important; /* IMPIDE EL DESPLOME LATERAL DE TODA LA APP */
-        position: relative;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    .project-main::-webkit-scrollbar {
-        display: none;
     }
 
     .project-content {
         padding: 0;
         padding-bottom: calc(64px + env(safe-area-inset-bottom));
         flex: 1 0 auto;
-        display: flex;
-        flex-direction: column;
         min-height: max-content;
         overflow: visible;
     }
 
+    /* Barra de controles de vista (DÍA | SEMANA | MES + botones) */
     .mobile-view-controls {
         position: sticky !important;
         top: 0;
         left: 0;
-        width: 100% !important; /* 100% se ajusta impecable, 100vw es un bug que traspasa el padding/scroll */
+        width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box;
         z-index: 80 !important;
-        
-        /* Animación suave */
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin 0.3s ease;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
         transform-origin: top;
     }
 
+    /* Ocultar los controles cuando hay scroll */
     .project-layout.is-scrolled .mobile-view-controls {
         transform: translateY(-100%);
         opacity: 0;
         pointer-events: none;
-        position: absolute !important; /* Para que deje de ocupar su espacio y el Gantt suba */
+        position: absolute !important; /* Libera el espacio para que el Gantt suba */
+    }
+
+    /* Ocultar el botón de volver en portrait (el MobileHeader ya tiene navegación) */
+    .mobile-back-btn {
+        display: none !important;
     }
 }
 
-/* Móvil y Tablets horizontales (Landscape) */
+/* === MOBILE LANDSCAPE === */
 @media (max-width: 767px) and (orientation: landscape) {
     .project-layout {
         flex-direction: row;
@@ -149,23 +164,9 @@
         display: none !important;
     }
 
-    .project-main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-        overflow-x: hidden !important;
-        position: relative;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    .project-main::-webkit-scrollbar {
-        display: none;
-    }
-
     .project-content {
         padding: 0;
-        padding-right: 72px; /* Espacio para el menú lateral en landscape */
+        padding-right: 72px; /* Espacio para el menú flotante lateral */
         flex: 1 0 auto;
         min-height: max-content;
         overflow: visible;
@@ -177,33 +178,34 @@
         position: sticky !important;
         top: 0;
         left: 0;
-        width: 100% !important; /* 100% exacto para contener sin rebasar viewport */
+        width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box;
-        padding-right: 88px !important;
-        /* Salva los botones del solapamiento con el menú lateral flotante */
+        padding-right: 88px !important; /* Evita solapamiento con el menú lateral */
         z-index: 80 !important;
-        
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
     }
 
-    /* Ocultar elementos en landscape si hay scroll */
+    /* Cabecera móvil (MobileHeader) — ocultar al hacer scroll en landscape */
     .project-layout.is-scrolled .mobile-header-pro {
         transform: translateY(-100%);
-        margin-bottom: -56px; /* Ajustar esto según el alto de la cabecera */
+        margin-bottom: -56px;
         opacity: 0;
         pointer-events: none;
     }
 
+    /* Controles de vista — ocultar al hacer scroll */
     .project-layout.is-scrolled .mobile-view-controls {
         transform: translateY(-100%);
         opacity: 0;
         pointer-events: none;
-        position: absolute !important; /* Para que deje de ocupar su espacio */
+        position: absolute !important;
     }
 }
 
-/* Botones de acción del header (Hito / Tarea) */
+/* ===================================================================
+   BOTONES DE ACCIÓN DEL HEADER (HITO / TAREA)
+   =================================================================== */
 .btn-add-milestone,
 .btn-add-task {
     display: flex;
@@ -267,23 +269,21 @@
     background-color: #475569;
 }
 
-.today-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    background: var(--bg-card);
-    border: 1px solid var(--accent-color);
-    border-radius: 4px;
-    color: var(--accent-color);
-    font-family: var(--font-tech);
-    font-size: 0.75rem;
-    font-weight: 600;
+/* Selector de vista */
+.view-selector-btn {
+    transition: all var(--transition-fast);
+    font-family: var(--font-title);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    color: #475569;
 }
 
-/* Ocultar elementos auxiliares redundantes en versión vertical */
-@media (max-width: 767px) and (orientation: portrait) {
-    .mobile-back-btn {
-        display: none !important;
-    }
+.dark .view-selector-btn {
+    color: #cbd5e1;
+}
+
+.dark .view-selector-btn:hover {
+    color: #ffffff;
 }

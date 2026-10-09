@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Plus, Trash2, Edit2, Check, X } from 'lucide-react';
 import { Button } from '../../../shared/components/Button';
+import { ConfirmModal } from '../../../shared/components/ConfirmModal';
 import './CategoryManager.css';
 
 const DEFAULT_COLOR = '#3b82f6';
@@ -24,6 +25,8 @@ export const CategoryManager = ({ categories, tasks = [], onAdd, onUpdate, onDel
     const [editName, setEditName] = useState('');
     const [editColor, setEditColor] = useState('');
     const [isAdding, setIsAdding] = useState(false);
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+    const [categoryToDeleteId, setCategoryToDeleteId] = useState(null);
 
     const handleStartEdit = (cat) => {
         setEditingId(cat.id);
@@ -37,9 +40,15 @@ export const CategoryManager = ({ categories, tasks = [], onAdd, onUpdate, onDel
         setEditingId(null);
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm('¿Eliminar esta categoría? Las tareas que la usen podrían perder su color.')) {
-            await onDelete(id);
+    const handleDelete = (id) => {
+        setCategoryToDeleteId(id);
+        setIsConfirmDeleteOpen(true);
+    };
+
+    const confirmDeleteAction = async () => {
+        if (categoryToDeleteId) {
+            await onDelete(categoryToDeleteId);
+            setCategoryToDeleteId(null);
         }
     };
 
@@ -70,97 +79,131 @@ export const CategoryManager = ({ categories, tasks = [], onAdd, onUpdate, onDel
                 )}
             </div>
 
-            <div className="category-grid">
+            <div className="category-list-compact" style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem',
+                background: 'var(--bg-primary)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '16px',
+                padding: '1rem',
+                boxShadow: 'var(--shadow-sm)'
+            }}>
                 {isAdding && (
-                    <div className="category-card adding shadow-lg">
-                        <div className="category-card-header">
-                            <span className="text-xs uppercase font-bold text-secondary">Nueva Categoría</span>
-                            <div className="flex gap-1">
-                                <button onClick={handleAdd} className="action-btn-circle success"><Check size={18} /></button>
-                                <button onClick={() => setIsAdding(false)} className="action-btn-circle error"><X size={18} /></button>
+                    <div className="category-list-row adding" style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.75rem',
+                        padding: '1rem',
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border-color)'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Nueva Categoría</span>
+                            <div className="flex gap-2">
+                                <button onClick={handleAdd} className="action-btn-circle success" style={{ padding: '4px', borderRadius: '50%', background: '#22c55e20', color: '#16a34a', border: 'none', cursor: 'pointer' }}><Check size={16} /></button>
+                                <button onClick={() => setIsAdding(false)} className="action-btn-circle error" style={{ padding: '4px', borderRadius: '50%', background: '#ef444420', color: '#dc2626', border: 'none', cursor: 'pointer' }}><X size={16} /></button>
                             </div>
                         </div>
-                        <div className="category-card-body">
-                            <input
-                                type="text"
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                                placeholder="Nombre de categoría..."
-                                className="category-name-input"
-                                autoFocus
-                            />
-                            <div className="color-selection-area">
-                                <ColorSelector selectedColor={editColor} onColorSelect={setEditColor} />
-                            </div>
+                        <input
+                            type="text"
+                            value={editName}
+                            onChange={(e) => setEditName(e.target.value)}
+                            placeholder="Nombre de la categoría..."
+                            className="input"
+                            style={{ padding: '8px 12px', fontSize: '0.85rem' }}
+                            autoFocus
+                        />
+                        <div style={{ marginTop: '0.25rem' }}>
+                            <ColorSelector selectedColor={editColor} onColorSelect={setEditColor} />
                         </div>
                     </div>
                 )}
 
+                {categories.length === 0 && !isAdding && (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', fontStyle: 'italic', textAlign: 'center', margin: '1rem 0' }}>No hay categorías registradas.</p>
+                )}
+
                 {categories.map(cat => {
                     const assignedTasks = getAssignedTasks(cat.id);
+                    const isEditing = editingId === cat.id;
+
                     return (
-                        <div key={cat.id} className="category-card-wrapper">
-                            {editingId === cat.id ? (
-                                <div className="category-card editing shadow-lg">
-                                    <div className="category-card-header">
-                                        <span className="text-xs uppercase font-bold text-secondary">Editando</span>
-                                        <div className="flex gap-1">
-                                            <button onClick={handleSave} className="action-btn-circle success"><Check size={18} /></button>
-                                            <button onClick={() => setEditingId(null)} className="action-btn-circle error"><X size={18} /></button>
+                        <div key={cat.id} className="category-list-item-wrapper" style={{
+                            borderBottom: '1px solid var(--border-color)',
+                            paddingBottom: '0.75rem',
+                            marginBottom: '0.25rem',
+                            display: 'flex',
+                            flexDirection: 'column'
+                        }}>
+                            {isEditing ? (
+                                <div className="category-list-row editing" style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: '0.75rem',
+                                    padding: '1rem',
+                                    background: 'var(--bg-secondary)',
+                                    borderRadius: '12px'
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Editando Categoría</span>
+                                        <div className="flex gap-2">
+                                            <button onClick={handleSave} className="action-btn-circle success" style={{ padding: '4px', borderRadius: '50%', background: '#22c55e20', color: '#16a34a', border: 'none', cursor: 'pointer' }}><Check size={16} /></button>
+                                            <button onClick={() => setEditingId(null)} className="action-btn-circle error" style={{ padding: '4px', borderRadius: '50%', background: '#ef444420', color: '#dc2626', border: 'none', cursor: 'pointer' }}><X size={16} /></button>
                                         </div>
                                     </div>
-                                    <div className="category-card-body">
-                                        <input
-                                            type="text"
-                                            value={editName}
-                                            onChange={(e) => setEditName(e.target.value)}
-                                            className="category-name-input"
-                                        />
-                                        <div className="color-selection-area">
-                                            <ColorSelector selectedColor={editColor} onColorSelect={setEditColor} />
-                                        </div>
+                                    <input
+                                        type="text"
+                                        value={editName}
+                                        onChange={(e) => setEditName(e.target.value)}
+                                        className="input"
+                                        style={{ padding: '8px 12px', fontSize: '0.85rem' }}
+                                    />
+                                    <div>
+                                        <ColorSelector selectedColor={editColor} onColorSelect={setEditColor} />
                                     </div>
                                 </div>
                             ) : (
-                                <div className="category-card">
-                                    <div className="category-status-line" style={{ backgroundColor: cat.color }}></div>
-                                    <div className="category-card-content">
-                                        <div className="category-card-main">
-                                            <div className="category-avatar-preview" style={{ backgroundColor: cat.color + '20', color: cat.color }}>
-                                                #
-                                            </div>
-                                            <span className="category-card-name">{cat.name}</span>
+                                <div className="category-list-row-view" style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    padding: '0.25rem 0.5rem'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                        <div style={{
+                                            width: '12px',
+                                            height: '12px',
+                                            borderRadius: '50%',
+                                            backgroundColor: cat.color
+                                        }}></div>
+                                        <span style={{ fontWeight: '700', color: 'var(--text-primary)', fontSize: '0.875rem' }}>{cat.name}</span>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: '600' }}>
+                                            ({assignedTasks.length} {assignedTasks.length === 1 ? 'tarea asignada' : 'tareas asignadas'})
+                                        </span>
+                                    </div>
+                                    {canEdit && (
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button onClick={() => handleStartEdit(cat)} className="action-btn edit" style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }} title="Editar"><Edit2 size={14} /></button>
+                                            <button onClick={() => handleDelete(cat.id)} className="action-btn delete" style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }} title="Eliminar"><Trash2 size={14} /></button>
                                         </div>
-                                        {canEdit && (
-                                            <div className="category-card-actions">
-                                                <button onClick={() => handleStartEdit(cat)} className="action-btn edit" title="Editar"><Edit2 size={16} /></button>
-                                                <button onClick={() => handleDelete(cat.id)} className="action-btn delete" title="Eliminar"><Trash2 size={16} /></button>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Nueva sección de tareas por categoría */}
-                                    <div className="category-tasks-list">
-                                        {assignedTasks.length > 0 ? (
-                                            assignedTasks.slice(0, 3).map(task => (
-                                                <div key={task.id} className="cat-task-item">
-                                                    <span className="cat-task-bullet">•</span>
-                                                    <span className="cat-task-name">{task.name}</span>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <span className="no-tasks-hint">Sin tareas en esta categoría</span>
-                                        )}
-                                        {assignedTasks.length > 3 && (
-                                            <div className="cat-task-more">+{assignedTasks.length - 3} tareas más</div>
-                                        )}
-                                    </div>
+                                    )}
                                 </div>
                             )}
                         </div>
                     );
                 })}
             </div>
+            <ConfirmModal
+                isOpen={isConfirmDeleteOpen}
+                onClose={() => { setIsConfirmDeleteOpen(false); setCategoryToDeleteId(null); }}
+                onConfirm={confirmDeleteAction}
+                title="¿Eliminar Categoría?"
+                message="¿Estás seguro de que deseas eliminar esta categoría? Las tareas que la usen podrían perder su color."
+                confirmText="Eliminar"
+                variant="danger"
+            />
         </div>
     );
 };

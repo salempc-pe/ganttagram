@@ -22,8 +22,8 @@ if (!firebaseConfig.apiKey) {
   // Lanza un error fatal que será capturado por el Global Error Handler en index.html
   throw new Error(
     "FATAL: Faltan las variables de entorno de Firebase.\n\n" +
-    "SOLUCIÓN: Ve a Netlify > Site settings > Environment variables\n" +
-    "y agrega las claves VITE_FIREBASE_API_KEY, etc."
+    "SOLUCIÓN: Configura las variables en el archivo .env.local\n" +
+    "(VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, etc.)."
   );
 }
 

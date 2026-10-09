@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "postinstall": "npx patch-package && node scripts/clean-netlify-false-positives.js",
-    "build": "node scripts/clean-netlify-false-positives.js && vite build",
+    "postinstall": "npx patch-package",
+    "build": "vite build",
     "lint": "eslint .",
     "test": "vitest",
     "preview": "vite preview",

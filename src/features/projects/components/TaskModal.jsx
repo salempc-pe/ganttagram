@@ -9,12 +9,13 @@ import { useMilestones } from '../../projects/hooks/useMilestones';
 import { useTasks } from '../../tasks/hooks/useTasks';
 import { calculateAutoSchedule, snapToPredecessors } from '../../tasks/utils/scheduler';
 import { getDescendantIds, isParentTask } from '../../tasks/utils/hierarchy';
-import { format, addDays, startOfDay } from 'date-fns';
+import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { adjustToWorkingDay, getWorkingDuration, addWorkingDays } from '../../../shared/utils/calendar';
+import { getWorkingDuration, addWorkingDays } from '../../../shared/utils/calendar';
 import { hasCycle } from '../../tasks/utils/cycles';
 import { MessageSquare, Send } from 'lucide-react';
 import { useComments } from '../../tasks/hooks/useComments';
+import { ConfirmModal } from '../../../shared/components/ConfirmModal';
 import './TaskModal.css';
 
 export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = null, calendar = null }) => {
@@ -56,6 +57,7 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
 
     const { comments, loading: commentsLoading, addComment } = useComments(projectId, initialData?.id);
     const [commentText, setCommentText] = useState('');
+    const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -116,23 +118,19 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
         };
     }, [isOpen, initialData, categories, projectId, calendar]);
 
-    const handleDelete = async () => {
+    const handleDelete = () => {
         if (!initialData) return;
+        setIsConfirmDeleteOpen(true);
+    };
 
-        const hasChildren = isParentTask(initialData.id, tasks);
-        const confirmMessage = hasChildren
-            ? "⚠️ Esta es una tarea principal. Si la eliminas, se borrarán TAMBIÉN todas sus subtareas.\n\n¿Estás seguro de continuar?"
-            : "¿Estás seguro de que deseas eliminar esta tarea?";
-
-        if (window.confirm(confirmMessage)) {
-            setLoading(true);
-            const result = await deleteTask(initialData.id);
-            setLoading(false);
-            if (result.success) {
-                onClose();
-            } else {
-                alert('Error al eliminar: ' + result.error);
-            }
+    const confirmDeleteAction = async () => {
+        setLoading(true);
+        const result = await deleteTask(initialData.id);
+        setLoading(false);
+        if (result.success) {
+            onClose();
+        } else {
+            alert('Error al eliminar: ' + result.error);
         }
     };
 
@@ -183,6 +181,37 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
         'SS': 'I-I',
         'FF': 'F-F',
         'SF': 'I-F'
+    };
+
+    const getConflictTaskForResource = (resourceId) => {
+        if (!formData.startDate || !formData.endDate) return null;
+
+        const currentStart = new Date(formData.startDate + 'T00:00:00');
+        const currentEnd = new Date(formData.endDate + 'T23:59:59');
+
+        const parseDate = (dateVal) => {
+            if (!dateVal) return null;
+            if (typeof dateVal.toDate === 'function') return dateVal.toDate();
+            if (dateVal.seconds !== undefined) return new Date(dateVal.seconds * 1000);
+            const d = new Date(dateVal);
+            return isNaN(d.getTime()) ? null : d;
+        };
+
+        for (const t of tasks) {
+            if (initialData && t.id === initialData.id) continue;
+
+            if (t.resources && t.resources.includes(resourceId) && t.startDate && t.endDate) {
+                const tStart = parseDate(t.startDate);
+                const tEnd = parseDate(t.endDate);
+
+                if (tStart && tEnd) {
+                    if (currentStart <= tEnd && tStart <= currentEnd) {
+                        return t;
+                    }
+                }
+            }
+        }
+        return null;
     };
 
     const toggleResource = (resourceId) => {
@@ -238,11 +267,6 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
             }
         }
 
-        const currentDuration = getWorkingDuration(
-            new Date(formData.startDate + 'T00:00:00'),
-            new Date(formData.endDate + 'T00:00:00'),
-            calendar
-        );
 
         // Si estamos editando, guardar en DB
         if (initialData) {
@@ -380,6 +404,16 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
 
         if (!formData.name.trim()) return;
         if (isNewCategoryMode && !newCategoryName.trim()) return;
+
+        // Validar que los recursos asignados no estén en conflicto de fechas
+        for (const resId of formData.resources) {
+            const conflictTask = getConflictTaskForResource(resId);
+            if (conflictTask) {
+                const resourceObj = resources.find(r => r.id === resId);
+                alert(`No se puede guardar la tarea: El recurso "${resourceObj ? resourceObj.name : 'Asignado'}" ya está ocupado por la tarea "${conflictTask.name}" en el rango de fechas seleccionado.`);
+                return;
+            }
+        }
 
         setLoading(true);
 
@@ -734,19 +768,33 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                                         </div>
                                     ) : (
                                         <div className="resources-chips">
-                                            {resources.map(res => (
-                                                <div
-                                                    key={res.id}
-                                                    className={`resource-chip ${formData.resources.includes(res.id) ? 'active' : ''}`}
-                                                    onClick={() => toggleResource(res.id)}
-                                                    style={{
-                                                        '--res-color': res.color || '#3b82f6',
-                                                    }}
-                                                >
-                                                    <User size={14} />
-                                                    <span>{res.name}</span>
-                                                </div>
-                                            ))}
+                                            {resources.map(res => {
+                                                const conflictTask = getConflictTaskForResource(res.id);
+                                                const isSelected = formData.resources.includes(res.id);
+                                                return (
+                                                    <div
+                                                        key={res.id}
+                                                        className={`resource-chip ${isSelected ? 'active' : ''} ${conflictTask ? 'disabled' : ''}`}
+                                                        onClick={() => {
+                                                            if (!conflictTask) {
+                                                                toggleResource(res.id);
+                                                            }
+                                                        }}
+                                                        style={{
+                                                            '--res-color': res.color || '#3b82f6',
+                                                        }}
+                                                        title={conflictTask ? `Ocupado en estas fechas por la tarea: "${conflictTask.name}"` : undefined}
+                                                    >
+                                                        <User size={14} />
+                                                        <span>{res.name}</span>
+                                                        {conflictTask && (
+                                                            <span style={{ fontSize: '9px', backgroundColor: '#ef444420', color: '#dc2626', padding: '1px 5px', borderRadius: '3px', fontWeight: 'bold', marginLeft: '4px' }}>
+                                                                Ocupado
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>
@@ -938,6 +986,17 @@ export const TaskModal = ({ isOpen, onClose, onSubmit, projectId, initialData = 
                     </div>
                 )}
             </div>
+            <ConfirmModal
+                isOpen={isConfirmDeleteOpen}
+                onClose={() => setIsConfirmDeleteOpen(false)}
+                onConfirm={confirmDeleteAction}
+                title="¿Eliminar Tarea?"
+                message={initialData && isParentTask(initialData.id, tasks)
+                    ? "⚠️ Esta es una tarea principal. Si la eliminas, se borrarán TAMBIÉN todas sus subtareas. ¿Estás seguro de continuar?"
+                    : "¿Estás seguro de que deseas eliminar esta tarea?"}
+                confirmText="Eliminar"
+                variant="danger"
+            />
         </div>
     );
 };

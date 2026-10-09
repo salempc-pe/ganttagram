@@ -1,7 +1,6 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Calendar, Plus, Flag, ChevronLeft, AlertTriangle, X, List, Layout, Users, Settings, Database } from 'lucide-react';
-import { format, startOfDay, endOfDay } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { startOfDay, endOfDay } from 'date-fns';
 import { isWorkingDay, adjustToWorkingDay, getWorkingDuration, addWorkingDays } from '../../../shared/utils/calendar';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
@@ -25,7 +24,6 @@ import { useProjectPermissions } from '../hooks/useProjectPermissions';
 import { ViewMode } from 'gantt-task-react';
 import { LoadingScreen } from '../../../shared/components/LoadingScreen';
 import { useTheme } from '../../../shared/context/ThemeContext';
-import { useAuth } from '../../auth/AuthContext';
 import { ConfirmModal } from '../../../shared/components/ConfirmModal';
 import './ProjectPage.css';
 
@@ -40,7 +38,6 @@ const CalendarSettings = lazy(() => import('../components/CalendarSettings').the
 
 export const ProjectPage = () => {
     const { theme } = useTheme();
-    const { user } = useAuth();
     const isDark = theme === 'dark';
     const { projectId } = useParams();
     const navigate = useNavigate();
@@ -58,9 +55,46 @@ export const ProjectPage = () => {
     const [editingMilestone, setEditingMilestone] = useState(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isConfirmDeleteProjectOpen, setIsConfirmDeleteProjectOpen] = useState(false);
+    const [isConfirmDeleteResourceOpen, setIsConfirmDeleteResourceOpen] = useState(false);
+    const [resourceToDeleteId, setResourceToDeleteId] = useState(null);
     
-    // Estado para ocultar cabecera/botones al hacer scroll en móvil en el Gantt
+    // Estado para ocultar la cabecera al hacer scroll — funciona en TODAS las pestañas
     const [isScrolled, setIsScrolled] = useState(false);
+    // Usamos un callback ref para registrar el listener en cuanto el DOM esté disponible
+    const mainRef = useRef(null);
+    const scrollListenerRef = useRef(null);
+
+    const registerScrollListener = useRef((el) => {
+        if (!el || scrollListenerRef.current) return; // ya registrado o sin elemento
+        let ticking = false;
+        const onScroll = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                setIsScrolled(el.scrollTop > 20);
+                ticking = false;
+            });
+        };
+        el.addEventListener('scroll', onScroll, { passive: true });
+        scrollListenerRef.current = () => el.removeEventListener('scroll', onScroll);
+    }).current;
+
+    // Callback ref: se invoca automáticamente cuando el <main> se monta en el DOM
+    const mainCallbackRef = useRef(null);
+    mainCallbackRef.current = (el) => {
+        mainRef.current = el;
+        registerScrollListener(el);
+    };
+
+    useEffect(() => {
+        // Cleanup del listener al desmontar el componente
+        return () => {
+            if (scrollListenerRef.current) {
+                scrollListenerRef.current();
+                scrollListenerRef.current = null;
+            }
+        };
+    }, []);
 
     const { tasks, addTask, updateTask, updateTasksBatch } = useTasks(projectId);
     const { updateProject, deleteProject } = useProjects();
@@ -68,7 +102,7 @@ export const ProjectPage = () => {
     const { dependencies } = useDependencies(projectId);
     const { resources, loading: resourcesLoading, addResource, updateResource, deleteResource } = useResources(projectId);
     const { categories, addCategory, updateCategory, deleteCategory } = useCategories(projectId);
-    const { canEdit, isOwner } = useProjectPermissions(projectId);
+    const { canEdit } = useProjectPermissions(projectId);
 
     useEffect(() => {
         const fetchProject = async () => {
@@ -242,6 +276,10 @@ export const ProjectPage = () => {
                     const endChanged = Math.abs(rawEnd.getTime() - origEnd.getTime()) > (1000 * 60 * 1);
                     const isDragMove = startChanged && endChanged;
 
+                    if (startChanged && !endChanged) {
+                        return;
+                    }
+
                     // Ajustar inicio si cae en día no laborable SIEMPRE
                     if (!isWorkingDay(start, project.calendar)) {
                         start = adjustToWorkingDay(start, project.calendar, 1);
@@ -332,9 +370,15 @@ export const ProjectPage = () => {
         setIsResourceModalOpen(true);
     };
 
-    const handleDeleteResource = async (resourceId) => {
-        if (window.confirm('¿Estás seguro de que quieres eliminar este recurso?')) {
-            await deleteResource(resourceId);
+    const handleDeleteResource = (resourceId) => {
+        setResourceToDeleteId(resourceId);
+        setIsConfirmDeleteResourceOpen(true);
+    };
+
+    const confirmDeleteResourceAction = async () => {
+        if (resourceToDeleteId) {
+            await deleteResource(resourceToDeleteId);
+            setResourceToDeleteId(null);
         }
     };
 
@@ -342,7 +386,7 @@ export const ProjectPage = () => {
     if (!project) return <div className="flex justify-center p-8">Proyecto no encontrado</div>;
 
     return (
-        <div className={`project-layout ${isScrolled && activeTab === 'gantt' ? 'is-scrolled' : ''}`}>
+        <div className={`project-layout ${isScrolled ? 'is-scrolled' : ''}`}>
             <MobileHeader
                 projectName={project.name}
                 onMenuClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -414,74 +458,76 @@ export const ProjectPage = () => {
                 <ProjectSidebar activeTab={activeTab} onTabChange={setActiveTab} />
             </div>
 
-            <main className="project-main">
-                <ProjectHeader
-                    project={project}
-                    tasks={tasks}
-                    resources={resources}
-                    milestones={milestones}
-                >
-                    {activeTab === 'gantt' && (
-                        <>
-                            {/* Grupo izquierdo: View Selector */}
-                            <div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    {[
-                                        { mode: ViewMode.Day, label: 'DÍA' },
-                                        { mode: ViewMode.Week, label: 'SEMANA' },
-                                        { mode: ViewMode.Month, label: 'MES' },
-                                    ].map(({ mode, label }) => (
+            <main className="project-main" ref={(el) => mainCallbackRef.current(el)}>
+                <div className="project-header-container">
+                    <ProjectHeader
+                        project={project}
+                        tasks={tasks}
+                        resources={resources}
+                        milestones={milestones}
+                    >
+                        {activeTab === 'gantt' && (
+                            <>
+                                {/* Grupo izquierdo: View Selector */}
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        {[
+                                            { mode: ViewMode.Day, label: 'DÍA' },
+                                            { mode: ViewMode.Week, label: 'SEMANA' },
+                                            { mode: ViewMode.Month, label: 'MES' },
+                                        ].map(({ mode, label }) => (
+                                            <button
+                                                key={label}
+                                                style={{
+                                                    padding: '8px 16px',
+                                                    borderRadius: '8px',
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: 700,
+                                                    letterSpacing: '0.06em',
+                                                    textTransform: 'uppercase',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.15s ease',
+                                                    border: 'none',
+                                                    fontFamily: 'var(--font-title)',
+                                                    ...(viewMode === mode
+                                                        ? { backgroundColor: isDark ? '#1e293b' : '#e2e8f0', color: isDark ? '#e2e8f0' : '#0f172a' }
+                                                        : { backgroundColor: 'transparent', color: '#64748b' }
+                                                    ),
+                                                }}
+                                                onClick={() => setViewMode(mode)}
+                                            >
+                                                {label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Grupo derecho: Botones de acción */}
+                                {canEdit && (
+                                    <div className="flex gap-3">
                                         <button
-                                            key={label}
-                                            style={{
-                                                padding: '8px 16px',
-                                                borderRadius: '8px',
-                                                fontSize: '0.8rem',
-                                                fontWeight: 700,
-                                                letterSpacing: '0.06em',
-                                                textTransform: 'uppercase',
-                                                cursor: 'pointer',
-                                                transition: 'all 0.15s ease',
-                                                border: 'none',
-                                                fontFamily: 'var(--font-title)',
-                                                ...(viewMode === mode
-                                                    ? { backgroundColor: isDark ? '#1e293b' : '#e2e8f0', color: isDark ? '#e2e8f0' : '#0f172a' }
-                                                    : { backgroundColor: 'transparent', color: '#64748b' }
-                                                ),
-                                            }}
-                                            onClick={() => setViewMode(mode)}
+                                            className="btn-add-milestone whitespace-nowrap"
+                                            onClick={() => { setEditingMilestone(null); setIsMilestoneModalOpen(true); }}
                                         >
-                                            {label}
+                                            <Flag size={14} /> <span>Hito</span>
                                         </button>
-                                    ))}
-                                </div>
-                            </div>
+                                        <button
+                                            className="btn-add-task whitespace-nowrap"
+                                            onClick={() => { setEditingTask(null); setIsTaskModalOpen(true); }}
+                                        >
+                                            <Plus size={14} /> <span>Tarea</span>
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </ProjectHeader>
+                </div>
 
-                            {/* Grupo derecho: Botones de acción */}
-                            {canEdit && (
-                                <div className="flex gap-3">
-                                    <button
-                                        className="btn-add-milestone whitespace-nowrap"
-                                        onClick={() => { setEditingMilestone(null); setIsMilestoneModalOpen(true); }}
-                                    >
-                                        <Flag size={14} /> <span>Hito</span>
-                                    </button>
-                                    <button
-                                        className="btn-add-task whitespace-nowrap"
-                                        onClick={() => { setEditingTask(null); setIsTaskModalOpen(true); }}
-                                    >
-                                        <Plus size={14} /> <span>Tarea</span>
-                                    </button>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </ProjectHeader>
-
-                <div className="project-content" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <div className="project-content">
                     <Suspense fallback={<LoadingScreen />}>
                         {activeTab === 'gantt' && (
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ flex: '1 0 auto', display: 'flex', flexDirection: 'column' }}>
                                 {/* Mobile View Controls */}
                                 <div
                                     className="mobile-only flex items-center justify-between p-2 overflow-x-auto shrink-0 mobile-view-controls"
@@ -599,27 +645,6 @@ export const ProjectPage = () => {
                                 />
                             </div>
                         )}
-                        {activeTab === 'recursos' && (
-                            <div className="animate-in flex flex-col gap-12 pb-12 tab-container-scroll" style={{ padding: '1.5rem 1.5rem 4rem' }}>
-                                <ResourceList
-                                    resources={resources}
-                                    tasks={tasks}
-                                    loading={resourcesLoading}
-                                    onAdd={() => { setEditingResource(null); setIsResourceModalOpen(true); }}
-                                    onEdit={handleEditResource}
-                                    onDelete={handleDeleteResource}
-                                    canEdit={canEdit}
-                                />
-                                <CategoryManager
-                                    categories={categories}
-                                    tasks={tasks}
-                                    onAdd={addCategory}
-                                    onUpdate={updateCategory}
-                                    onDelete={deleteCategory}
-                                    canEdit={canEdit}
-                                />
-                            </div>
-                        )}
                         {activeTab === 'board' && (
                             <ProjectBoard
                                 tasks={tasks}
@@ -630,6 +655,28 @@ export const ProjectPage = () => {
                                 }}
                                 canEdit={canEdit}
                             />
+                        )}
+                        {activeTab === 'recursos' && (
+                            <div className="animate-in flex flex-col gap-12 pb-12 tab-container-scroll" style={{ padding: '1.5rem 1.5rem 4rem' }}>
+                                <ResourceList
+                                    resources={resources}
+                                    tasks={tasks}
+                                    loading={resourcesLoading}
+                                    onAdd={() => { setEditingResource(null); setIsResourceModalOpen(true); }}
+                                    onEdit={handleEditResource}
+                                    onDelete={handleDeleteResource}
+                                    canEdit={canEdit}
+                                    projectId={projectId}
+                                />
+                                <CategoryManager
+                                    categories={categories}
+                                    tasks={tasks}
+                                    onAdd={addCategory}
+                                    onUpdate={updateCategory}
+                                    onDelete={deleteCategory}
+                                    canEdit={canEdit}
+                                />
+                            </div>
                         )}
                         {activeTab === 'team' && (
                             <div className="tab-container-scroll" style={{ padding: '1.5rem 1.5rem 4rem', display: 'flex', flexDirection: 'column' }}>
@@ -732,6 +779,16 @@ export const ProjectPage = () => {
                     title="¿Eliminar Proyecto?"
                     message="¿Estás completamente seguro? Esta acción es definitiva y borrará todas las tareas, hitos, recursos y el historial de cambios permanentemente."
                     confirmText="Eliminar permanentemente"
+                    variant="danger"
+                />
+
+                <ConfirmModal
+                    isOpen={isConfirmDeleteResourceOpen}
+                    onClose={() => { setIsConfirmDeleteResourceOpen(false); setResourceToDeleteId(null); }}
+                    onConfirm={confirmDeleteResourceAction}
+                    title="¿Eliminar Recurso?"
+                    message="¿Estás seguro de que deseas eliminar este recurso del proyecto? Esta acción es definitiva."
+                    confirmText="Eliminar"
                     variant="danger"
                 />
             </main>

@@ -254,39 +254,152 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
     const ganttRef = useRef(null);
     const wrapperScrollRef = useRef(null);
 
-    // Estado para mostrar/ocultar la lista (en móvil empieza visible)
-    const [isListVisible, setIsListVisible] = useState(true);
-
-    // Añadir listener de scroll para ocultar elementos al bajar (para móviles)
+    // =========================================================
+    // DRAG TO SCROLL (Mouse Panning)
+    // =========================================================
     useEffect(() => {
-        const scrollContainer = wrapperScrollRef.current;
-        if (!scrollContainer || !onScrollStateChange) return;
+        const slider = wrapperScrollRef.current;
+        if (!slider) return;
 
-        let lastScrollTop = 0;
-        let ticking = false;
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        let scrollTarget = null;
 
-        const handleScroll = () => {
-            lastScrollTop = scrollContainer.scrollTop;
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    // Si el scroll supera los 20px, consideramos que está "scrolled"
-                    const isScrolled = lastScrollTop > 20;
-                    onScrollStateChange(isScrolled);
-                    ticking = false;
-                });
-                ticking = true;
+        // Función recursiva para ubicar el elemento que realmente tiene scroll horizontal
+        const findScrollContainer = (el) => {
+            if (!el) return null;
+            if (el.scrollWidth > el.clientWidth && el !== slider) {
+                const style = window.getComputedStyle(el);
+                if (style.overflowX === 'auto' || style.overflowX === 'scroll' || style.overflow === 'auto' || style.overflow === 'scroll') {
+                    return el;
+                }
             }
+            for (let i = 0; i < el.children.length; i++) {
+                const found = findScrollContainer(el.children[i]);
+                if (found) return found;
+            }
+            return null;
         };
 
-        // Escuchar el evento de scroll
-        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+        const handleMouseDown = (e) => {
+            // Resolver dinámicamente cuál es el contenedor de scroll del SVG
+            scrollTarget = findScrollContainer(slider) || slider;
+
+            // No activar el panning si se hace clic en botones, inputs, enlaces, o tareas interactivas del Gantt
+            const isInteractive = e.target.closest('.gantt-item-wrapper') || 
+                                  e.target.closest('button') || 
+                                  e.target.closest('input') || 
+                                  e.target.closest('a') ||
+                                  e.target.closest('.taskList');
+
+            const targetTag = e.target.tagName.toLowerCase();
+            const classList = e.target.className?.baseVal || e.target.className || '';
+            const isBarOrHandle = targetTag === 'rect' || targetTag === 'polygon' || classList.includes('bar') || classList.includes('handle');
+
+            if (isInteractive || isBarOrHandle) return;
+
+            isDown = true;
+            slider.style.cursor = 'grabbing';
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = scrollTarget.scrollLeft;
+        };
+
+        const handleMouseLeave = () => {
+            isDown = false;
+            slider.style.cursor = 'grab';
+        };
+
+        const handleMouseUp = () => {
+            isDown = false;
+            slider.style.cursor = 'grab';
+        };
+
+        const handleMouseMove = (e) => {
+            if (!isDown || !scrollTarget) return;
+            e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.5; // Ajuste de sensibilidad
+            scrollTarget.scrollLeft = scrollLeft - walk;
+        };
+
+        slider.addEventListener('mousedown', handleMouseDown);
+        slider.addEventListener('mouseleave', handleMouseLeave);
+        slider.addEventListener('mouseup', handleMouseUp);
+        slider.addEventListener('mousemove', handleMouseMove);
+
+        slider.style.cursor = 'grab';
 
         return () => {
-            scrollContainer.removeEventListener('scroll', handleScroll);
+            slider.removeEventListener('mousedown', handleMouseDown);
+            slider.removeEventListener('mouseleave', handleMouseLeave);
+            slider.removeEventListener('mouseup', handleMouseUp);
+            slider.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, []);
+
+
+    // Estado para mostrar/ocultar la lista
+    const [isListVisible, setIsListVisible] = useState(true);
+
+    // =========================================================
+    // STICKY HEADERS — Lógica 2D (Horizontal CSS + Vertical JS)
+    //
+    // .project-main es el ÚNICO elemento con overflow-y: auto.
+    // Aplicamos translateY de forma SÍNCRONA (sin rAF) para
+    // eliminar el jitter de 1 frame.
+    // Los elementos se buscan fresh en cada frame porque la
+    // librería gantt-task-react puede recrear sus SVGs.
+    // =========================================================
+    useEffect(() => {
+        const mainScroll = document.querySelector('.project-main');
+        if (!mainScroll) return;
+
+        let lastScrolled = null;
+
+        // Handler SÍNCRONO — se ejecuta en el mismo tick que el evento scroll
+        const handleScroll = () => {
+            if (!ganttRef.current) return;
+
+            const scrollTop = mainScroll.scrollTop;
+
+            // 1. Notificar al padre → colapsa el ProjectHeader con CSS
+            const isNowScrolled = scrollTop > 20;
+            if (isNowScrolled !== lastScrolled) {
+                lastScrolled = isNowScrolled;
+                if (onScrollStateChange) {
+                    onScrollStateChange(isNowScrolled);
+                }
+            }
+
+            // 2. Sticky vertical de las cabeceras del Gantt
+            //    Usamos getBoundingClientRect (síncrono, sin rAF)
+            //    para posicionamiento preciso que se adapta al
+            //    colapso del header automáticamente.
+            const mainTop = mainScroll.getBoundingClientRect().top;
+            const ganttTop = ganttRef.current.getBoundingClientRect().top;
+            const rawOffset = mainTop - ganttTop;
+            const translateY = Math.max(0, rawOffset);
+            const transformStr = `translateY(${translateY}px)`;
+
+            // Buscar elementos fresh cada frame (la librería puede recrearlos)
+            const listHeader = ganttRef.current.querySelector('.gantt-list-header-custom');
+            const calendarHeader = ganttRef.current.querySelector('[class*="_CZjuD"] > svg:first-child');
+
+            if (listHeader) listHeader.style.transform = transformStr;
+            if (calendarHeader) calendarHeader.style.transform = transformStr;
+        };
+
+        mainScroll.addEventListener('scroll', handleScroll, { passive: true });
+        // Disparo inicial por si la página carga con scroll > 0
+        handleScroll();
+
+        return () => {
+            mainScroll.removeEventListener('scroll', handleScroll);
         };
     }, [onScrollStateChange]);
 
-    // Actualizar visibilidad si cambia el tamaño de ventana
+    // Restaurar visibilidad de la lista al rotar a desktop
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth >= 768) setIsListVisible(true);
@@ -449,7 +562,7 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
             });
         };
 
-        const observer = new MutationObserver((mutations) => {
+        const observer = new MutationObserver(() => {
             adjustLabelColors();
         });
 
@@ -513,11 +626,10 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
     );
 
     return (
-        <div className="gantt-container-outer" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div className="gantt-container-outer">
             <div
                 ref={wrapperScrollRef}
                 className="gantt-scroll-container"
-                style={{ flex: 1, minHeight: 0, overflow: 'auto', position: 'relative' }}
             >
                 <div
                     ref={ganttRef}
@@ -536,13 +648,13 @@ export const GanttChart = ({ projectId, viewMode = ViewMode.Day, onDoubleClick, 
                         locale="es"
                         listCellWidth={window.innerWidth < 768 ? "160px" : "240px"}
                         columnWidth={viewMode === ViewMode.Day ? 64 : 110}
-                        headerHeight={45} // Reduced from 80
-                        rowHeight={48}    // Reduced from 52
+                        headerHeight={45}
+                        rowHeight={48}
                         barFill={70}
                         barCornerRadius={8}
                         handleWidth={10}
                         fontFamily="var(--font-main)"
-                        fontSize="13px"   // Increased from 12px
+                        fontSize="13px"
                         arrowColor="var(--text-tertiary)"
                         arrowIndent={20}
                         todayColor="rgba(99, 102, 241, 0.08)"
